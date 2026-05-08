@@ -14,7 +14,7 @@ export class Game extends Scene
     create ()
     {
         // 1. カードを作成 (x: 400, y: 300, 幅: 100, 高さ: 150)
-        // ここでは仮に白い長方形を作成します
+    for(let i = 0; i < 10; i++){
         const card = this.add.rectangle(400, 300, 100, 150, 0xffffff);
         
         // 縁取りを追加してカードっぽく
@@ -27,10 +27,23 @@ export class Game extends Scene
         this.input.setDraggable(card);
 
         // 4. ドラッグ中のイベントを設定
+        this.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Rectangle) => {
+            gameObject.setDepth(100);
+            gameObject.setScale(1.1);
+            gameObject.setAlpha(0.8);
+        });
+
         this.input.on('drag', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Rectangle, dragX: number, dragY: number) => {
             gameObject.x = dragX;
             gameObject.y = dragY;
         });
+
+        this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Rectangle) => {
+            gameObject.setDepth(1);
+            gameObject.setScale(1.0);
+            gameObject.setAlpha(1.0);
+        });
+    }
 
 
 
