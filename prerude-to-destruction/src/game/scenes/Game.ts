@@ -17,6 +17,7 @@ export class Game extends Scene
     for(let i = 0; i < 10; i++){
         const card = this.add.rectangle(400, 300, 100, 150, 0xffffff);
         card.setData('value', 10);
+        this.handCards.push(card);
         
         // 縁取りを追加してカードっぽく
         card.setStrokeStyle(2, 0x000000);
@@ -45,6 +46,9 @@ export class Game extends Scene
             gameObject.setAlpha(1.0);
         });
     }
+
+    this.updateHandLayout();
+
     const HPbar = this.add.rectangle(400, 100, 100, 10, 0x00ff00);
     HPbar.setOrigin(0, 0.5);
     HPbar.setAlpha(1.0);
@@ -92,7 +96,37 @@ export class Game extends Scene
         if (HPbar.getData('value') <= 0){
             this.scene.start('GameOver');
         }
+
+        this.handCards.splice(this.handCards.indexOf(gameObject), 1);
+        this.updateHandLayout();
     });
 
+    }
+
+    private handCards: Phaser.GameObjects.Rectangle[] = [];
+
+    updateHandLayout(){
+        const centerX = 400;
+        const centerY = 550;
+        const cardSpacing = Math.min(60, 400 / this.handCards.length);
+
+        this.handCards.forEach((card, index) => {
+            const offset = index - (this.handCards.length -1) /2;
+
+            const targetX = centerX + offset * cardSpacing;
+            const targetY = centerY + (Math.abs(offset) * 10);
+            const targetAngle = offset * 5;
+
+            this.add.tween({
+                targets: card,
+                x: targetX,
+                y: targetY,
+                angle: targetAngle,
+                duration: 200,
+                ease: 'Power2',
+            });
+
+            card.setDepth(100 + index);
+        });
     }
 }
