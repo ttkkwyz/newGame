@@ -30,18 +30,21 @@ export class Game extends Scene
 
         // 4. ドラッグ中のイベントを設定
         this.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Rectangle) => {
-            gameObject.setDepth(100);
+            gameObject.setDepth(1000);
             gameObject.setScale(1.1);
             gameObject.setAlpha(0.8);
         });
 
+        // ドラッグ中の処理
         this.input.on('drag', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Rectangle, dragX: number, dragY: number) => {
             gameObject.x = dragX;
             gameObject.y = dragY;
+            gameObject.setAngle(0);
         });
 
+        // ドラッグ終了時の処理
         this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Rectangle) => {
-            gameObject.setDepth(1);
+            // gameObject.setDepth(1);
             gameObject.setScale(1.0);
             gameObject.setAlpha(1.0);
         });
@@ -62,30 +65,37 @@ export class Game extends Scene
     HPbarText.setDepth(11);
     HPbarText.setAlpha(1.0);
 
-    const zone = this.add.zone(400, 500, 200, 250).setRectangleDropZone(200, 250);
+    const zone = this.add.zone(400, 200, 100, 150).setRectangleDropZone(100, 150);
 
     const graphics = this.add.graphics();
     graphics.lineStyle(2, 0xffff00);
     graphics.strokeRect(zone.x - zone.input!.hitArea!.width / 2, zone.y - zone.input!.hitArea!.height / 2, zone.input!.hitArea!.width, zone.input!.hitArea!.height);
 
+    // Zoneにドロップしたときの処理
     this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: any, dropZone: Phaser.GameObjects.Zone) => {
         gameObject.x = dropZone.x;
         gameObject.y = dropZone.y;
     });
 
+    // Zone外にドラッグしたときの処理
     this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: any, dropped: boolean) => {
         if (!dropped){
             gameObject.x = gameObject.input.dragStartX;
             gameObject.y = gameObject.input.dragStartY;
+            this.updateHandLayout();
         }
     });
 
+    // Zoneにドラッグしてきたときの処理
     this.input.on('dragenter', (pointer: Phaser.Input.Pointer, gameObject: any, dropZone: Phaser.GameObjects.Zone) => {
         graphics.clear();
         graphics.lineStyle(2, 0x00ff00);
         graphics.strokeRect(zone.x - zone.input!.hitArea!.width / 2, zone.y - zone.input!.hitArea!.height / 2, zone.input!.hitArea!.width, zone.input!.hitArea!.height);
     });
 
+    let depth = 1;
+
+    // Zoneにドロップしたときの効果処理
     this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: any, dropZone: Phaser.GameObjects.Zone) => {
         HPbar.setData('value', HPbar.getData('value') - gameObject.getData('value'));
         HPbarText.setText(HPbar.getData('value').toString());
@@ -97,14 +107,20 @@ export class Game extends Scene
             this.scene.start('GameOver');
         }
 
+        gameObject.setAngle(0);
+        gameObject.setDepth(depth);
+        depth++;
+        
         this.handCards.splice(this.handCards.indexOf(gameObject), 1);
         this.updateHandLayout();
     });
 
     }
 
+    // 手札のカードを管理する配列
     private handCards: Phaser.GameObjects.Rectangle[] = [];
 
+    // 手札のレイアウトを更新するメソッド
     updateHandLayout(){
         const centerX = 400;
         const centerY = 550;
