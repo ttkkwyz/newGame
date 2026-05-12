@@ -36,34 +36,70 @@ export class Game extends Scene
     });
 
     for(let i = 0; i < 10; i++){
-        const card = this.add.rectangle(400, 300, 100, 150, 0xffffff);
-        const valueText = this.add.text(400, 300, '10', { fontSize: '24px', color: '#000000' });
-        const container = this.add.container(400, 300);
-        container.add([card, valueText]);
-        container.setData('value', 10);
-        this.handCards.push(container);
-        
+        const container: Phaser.GameObjects.Container = this.add.container(400, 300);
+        const card = this.add.rectangle(0, 0, 100, 150, 0xffffff);
         card.setStrokeStyle(2, 0x000000);
+        card.setData('type', 'recovery');
+        card.setData('value', 10);
+        const valueText = this.add.text(
+            0, 0, card.getData('value').toString(), { 
+                fontSize: '24px', color: '#000000' 
+            }).setOrigin(0.5);
+        container.add([card, valueText]);
         card.setInteractive();
         this.input.setDraggable(card);
-        this.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container) => {
-            gameObject.setDepth(1000);
-            gameObject.setScale(1.1);
-            gameObject.setAlpha(0.8);
-        });
-        this.input.on('drag', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dragX: number, dragY: number) => {
-            gameObject.x = dragX;
-            gameObject.y = dragY;
-            gameObject.setAngle(0);
-        });
-        this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container) => {
-            // gameObject.setDepth(1);
-            gameObject.setScale(1.0);
-            gameObject.setAlpha(1.0);
-        });
-    }
 
+        this.handCards.push(container);
+    }
     this.updateHandLayout();
+
+        this.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container) => {
+            const container = gameObject.parentContainer;
+            if(container){
+                container.setDepth(1000);
+                container.setScale(1.1);
+                container.setAlpha(0.8);
+                container.setAngle(0);
+                container.setData('startX', container.x);
+                container.setData('startY', container.y);
+            }
+        });
+
+        this.input.on('drag', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dragX: number, dragY: number) => {
+            const container = gameObject.parentContainer;
+            if(container){
+                container.x = pointer.worldX;
+                container.y = pointer.worldY;
+            } else {
+                gameObject.x = pointer.worldX;
+                gameObject.y = pointer.worldY;
+            }
+        });
+        
+        this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dropped: boolean) => {
+            const container = gameObject.parentContainer;
+            if(container){
+                // container.setDepth(1);
+                container.setScale(1.0);
+                container.setAlpha(1.0);
+            }
+            if (!dropped){
+                const startX = container.getData('startX');
+                const startY = container.getData('startY');
+
+             this.add.tween({
+                targets: container,
+                x: startX,
+                y: startY,
+                duration: 200,
+                ease: 'Power2',
+                onComplete: () => {
+                    this.updateHandLayout();
+                }
+            })} else {
+                this.updateHandLayout();
+            }
+        });
 
     const HPbar = this.add.rectangle(400, 100, 100, 10, 0x00ff00);
     HPbar.setOrigin(0, 0.5);
@@ -84,21 +120,6 @@ export class Game extends Scene
     graphics.lineStyle(2, 0xffff00);
     graphics.strokeRect(zone.x - zone.input!.hitArea!.width / 2, zone.y - zone.input!.hitArea!.height / 2, zone.input!.hitArea!.width, zone.input!.hitArea!.height);
 
-    // Zoneにドロップしたときの処理
-    this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: any, dropZone: Phaser.GameObjects.Zone) => {
-        gameObject.x = dropZone.x;
-        gameObject.y = dropZone.y;
-    });
-
-    // Zone外にドラッグしたときの処理
-    this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: any, dropped: boolean) => {
-        if (!dropped){
-            gameObject.x = gameObject.input.dragStartX;
-            gameObject.y = gameObject.input.dragStartY;
-            this.updateHandLayout();
-        }
-    });
-
     // Zoneにドラッグしてきたときの処理
     this.input.on('dragenter', (pointer: Phaser.Input.Pointer, gameObject: any, dropZone: Phaser.GameObjects.Zone) => {
         graphics.clear();
@@ -106,10 +127,26 @@ export class Game extends Scene
         graphics.strokeRect(zone.x - zone.input!.hitArea!.width / 2, zone.y - zone.input!.hitArea!.height / 2, zone.input!.hitArea!.width, zone.input!.hitArea!.height);
     });
 
+    this.input.on('dragleave', (pointer: Phaser.Input.Pointer, gameObject: any, dropZone: Phaser.GameObjects.Zone) => {
+        graphics.clear();
+        graphics.lineStyle(2, 0xffff00);
+        graphics.strokeRect(zone.x - zone.input!.hitArea.width / 2, zone.y - zone.input!.hitArea.height / 2, zone.input!.hitArea.width, zone.input!.hitArea.height);
+    });
+
     let depth = 1;
 
     // Zoneにドロップしたときの効果処理
-    this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: any, dropZone: Phaser.GameObjects.Zone) => {
+    this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dropZone: Phaser.GameObjects.Zone) => {
+        const container = gameObject.parentContainer;
+        container.x = dropZone.x;
+        container.y = dropZone.y;
+        container.setAngle(0);
+
+        const index = this.handCards.indexOf(container);
+        if (index > -1){
+            this.handCards.splice(index, 1);
+        }
+        
         HPbar.setData('value', HPbar.getData('value') - gameObject.getData('value'));
         HPbarText.setText(HPbar.getData('value').toString());
 
@@ -123,9 +160,6 @@ export class Game extends Scene
         gameObject.setAngle(0);
         gameObject.setDepth(depth);
         depth++;
-
-        this.handCards.splice(this.handCards.indexOf(gameObject), 1);
-        this.updateHandLayout();
     });
 
     }
@@ -157,6 +191,7 @@ export class Game extends Scene
 
             card.setDepth(100 + index);
         });
+        console.log(this.handCards.length);
     }
 
     // デックを初期化するメソッド
@@ -195,15 +230,16 @@ export class Game extends Scene
         }).setOrigin(0.5);
 
         container.add([card, valuetext]);
-        container.setInteractive();
+        card.setInteractive();
         this.input.setDraggable(card);
 
-        this.input.on('drag', (pointer: any, gameObject: any, dragX: number, dragY: number) => {
-            if(gameObject === card){
-                container.x = dragX;
-                container.y = dragY;
-            }
-        });
+        // this.input.on('drag', (pointer: any, gameObject: Phaser.GameObjects.Container, dragX: number, dragY: number) => {
+        //     const container = gameObject.parentContainer;
+        //     if(container){
+        //         container.x = pointer.worldX;
+        //         container.y = pointer.worldY;
+        //     }
+        // });
         return container;
 
 
