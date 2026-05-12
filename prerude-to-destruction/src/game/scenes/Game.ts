@@ -1,4 +1,10 @@
 import { Scene } from 'phaser';
+import * as Phaser from 'phaser';
+
+interface CardData {
+    type: string;
+    value?: number;
+}
 
 export class Game extends Scene
 {
@@ -11,39 +17,46 @@ export class Game extends Scene
         super('Game');
     }
 
+    private deck: CardData[] = [];
+
     create ()
     {
-        // 1. カードを作成 (x: 400, y: 300, 幅: 100, 高さ: 150)
+
+    this.initializeDeck();
+
+    const deckVisual = this.add.rectangle(700, 500, 100, 150, 0x555555);
+    deckVisual.setInteractive();
+
+    deckVisual.on('pointerdown', () => {
+        const newCard = this.drawCard(700, 500);
+        if(newCard){
+            this.handCards.push(newCard);
+            this.updateHandLayout();
+        }
+    });
+
     for(let i = 0; i < 10; i++){
         const card = this.add.rectangle(400, 300, 100, 150, 0xffffff);
-        card.setData('value', 10);
-        this.handCards.push(card);
+        const valueText = this.add.text(400, 300, '10', { fontSize: '24px', color: '#000000' });
+        const container = this.add.container(400, 300);
+        container.add([card, valueText]);
+        container.setData('value', 10);
+        this.handCards.push(container);
         
-        // 縁取りを追加してカードっぽく
         card.setStrokeStyle(2, 0x000000);
-
-        // 2. インタラクティブ（操作可能）にする
         card.setInteractive();
-
-        // 3. ドラッグを有効にする
         this.input.setDraggable(card);
-
-        // 4. ドラッグ中のイベントを設定
-        this.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Rectangle) => {
+        this.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container) => {
             gameObject.setDepth(1000);
             gameObject.setScale(1.1);
             gameObject.setAlpha(0.8);
         });
-
-        // ドラッグ中の処理
-        this.input.on('drag', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Rectangle, dragX: number, dragY: number) => {
+        this.input.on('drag', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dragX: number, dragY: number) => {
             gameObject.x = dragX;
             gameObject.y = dragY;
             gameObject.setAngle(0);
         });
-
-        // ドラッグ終了時の処理
-        this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Rectangle) => {
+        this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container) => {
             // gameObject.setDepth(1);
             gameObject.setScale(1.0);
             gameObject.setAlpha(1.0);
@@ -110,7 +123,7 @@ export class Game extends Scene
         gameObject.setAngle(0);
         gameObject.setDepth(depth);
         depth++;
-        
+
         this.handCards.splice(this.handCards.indexOf(gameObject), 1);
         this.updateHandLayout();
     });
@@ -118,7 +131,7 @@ export class Game extends Scene
     }
 
     // 手札のカードを管理する配列
-    private handCards: Phaser.GameObjects.Rectangle[] = [];
+    private handCards: Phaser.GameObjects.Container[] = [];
 
     // 手札のレイアウトを更新するメソッド
     updateHandLayout(){
@@ -144,5 +157,55 @@ export class Game extends Scene
 
             card.setDepth(100 + index);
         });
+    }
+
+    // デックを初期化するメソッド
+    initializeDeck(){
+        const values = [5, 10, 15, 20];
+        this.deck = [];
+
+        values.forEach(value => {
+            for(let i = 0; i < 5; i++){
+                this.deck.push({
+                    type: 'recovery',
+                    value: value
+                });
+            }
+        });
+
+        Phaser.Utils.Array.Shuffle(this.deck);
+    }
+
+    drawCard(x: number, y: number){
+        if(this.deck.length === 0){
+            return;
+        }
+        const cardData = this.deck.pop()!;
+        
+        const container: Phaser.GameObjects.Container = this.add.container(x, y);
+
+        const card = this.add.rectangle(0, 0, 100, 150, 0xffffff);
+        card.setStrokeStyle(2, 0x000000);
+        card.setData('type', cardData.type);
+        card.setData('value', cardData.value);
+
+        const valuetext = this.add.text(0, 0, cardData.value!.toString(), {
+            fontSize: '24px',
+            color: '#000000'
+        }).setOrigin(0.5);
+
+        container.add([card, valuetext]);
+        container.setInteractive();
+        this.input.setDraggable(card);
+
+        this.input.on('drag', (pointer: any, gameObject: any, dragX: number, dragY: number) => {
+            if(gameObject === card){
+                container.x = dragX;
+                container.y = dragY;
+            }
+        });
+        return container;
+
+
     }
 }
