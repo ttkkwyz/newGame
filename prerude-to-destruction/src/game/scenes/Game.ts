@@ -8,9 +8,9 @@ interface CardData {
 
 export class Game extends Scene
 {
-    camera: Phaser.Cameras.Scene2D.Camera;
-    background: Phaser.GameObjects.Image;
-    msg_text : Phaser.GameObjects.Text;
+    // camera: Phaser.Cameras.Scene2D.Camera;
+    // background: Phaser.GameObjects.Image;
+    // msg_text : Phaser.GameObjects.Text;
 
     constructor ()
     {
@@ -238,6 +238,10 @@ export class Game extends Scene
         container.add([card, valuetext]);
         card.setInteractive();
         this.input.setDraggable(card);
+
+        if(this.deck.length === 0){
+            const emptyDeck = this.add.rectangle(700, 500, 100, 150, 0xeeeeee);
+        }
         return container;
 
 
