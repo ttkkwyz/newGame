@@ -243,17 +243,11 @@ export class Game extends Scene
         }
 
         if(dropZone === this.cpuTargetZone){
-            this.cpuHP.current -= container.getData('value');
-            this.updateHPLayout(this.cpuHP);
-            if (this.cpuHP.current <= 0){
-                this.scene.start('GameOver');
-            }
+            this.cpuHP.current += this.damageCalculation({type: container.getData('type'), value: container.getData('value')});
+            this.updateHPLayout(this.cpuHP);    
         } else if(dropZone === this.playerTargetZone){
-            this.playerHP.current -= container.getData('value');
+            this.playerHP.current += this.damageCalculation({type: container.getData('type'), value: container.getData('value')});
             this.updateHPLayout(this.playerHP);
-            if (this.playerHP.current <= 0){
-                this.scene.start('GameOver');
-            }
         // HPbar.setData('value', HPbar.getData('value') - gameObject.getData('value'));
         // HPbarText.setText(HPbar.getData('value').toString());
 
@@ -323,15 +317,19 @@ export class Game extends Scene
 
     // デックを初期化するメソッド
     initializeDeck(){
-        const values = [5, 10, 15, 20];
+        const allKindsOfCards: {CardData: CardData, NumberOfCards: number}[] = [
+            {CardData: {type: 'recovery', value: 5}, NumberOfCards: 10},
+            {CardData: {type: 'recovery', value: 10}, NumberOfCards: 16},
+            {CardData: {type: 'recovery', value: 15}, NumberOfCards: 14},
+            {CardData: {type: 'recovery', value: 20}, NumberOfCards: 6},
+            {CardData: {type: 'pollution', value: 10}, NumberOfCards: 5},
+            {CardData: {type: 'pollution', value: 15}, NumberOfCards: 5}
+        ];
         this.deck = [];
 
-        values.forEach(value => {
-            for(let i = 0; i < 5; i++){
-                this.deck.push({
-                    type: 'recovery',
-                    value: value
-                });
+        allKindsOfCards.forEach(cardData => {
+            for(let i = 0; i < cardData.NumberOfCards; i++){
+                this.deck.push(cardData.CardData);
             }
         });
 
@@ -353,7 +351,7 @@ export class Game extends Scene
 
         const valuetext = this.add.text(0, 0, cardData.value!.toString(), {
             fontSize: '24px',
-            color: '#000000'
+            color: cardData.type === 'recovery' ? '#000000' : '#ff0000'
         }).setOrigin(0.5);
 
         container.add([card, valuetext]);
@@ -396,5 +394,12 @@ export class Game extends Scene
             }
         })
         this.turnPlayer = (this.turnPlayer + 1) % 2 ;
+    }
+
+    damageCalculation(card: CardData){
+        if(card.value === undefined){
+            return 0;
+        }
+        return card.type === 'recovery' ? -card.value : card.value;
     }
 }
