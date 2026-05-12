@@ -27,6 +27,14 @@ export class Game extends Scene
     const deckVisual = this.add.rectangle(700, 500, 100, 150, 0x555555);
     deckVisual.setInteractive();
 
+    for(let i=0; i<5; i++){
+        const newCard = this.drawCard(700, 500);
+        if(newCard){
+            this.handCards.push(newCard);
+        }
+    }
+    this.updateHandLayout();
+
     deckVisual.on('pointerdown', () => {
         const newCard = this.drawCard(700, 500);
         if(newCard){
@@ -35,23 +43,23 @@ export class Game extends Scene
         }
     });
 
-    for(let i = 0; i < 10; i++){
-        const container: Phaser.GameObjects.Container = this.add.container(400, 300);
-        const card = this.add.rectangle(0, 0, 100, 150, 0xffffff);
-        card.setStrokeStyle(2, 0x000000);
-        card.setData('type', 'recovery');
-        card.setData('value', 10);
-        const valueText = this.add.text(
-            0, 0, card.getData('value').toString(), { 
-                fontSize: '24px', color: '#000000' 
-            }).setOrigin(0.5);
-        container.add([card, valueText]);
-        card.setInteractive();
-        this.input.setDraggable(card);
+    // for(let i = 0; i < 10; i++){
+    //     const container: Phaser.GameObjects.Container = this.add.container(400, 300);
+    //     const card = this.add.rectangle(0, 0, 100, 150, 0xffffff);
+    //     card.setStrokeStyle(2, 0x000000);
+    //     card.setData('type', 'recovery');
+    //     card.setData('value', 10);
+    //     const valueText = this.add.text(
+    //         0, 0, card.getData('value').toString(), { 
+    //             fontSize: '24px', color: '#000000' 
+    //         }).setOrigin(0.5);
+    //     container.add([card, valueText]);
+    //     card.setInteractive();
+    //     this.input.setDraggable(card);
 
-        this.handCards.push(container);
-    }
-    this.updateHandLayout();
+    //     this.handCards.push(container);
+    // }
+    // this.updateHandLayout();
 
         this.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container) => {
             const container = gameObject.parentContainer;
@@ -141,6 +149,8 @@ export class Game extends Scene
         container.x = dropZone.x;
         container.y = dropZone.y;
         container.setAngle(0);
+        container.setDepth(depth);
+        depth++;
 
         const index = this.handCards.indexOf(container);
         if (index > -1){
@@ -156,10 +166,6 @@ export class Game extends Scene
         if (HPbar.getData('value') <= 0){
             this.scene.start('GameOver');
         }
-
-        gameObject.setAngle(0);
-        gameObject.setDepth(depth);
-        depth++;
     });
 
     }
@@ -232,14 +238,6 @@ export class Game extends Scene
         container.add([card, valuetext]);
         card.setInteractive();
         this.input.setDraggable(card);
-
-        // this.input.on('drag', (pointer: any, gameObject: Phaser.GameObjects.Container, dragX: number, dragY: number) => {
-        //     const container = gameObject.parentContainer;
-        //     if(container){
-        //         container.x = pointer.worldX;
-        //         container.y = pointer.worldY;
-        //     }
-        // });
         return container;
 
 
