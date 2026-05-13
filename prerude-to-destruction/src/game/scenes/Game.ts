@@ -1,5 +1,6 @@
 import { Scene } from 'phaser';
 import * as Phaser from 'phaser';
+import { Card } from '../../objects/Card';
 
 interface CardData {
     type: string;
@@ -48,7 +49,8 @@ export class Game extends Scene
     deckVisual.setInteractive();
 
     for(let i=0; i<5; i++){
-        const newCard = this.drawCard(700, 500);
+        const newCard = this.drawCard(500, 400);
+        console.log(newCard);
         if(newCard){
             this.playerHandCards.push(newCard);
         }
@@ -336,32 +338,37 @@ export class Game extends Scene
         Phaser.Utils.Array.Shuffle(this.deck);
     }
 
+    // const newCard = new Card(this, x, y, cardData);
+    // this.playerHandCards.push(newCard);
+
     drawCard(x: number, y: number){
         if(this.deck.length === 0){
             return;
         }
         const cardData = this.deck.pop()!;
+        const newCard = new Card(this, x, y, cardData);
         
-        const container: Phaser.GameObjects.Container = this.add.container(x, y);
+        // const container: Phaser.GameObjects.Container = this.add.container(x, y);
 
-        const card = this.add.rectangle(0, 0, 100, 150, 0xffffff);
-        card.setStrokeStyle(2, 0x000000);
-        container.setData('type', cardData.type);
-        container.setData('value', cardData.value);
+        // const card = this.add.rectangle(0, 0, 100, 150, 0xffffff);
+        // card.setStrokeStyle(2, 0x000000);
+        // container.setData('type', cardData.type);
+        // container.setData('value', cardData.value);
 
-        const valuetext = this.add.text(0, 0, cardData.value!.toString(), {
-            fontSize: '24px',
-            color: cardData.type === 'recovery' ? '#000000' : '#ff0000'
-        }).setOrigin(0.5);
+        // const valuetext = this.add.text(0, 0, cardData.value!.toString(), {
+        //     fontSize: '24px',
+        //     color: cardData.type === 'recovery' ? '#000000' : '#ff0000'
+        // }).setOrigin(0.5);
 
-        container.add([card, valuetext]);
-        card.setInteractive();
-        this.input.setDraggable(card);
+        // container.add([card, valuetext]);
+        // card.setInteractive();
+        // this.input.setDraggable(card);
 
         if(this.deck.length === 0){
             const emptyDeck = this.add.rectangle(500, 400, 100, 150, 0xeeeeee);
         }
-        return container;
+        // return container;
+        return newCard;
     }
 
     updateHPLayout(HP: HP){
@@ -386,7 +393,7 @@ export class Game extends Scene
             duration: 500,
             ease: 'Power2',
             onComplete: () => {
-                this.playerHP.current -= targetCard.getData('value');
+                this.playerHP.current += this.damageCalculation({ type: targetCard.getData('type'), value: targetCard.getData('value')});
                 this.updateHPLayout(this.playerHP);
                 this.trash.push(targetCard);
                 this.cpuHandCards.splice(0, 1);
