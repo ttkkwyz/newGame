@@ -58,13 +58,13 @@ export class Game extends Scene
     deckVisual.setInteractive();
 
     for(let i=0; i<5; i++){
-        const newCard = this.drawCard(500, 400);
+        const newCard = this.drawCard(500, 400, true);
         if(newCard){
             this.playerHandCards.push(newCard);
         }
     }
     for(let i=0; i<5; i++){
-        const newCard = this.drawCard(500, 400);
+        const newCard = this.drawCard(500, 400, false);
         if(newCard){
             this.cpuHandCards.push(newCard);
         }
@@ -73,7 +73,7 @@ export class Game extends Scene
     this.updateHandLayout(this.cpuHandCards);
 
     deckVisual.on('pointerdown', () => {
-        const newCard = this.drawCard(700, 500);
+        const newCard = this.drawCard(700, 500, true);
         if(newCard){
             this.playerHandCards.push(newCard);
         }
@@ -223,7 +223,7 @@ export class Game extends Scene
         
         for(const p of this.Players){
             const cardData = this.earth.pop()!;
-            const newCard = new Card(this, 500, 400, cardData);
+            const newCard = new Card(this, 500, 400, cardData, false);
             const targetZone = p === 'player' ? this.playerTargetZone : this.cpuTargetZone;
             const targetHP = cardData.value!;
             p === 'player' ? this.playerStatus.updateStatusWindow(targetHP) : this.cpuStatus.updateStatusWindow(targetHP);
@@ -263,27 +263,19 @@ export class Game extends Scene
     }
 
     // カードを引く
-    drawCard(x: number, y: number){
+    drawCard(x: number, y: number, isPlayer: boolean){
         if(this.deck.length === 0){
+            const emptyDeck = this.add.rectangle(500, 400, 100, 150, 0xeeeeee);
             return;
         }
         const cardData = this.deck.pop()!;
-        const newCard = new Card(this, x, y, cardData);
-
-        if(this.deck.length === 0){
-            const emptyDeck = this.add.rectangle(500, 400, 100, 150, 0xeeeeee);
-        }
-        // if(this.turnPlayer === 0){
-        //     this.playerStatus.updateHandInfo(this.playerHandCards.length);
-        // } else {
-        //     this.cpuStatus.updateHandInfo(this.cpuHandCards.length);
-        // }
+        const newCard = new Card(this, x, y, cardData, isPlayer);
         return newCard;
     }
 
     // CPUAI
     cpuTurn(){
-        const newCard = this.drawCard(500, 400);
+        const newCard = this.drawCard(500, 400, false);
         if(newCard){
             this.cpuHandCards.push(newCard);
         }

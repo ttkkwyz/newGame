@@ -6,7 +6,7 @@ interface CardData {
 }
 
 export class Card extends Phaser.GameObjects.Container {
-    constructor(scene: Phaser.Scene, x: number, y: number, cardData: CardData) {
+    constructor(scene: Phaser.Scene, x: number, y: number, cardData: CardData, isPlayer: boolean) {
 
         super(scene, x, y);
 
@@ -21,12 +21,13 @@ export class Card extends Phaser.GameObjects.Container {
         this.setData('type', cardData.type);
         this.setData('value', cardData.value);
 
-        cardBg.setInteractive();
-        scene.input.setDraggable(cardBg);
+        if(isPlayer){
+            cardBg.setInteractive();
+            scene.input.setDraggable(cardBg);
+        }
 
         this.add([cardBg, text]);
         
-        // scene.add.existing(cardBg);
         scene.add.existing(this);
     }
 }
