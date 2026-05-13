@@ -171,6 +171,7 @@ export class Game extends Scene
             const newHP = this.playerStatus.getData('HP') + this.damageCalculation({type: container.getData('type'), value: container.getData('value')});
             this.playerStatus.updateStatusWindow(newHP);
         }
+        // this.playerStatus.updateHandInfo(this.playerHandCards.length);
         this.turnPlayer = (this.turnPlayer + 1) % 2 ;
         this.cpuTurn();
     });
@@ -200,6 +201,11 @@ export class Game extends Scene
 
             card.setDepth(100 + index);
         });
+        if(handCards == this.playerHandCards){
+            this.playerStatus.updateHandInfo(handCards.length);
+        } else {
+            this.cpuStatus.updateHandInfo(handCards.length);
+        }
     }
 
     // 環境破壊レベルカード配布
@@ -267,6 +273,11 @@ export class Game extends Scene
         if(this.deck.length === 0){
             const emptyDeck = this.add.rectangle(500, 400, 100, 150, 0xeeeeee);
         }
+        // if(this.turnPlayer === 0){
+        //     this.playerStatus.updateHandInfo(this.playerHandCards.length);
+        // } else {
+        //     this.cpuStatus.updateHandInfo(this.cpuHandCards.length);
+        // }
         return newCard;
     }
 
@@ -292,6 +303,7 @@ export class Game extends Scene
                 this.trash.push(targetCard);
                 this.cpuHandCards.splice(0, 1);
                 this.updateHandLayout(this.cpuHandCards);
+                // this.cpuStatus.updateHandInfo(this.cpuHandCards.length);
             }
         })
         this.turnPlayer = (this.turnPlayer + 1) % 2 ;
