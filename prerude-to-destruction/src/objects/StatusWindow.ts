@@ -2,10 +2,9 @@ import * as Phaser from 'phaser';
 
 export class StatusWindow extends Phaser.GameObjects.Container {
     private nameText: Phaser.GameObjects.Text;
-    private fixedText: Phaser.GameObjects.Text;
+    // private fixedText: Phaser.GameObjects.Text;
     private HPText: Phaser.GameObjects.Text;
     private handInfo: Phaser.GameObjects.Text;
-    private handNumber: number;
 
     constructor(scene: Phaser.Scene, x: number, y: number, name: string) {
         
@@ -14,14 +13,24 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         const bg = scene.add.rectangle(0, 0, 200, 100, 0x000000, 0.5);
 
         this.nameText = scene.add.text(-90, -40, name, { fontSize: '18px' });
-        this.fixedText = scene.add.text(-90, -20, '環境破壊レベル：', { fontSize: '16px', color: '#000000' });
+        const fixedText = scene.add.text(-90, -20, '環境破壊レベル：', { fontSize: '16px', color: '#000000' });
+        const fixedText2 = scene.add.text(-70, 0, '✕', { fontSize: '16px', color: '#000000' });
+        
         this.HPText = scene.add.text(40, -22, '', { fontSize: '18px', color: '#000000' });
-        this.handInfo = scene.add.text(-90, 0, '5', { fontSize: '18px', color: '#000000' });
+        this.handInfo = scene.add.text(-55, -1, '5', { fontSize: '18px', color: '#000000' });
+
+        const cardIcon = scene.add.graphics();
+        cardIcon.setPosition(-80, 6);
+        cardIcon.fillStyle(0xffffff, 1);
+        cardIcon.fillRoundedRect(-10, -10, 16, 22, 3);
+        cardIcon.lineStyle(1, 0x000000, 1);
+        cardIcon.strokeRoundedRect(-10, -10, 16, 22, 3);
 
         this.setData('HP', 0);
-        this.add([bg, this.nameText, this.fixedText, this.HPText, this.handInfo]);
+        this.add([bg, this.nameText, fixedText, fixedText2, this.HPText, this.handInfo, cardIcon]);
 
         scene.add.existing(this);
+
     }
 
     updateStatusWindow(HP: number){
