@@ -1,17 +1,11 @@
 import { Scene } from 'phaser';
 import * as Phaser from 'phaser';
 import { Card } from '../../objects/Card';
+import { StatusWindow } from '../../objects/StatusWindow';
 
 interface CardData {
     type: string;
     value?: number;
-}
-
-interface HP {
-    current: number;
-    max: number;
-    text: Phaser.GameObjects.Text;
-    bar: Phaser.GameObjects.Rectangle;
 }
 
 export class Game extends Scene
@@ -27,13 +21,18 @@ export class Game extends Scene
 
     private deck: CardData[] = [];
     private trash: CardData[] = [];
+    private earth: CardData[] = [];
 
     private turnPlayer: number = 0;
 
     private playerTargetZone: Phaser.GameObjects.Zone;
     private cpuTargetZone: Phaser.GameObjects.Zone;
-    private playerHP: HP;
-    private cpuHP: HP;
+    // private playerHP: number;
+    // private cpuHP: number;
+    private playerStatus: StatusWindow;
+    private cpuStatus: StatusWindow;
+
+    private Players:string[] = [];
 
     // 手札のカードを管理する配列
     // private handCards: Phaser.GameObjects.Container[] = [];
@@ -43,6 +42,16 @@ export class Game extends Scene
     create ()
     {
 
+    this.Players = ['player', 'cpu'];
+        
+    this.cpuTargetZone = this.add.zone(100, 200, 100, 150).setRectangleDropZone(100, 150);
+    this.playerTargetZone = this.add.zone(900, 550, 100, 150).setRectangleDropZone(100, 150);
+    
+    this.playerStatus =  new StatusWindow(this, 900, 400, 'Player');
+    this.cpuStatus = new StatusWindow(this, 100, 300, 'CPU');
+
+    this.dealTheEarth();
+
     this.initializeDeck();
 
     const deckVisual = this.add.rectangle(500, 400, 100, 150, 0x555555);
@@ -50,7 +59,6 @@ export class Game extends Scene
 
     for(let i=0; i<5; i++){
         const newCard = this.drawCard(500, 400);
-        console.log(newCard);
         if(newCard){
             this.playerHandCards.push(newCard);
         }
@@ -71,24 +79,6 @@ export class Game extends Scene
         }
         this.updateHandLayout(this.playerHandCards);
     });
-
-    // for(let i = 0; i < 10; i++){
-    //     const container: Phaser.GameObjects.Container = this.add.container(400, 300);
-    //     const card = this.add.rectangle(0, 0, 100, 150, 0xffffff);
-    //     card.setStrokeStyle(2, 0x000000);
-    //     card.setData('type', 'recovery');
-    //     card.setData('value', 10);
-    //     const valueText = this.add.text(
-    //         0, 0, card.getData('value').toString(), { 
-    //             fontSize: '24px', color: '#000000' 
-    //         }).setOrigin(0.5);
-    //     container.add([card, valueText]);
-    //     card.setInteractive();
-    //     this.input.setDraggable(card);
-
-    //     this.handCards.push(container);
-    // }
-    // this.updateHandLayout();
 
     this.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container) => {
         const container = gameObject.parentContainer;
@@ -137,50 +127,6 @@ export class Game extends Scene
         }
     });
 
-    // const HPbar = this.add.rectangle(400, 100, 100, 10, 0x00ff00);
-    // HPbar.setOrigin(0, 0.5);
-    // HPbar.setAlpha(1.0);
-    // HPbar.setDepth(10);
-    // HPbar.setData('value', 100);
-    // HPbar.setData('max', 100);
-    // HPbar.setData('min', 0);
-    // HPbar.setStrokeStyle(2, 0x000000);
-    // const HPbarText = this.add.text(HPbar.x, HPbar.y, HPbar.getData('value').toString(), { fontSize: '16px', color: '#000000', align: 'center' });
-    // HPbarText.setOrigin(0, 0.5);
-    // HPbarText.setDepth(11);
-    // HPbarText.setAlpha(1.0);
-    this.playerHP = {
-        current: 100, 
-        max: 100, 
-        text: this.add.text(900, 400, '100', { fontSize: '16px', color: '#000000', align: 'center' }),
-        bar: this.add.rectangle(900, 400, 100, 10, 0x00ff00) 
-    };
-    this.playerHP.bar.setOrigin(0, 0.5);
-    this.playerHP.bar.setAlpha(1.0);
-    this.playerHP.bar.setDepth(10);
-    this.playerHP.text.setOrigin(0, 0.5);
-    this.playerHP.text.setDepth(11);
-    this.playerHP.text.setAlpha(1.0);
-
-    this.cpuHP = {
-        current: 100,
-        max: 100,
-        text: this.add.text(100, 300, '100', { fontSize: '16px', color: '#000000', align: 'center' }),
-        bar: this.add.rectangle(100, 300, 100, 10, 0x00ff00)
-    }
-    this.cpuHP.bar.setOrigin(0, 0.5);
-    this.cpuHP.bar.setAlpha(1.0);
-    this.cpuHP.bar.setDepth(10);
-    this.cpuHP.text.setOrigin(0, 0.5);
-    this.cpuHP.text.setDepth(11);
-    this.cpuHP.text.setAlpha(1.0);
-
-    // Zone作成
-    // const zone = this.add.zone(400, 200, 100, 150).setRectangleDropZone(100, 150);
-
-    this.cpuTargetZone = this.add.zone(100, 200, 100, 150).setRectangleDropZone(100, 150);
-    this.playerTargetZone = this.add.zone(900, 550, 100, 150).setRectangleDropZone(100, 150);
-
     const graphics = this.add.graphics();
     graphics.lineStyle(2, 0xffff00);
     graphics.strokeRect(this.cpuTargetZone.x - this.cpuTargetZone.input!.hitArea!.width / 2, this.cpuTargetZone.y - this.cpuTargetZone.input!.hitArea!.height / 2, this.cpuTargetZone.input!.hitArea!.width, this.cpuTargetZone.input!.hitArea!.height);
@@ -204,32 +150,6 @@ export class Game extends Scene
     let depth = 1;
 
     // Zoneにドロップしたときの効果処理
-    // this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dropZone: Phaser.GameObjects.Zone) => {
-    //     const container = gameObject.parentContainer;
-    //     container.x = dropZone.x;
-    //     container.y = dropZone.y;
-    //     container.setAngle(0);
-    //     container.setDepth(depth);
-    //     depth++;
-
-    //     const index = this.handCards.indexOf(container);
-    //     if (index > -1){
-    //         this.handCards.splice(index, 1);
-    //     }
-        
-    //     HPbar.setData('value', HPbar.getData('value') - gameObject.getData('value'));
-    //     HPbarText.setText(HPbar.getData('value').toString());
-
-    //     const ratio = HPbar.getData('value') / HPbar.getData('max');
-    //     HPbar.setScale(ratio, 1.0);
-
-    //     if (HPbar.getData('value') <= 0){
-    //         this.scene.start('GameOver');
-    //     }
-    // });
-    // }
-
-    // Zoneにドロップしたときの効果処理
     this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dropZone: Phaser.GameObjects.Zone) => {
         const container = gameObject.parentContainer;
         container.x = dropZone.x;
@@ -245,53 +165,18 @@ export class Game extends Scene
         }
 
         if(dropZone === this.cpuTargetZone){
-            this.cpuHP.current += this.damageCalculation({type: container.getData('type'), value: container.getData('value')});
-            this.updateHPLayout(this.cpuHP);    
+            const newHP = this.cpuStatus.getData('HP') + this.damageCalculation({type: container.getData('type'), value: container.getData('value')});
+            this.cpuStatus.updateStatusWindow(newHP);
         } else if(dropZone === this.playerTargetZone){
-            this.playerHP.current += this.damageCalculation({type: container.getData('type'), value: container.getData('value')});
-            this.updateHPLayout(this.playerHP);
-        // HPbar.setData('value', HPbar.getData('value') - gameObject.getData('value'));
-        // HPbarText.setText(HPbar.getData('value').toString());
-
-        // const ratio = HPbar.getData('value') / HPbar.getData('max');
-        // HPbar.setScale(ratio, 1.0);
-
-        // if (HPbar.getData('value') <= 0){
-        //     this.scene.start('GameOver');
-        // }
+            const newHP = this.playerStatus.getData('HP') + this.damageCalculation({type: container.getData('type'), value: container.getData('value')});
+            this.playerStatus.updateStatusWindow(newHP);
         }
         this.turnPlayer = (this.turnPlayer + 1) % 2 ;
         this.cpuTurn();
     });
     }
 
-    // 手札のレイアウトを更新するメソッド
-    // updateHandLayout(){
-    //     const centerX = 400;
-    //     const centerY = 550;
-    //     const cardSpacing = Math.min(60, 400 / this.handCards.length);
-
-    //     this.handCards.forEach((card, index) => {
-    //         const offset = index - (this.handCards.length -1) /2;
-
-    //         const targetX = centerX + offset * cardSpacing;
-    //         const targetY = centerY + (Math.abs(offset) * 10);
-    //         const targetAngle = offset * 5;
-
-    //         this.add.tween({
-    //             targets: card,
-    //             x: targetX,
-    //             y: targetY,
-    //             angle: targetAngle,
-    //             duration: 200,
-    //             ease: 'Power2',
-    //         });
-
-    //         card.setDepth(100 + index);
-    //     });
-    //     console.log(this.handCards.length);
-    // }
-
+    // 手札のレイアウトを更新
     updateHandLayout(handCards: Phaser.GameObjects.Container[]){
         const centerX = 400;
         const centerY = handCards == this.playerHandCards ? 550 : 250 ;
@@ -317,7 +202,40 @@ export class Game extends Scene
         });
     }
 
-    // デックを初期化するメソッド
+    // 環境破壊レベルカード配布
+    dealTheEarth(){
+        const earthLevels: CardData[] = [
+            {type: 'earth', value: 60},
+            {type: 'earth', value: 65},
+            {type: 'earth', value: 70},
+            {type: 'earth', value: 75},
+            {type: 'earth', value: 80},
+            {type: 'earth', value: 85}
+        ]
+        this.earth = earthLevels;
+        Phaser.Utils.Array.Shuffle(this.earth);
+        
+        for(const p of this.Players){
+            const cardData = this.earth.pop()!;
+            const newCard = new Card(this, 500, 400, cardData);
+            const targetZone = p === 'player' ? this.playerTargetZone : this.cpuTargetZone;
+            const targetHP = cardData.value!;
+            p === 'player' ? this.playerStatus.updateStatusWindow(targetHP) : this.cpuStatus.updateStatusWindow(targetHP);
+
+            this.add.tween({
+                targets: newCard, 
+                x: targetZone.x,
+                y: targetZone.y,
+                duration: 5000,
+                ease: 'Power2',
+                onComplete:() => {
+                    newCard.destroy();
+                }
+            })
+        }
+    }
+
+    // デックを初期化（最初の１回）
     initializeDeck(){
         const allKindsOfCards: {CardData: CardData, NumberOfCards: number}[] = [
             {CardData: {type: 'recovery', value: 5}, NumberOfCards: 10},
@@ -338,45 +256,21 @@ export class Game extends Scene
         Phaser.Utils.Array.Shuffle(this.deck);
     }
 
-    // const newCard = new Card(this, x, y, cardData);
-    // this.playerHandCards.push(newCard);
-
+    // カードを引く
     drawCard(x: number, y: number){
         if(this.deck.length === 0){
             return;
         }
         const cardData = this.deck.pop()!;
         const newCard = new Card(this, x, y, cardData);
-        
-        // const container: Phaser.GameObjects.Container = this.add.container(x, y);
-
-        // const card = this.add.rectangle(0, 0, 100, 150, 0xffffff);
-        // card.setStrokeStyle(2, 0x000000);
-        // container.setData('type', cardData.type);
-        // container.setData('value', cardData.value);
-
-        // const valuetext = this.add.text(0, 0, cardData.value!.toString(), {
-        //     fontSize: '24px',
-        //     color: cardData.type === 'recovery' ? '#000000' : '#ff0000'
-        // }).setOrigin(0.5);
-
-        // container.add([card, valuetext]);
-        // card.setInteractive();
-        // this.input.setDraggable(card);
 
         if(this.deck.length === 0){
             const emptyDeck = this.add.rectangle(500, 400, 100, 150, 0xeeeeee);
         }
-        // return container;
         return newCard;
     }
 
-    updateHPLayout(HP: HP){
-        const ratio = HP.current / HP.max;
-        HP.bar.setScale(ratio, 1.0);
-        HP.text.setText(HP.current.toString());
-    }
-
+    // CPUAI
     cpuTurn(){
         const newCard = this.drawCard(500, 400);
         if(newCard){
@@ -393,8 +287,8 @@ export class Game extends Scene
             duration: 500,
             ease: 'Power2',
             onComplete: () => {
-                this.playerHP.current += this.damageCalculation({ type: targetCard.getData('type'), value: targetCard.getData('value')});
-                this.updateHPLayout(this.playerHP);
+                const newHP = this.playerStatus.getData('HP') + this.damageCalculation({ type: targetCard.getData('type'), value: targetCard.getData('value')});
+                this.playerStatus.updateStatusWindow(newHP);
                 this.trash.push(targetCard);
                 this.cpuHandCards.splice(0, 1);
                 this.updateHandLayout(this.cpuHandCards);
