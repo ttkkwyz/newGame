@@ -2,6 +2,7 @@ import * as Phaser from 'phaser';
 import { CardData, CardType } from '../constants/CardConfig';
 import { StatusWindow } from '../../objects/StatusWindow';
 import { Card } from '../../objects/Card';
+import { CARD_LIST } from '../constants/CardConfig';
 
 export class ActionService {
 
@@ -24,6 +25,10 @@ export class ActionService {
                 targetStatus.addInterference(id, targetStatus);
                 this.leaveCard(card, dropZone);
                 break;
+            case 'regreen':
+                targetStatus.regreenStatus(id, targetStatus);
+                this.offsetInterference(card, trash);
+                break;
         }
     }
     
@@ -34,5 +39,28 @@ export class ActionService {
     }
 
     leaveCard(card: Card, dropZone: Phaser.GameObjects.Zone){
+        card.destroy();
+    }
+    
+    offsetInterference(card: Card, trash: CardData[]){
+        const id = card.getData('id') as string;
+
+        switch(id){
+            case 'waste-treatment':
+                trash.push(card.getData('id') as CardData);
+                card.destroy();
+                trash.push(CARD_LIST.find(c => c.id === 'waste') as CardData);
+                break;
+            case 'waste-water-treatment':
+                trash.push(card.getData('id') as CardData);
+                card.destroy();
+                trash.push(CARD_LIST.find(c => c.id === 'ocean-pollution') as CardData);
+                break;
+            case 'planting':
+                trash.push(card.getData('id') as CardData);
+                card.destroy();
+                trash.push(CARD_LIST.find(c => c.id === 'deforestation') as CardData);
+                break;
+        }
     }
 }

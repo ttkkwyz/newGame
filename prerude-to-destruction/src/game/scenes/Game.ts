@@ -153,9 +153,10 @@ export class Game extends Scene
     // Zoneにドロップしたときの効果処理
     this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dropZone: Phaser.GameObjects.Zone) => {
         const targetStatus = dropZone === this.cpuTargetZone ? this.cpuStatus : this.playerStatus;
-
+     
         if(!(gameObject.parentContainer as Card).checkPlayable(this.playerStatus, targetStatus)){
             this.updateHandLayout(this.playerHandCards);
+            console.log('not playable');
             return;
         }
         
@@ -173,12 +174,8 @@ export class Game extends Scene
             this.playerHandCards.splice(index, 1);
         }
 
-        if(dropZone === this.cpuTargetZone){
-            this.actionService.handCardEffect(container as Card, this.cpuStatus, this.cpuTargetZone, this.trash);
-        } else if(dropZone === this.playerTargetZone){
-            this.actionService.handCardEffect(container as Card, this.playerStatus, this.playerTargetZone, this.trash);
-        }
-        
+        this.actionService.handCardEffect(container as Card, targetStatus, dropZone, this.trash);
+
         this.updateHandLayout(this.playerHandCards);
         this.turnPlayer = (this.turnPlayer + 1) % 2 ;
         this.cpuTurn();

@@ -73,7 +73,7 @@ export const CARD_LIST: CardData[] = [
         value: 0, 
         description: '行動不能', 
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
-        targetPlayable: (targetstatus) => targetstatus.waste
+        targetPlayable: (targetstatus) => !targetstatus.waste
     }, 
     {
         id: 'ocean-pollution', 
@@ -82,7 +82,7 @@ export const CARD_LIST: CardData[] = [
         value: 0, 
         description: '行動不能', 
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
-        targetPlayable: (targetstatus) => targetstatus.oceanPollution
+        targetPlayable: (targetstatus) => !targetstatus.oceanPollution
     },
     {
         id: 'deforestation', 
@@ -91,7 +91,7 @@ export const CARD_LIST: CardData[] = [
         value: 0, 
         description: '行動不能', 
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
-        targetPlayable: (targetstatus) => targetstatus.deforestation
+        targetPlayable: (targetstatus) => !targetstatus.deforestation
     },
 
     // 修復カード

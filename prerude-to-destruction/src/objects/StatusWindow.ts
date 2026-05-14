@@ -88,6 +88,22 @@ export class StatusWindow extends Phaser.GameObjects.Container {
                 target.deforestationIcon.setText('🌳');
                 break;
     }
-    console.log(target.waste, target.oceanPollution, target.deforestation, target.animalProtection);
+    }
+
+    regreenStatus(id: string, target: StatusWindow){
+        switch(id){
+            case 'waste-treatment':
+                target.waste = false;
+                target.wasteIcon.setText('');
+                break;
+            case 'waste-water-treatment':
+                target.oceanPollution = false;
+                target.oceanPollutionIcon.setText('');
+                break;
+            case 'planting':
+                target.deforestation = false;
+                target.deforestationIcon.setText('');
+                break;
+        }
     }
 }

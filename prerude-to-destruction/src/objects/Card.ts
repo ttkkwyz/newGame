@@ -20,7 +20,8 @@ export class Card extends Phaser.GameObjects.Container {
         this.setData('description', cardData.description);
         this.setData('type', cardData.type);
         this.setData('value', cardData.value);
-        cardData.playable ? this.setData('playable', cardData.playable) : this.setData('playable', () => true);
+        cardData.userPlayable ? this.setData('userPlayable', cardData.userPlayable) : this.setData('userPlayable', () => true);
+        cardData.targetPlayable ? this.setData('targetPlayable', cardData.targetPlayable) : this.setData('targetPlayable', () => true);
 
         if(isPlayer){
             cardBg.setInteractive();
@@ -32,10 +33,15 @@ export class Card extends Phaser.GameObjects.Container {
         scene.add.existing(this);
     }
 
-    checkPlayable(status: StatusWindow){
-        if(!this.getData('playable')){
-            return true;
+    checkPlayable(userStatus: StatusWindow, targetStatus: StatusWindow){
+        if(this.getData('userPlayable') && this.getData('targetPlayable')){
+            return this.getData('userPlayable')(userStatus) && this.getData('targetPlayable')(targetStatus);
+        } else if(this.getData('userPlayable')){
+            return this.getData('userPlayable')(userStatus);
+        } else if(this.getData('targetPlayable')){
+            return this.getData('targetPlayable')(targetStatus);
+        } else {
+        return true;
         }
-        return this.getData('playable')(status);
     }
 }
