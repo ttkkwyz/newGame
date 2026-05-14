@@ -1,6 +1,6 @@
 import { StatusWindow } from '../../objects/StatusWindow';
 
-export type CardType = 'earth' | 'recovery' | 'pollution' | 'interference' | 'regreen' | 'protect' | 'poaching';
+export type CardType = 'earth' | 'recovery' | 'pollution' | 'interference' | 'regreen' | 'biosphere' | 'protect' | 'poaching';
 
 export interface CardData {
     id: string;
@@ -122,10 +122,10 @@ export const CARD_LIST: CardData[] = [
     {
         id: 'biosphere', 
         name: 'バイオスフェア', 
-        type: 'regreen', 
+        type: 'biosphere', 
         value: 0, 
         description: '全て無効化', 
-        targetPlayable: (targetstatus) => targetstatus.waste || targetstatus.oceanPollution || targetstatus.deforestation
+        targetPlayable: (targetstatus) => targetstatus.waste || targetstatus.oceanPollution || targetstatus.deforestation || targetstatus.pollution10 !== 0 || targetstatus.pollution15 !== 0
     },
 
     // 動物保護

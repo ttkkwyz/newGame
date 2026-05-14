@@ -1,10 +1,13 @@
 import * as Phaser from 'phaser';
+import { StatusSelectionDialog } from './StatusSelectionDialog';
 
 export class StatusWindow extends Phaser.GameObjects.Container {
     private nameText: Phaser.GameObjects.Text;
     // private fixedText: Phaser.GameObjects.Text;
     private HPText: Phaser.GameObjects.Text;
     private handInfo: Phaser.GameObjects.Text;
+    private pollution10Icon: Phaser.GameObjects.Text;
+    private pollution15Icon: Phaser.GameObjects.Text;
     private wasteIcon: Phaser.GameObjects.Text;
     private oceanPollutionIcon: Phaser.GameObjects.Text;
     private deforestationIcon: Phaser.GameObjects.Text;
@@ -14,6 +17,8 @@ export class StatusWindow extends Phaser.GameObjects.Container {
     public oceanPollution: boolean;
     public deforestation: boolean;
     public animalProtection: boolean;
+    public pollution10: number;
+    public pollution15: number;
 
     constructor(scene: Phaser.Scene, x: number, y: number, name: string) {
         
@@ -25,6 +30,8 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         const fixedText = scene.add.text(-90, -20, '環境破壊レベル：', { fontSize: '16px', color: '#000000' });
         const fixedText2 = scene.add.text(-70, 0, '✕', { fontSize: '16px', color: '#000000' });
         
+        this.pollution10Icon = scene.add.text(-130, 25, '', { fontSize: '20px' });
+        this.pollution15Icon = scene.add.text(-110, 25, '', { fontSize: '20px' });
         this.wasteIcon = scene.add.text(-90, 25, '', { fontSize: '20px' });
         this.oceanPollutionIcon = scene.add.text(-70, 25, '', { fontSize: '20px' });
         this.deforestationIcon = scene.add.text(-50, 25, '', { fontSize: '20px' });
@@ -45,6 +52,8 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         this.oceanPollution = false;
         this.deforestation = false;
         this.animalProtection = false;
+        this.pollution10 = 0;
+        this.pollution15 = 0;
         this.add([
             bg, 
             this.nameText, 
@@ -53,6 +62,8 @@ export class StatusWindow extends Phaser.GameObjects.Container {
             this.HPText, 
             this.handInfo, 
             cardIcon,
+            this.pollution10Icon,
+            this.pollution15Icon,
             this.wasteIcon,
             this.oceanPollutionIcon,
             this.deforestationIcon,
@@ -71,6 +82,19 @@ export class StatusWindow extends Phaser.GameObjects.Container {
     updateHandInfo(handNumber: number){
         this.setData('handNumber', handNumber);
         this.handInfo.setText(handNumber.toString());
+    }
+
+    addPollution(id: string, target: StatusWindow){
+        switch(id){
+            case 'pollution-10':
+                target.pollution10 += 10;
+                target.pollution10Icon.setText("+" + target.pollution10.toString());
+                break;
+            case 'pollution-15':
+                target.pollution15 += 15;
+                target.pollution15Icon.setText("+" + target.pollution15.toString());
+                break;
+        }
     }
 
     addInterference(id: string, target: StatusWindow){
@@ -104,6 +128,58 @@ export class StatusWindow extends Phaser.GameObjects.Container {
                 target.deforestation = false;
                 target.deforestationIcon.setText('');
                 break;
+            case 'pollution10':
+                target.pollution10 -= 10;
+                if(target.pollution10 <= 0){
+                    target.pollution10Icon.setText('');
+                } else {
+                    target.pollution10Icon.setText("+" + target.pollution10.toString());
+                }
+                break;
+            case 'pollution15':
+                target.pollution15 -= 15;
+                if(target.pollution15 <= 0){
+                    target.pollution15Icon.setText('');
+                } else {
+                    target.pollution15Icon.setText("+" + target.pollution15.toString());
+                }
+                break;
+        }
+    }
+
+    getActiveStatus(): string[] {
+        const activeStatus: string[] = [];
+        if(this.waste){
+            activeStatus.push('waste');
+        }
+        if(this.oceanPollution){
+            activeStatus.push('ocean-pollution');
+        }
+        if(this.deforestation){
+            activeStatus.push('deforestation');
+        }
+        if(this.pollution10 > 0){
+            activeStatus.push('pollution10');
+        }
+        if(this.pollution15 > 0){
+            activeStatus.push('pollution15');
+        }
+        return activeStatus;
+    }
+
+    biosphereStatus(target: StatusWindow, onComplete: (selected: string) => void) {
+        const activeStatus = this.getActiveStatus();
+
+        if(activeStatus.length === 0) return;
+
+        if(activeStatus.length === 1){
+            this.regreenStatus(activeStatus[0], target);
+            onComplete(activeStatus[0]);
+        } else {
+            new StatusSelectionDialog(this.scene as Phaser.Scene, activeStatus, (selected: string) => {
+            this.regreenStatus(selected, target);
+            onComplete(selected);
+            });
         }
     }
 

@@ -19,6 +19,7 @@ export class ActionService {
                 break;
             case 'pollution':
                 targetStatus.updateStatusWindow(targetStatus.getData('HP') + value);
+                targetStatus.addPollution(id, targetStatus);
                 this.leaveCard(card, dropZone);
                 break;
             case 'interference':
@@ -30,6 +31,12 @@ export class ActionService {
                 this.sendCardToTrash(card, trash);
                 this.offsetInterference(card, trash);
                 break;
+            case 'biosphere':
+                targetStatus.biosphereStatus(targetStatus, (selected: string) => {
+                    trash.push(CARD_LIST.find(c => c.id === selected) as CardData);
+                });
+                this.sendCardToTrash(card, trash);
+                break;
             case 'protect':
                 targetStatus.protectAnimal(targetStatus);
                 this.leaveCard(card, dropZone);
@@ -39,6 +46,7 @@ export class ActionService {
                 this.leaveCard(card, dropZone);
                 break;
         }
+        console.log(trash);
     }
     
     sendCardToTrash(card: Card, trash: CardData[]){
