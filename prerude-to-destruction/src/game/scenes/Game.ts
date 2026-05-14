@@ -2,12 +2,8 @@ import { Scene } from 'phaser';
 import * as Phaser from 'phaser';
 import { Card } from '../../objects/Card';
 import { StatusWindow } from '../../objects/StatusWindow';
-import { CARD_LIST } from '../constants/CardConfig';
-
-interface CardData {
-    type: string;
-    value?: number;
-}
+import { CARD_LIST, EARTH_CARDS, DECK_CARDS, CardData, CardType } from '../constants/CardConfig';
+import { ActionService } from '../managers/ActionService';
 
 export class Game extends Scene
 {
@@ -22,27 +18,27 @@ export class Game extends Scene
 
     private deck: CardData[] = [];
     private trash: CardData[] = [];
-    private earth: CardData[] = [];
+    private earth = EARTH_CARDS;
 
     private turnPlayer: number = 0;
 
+    private actionService: ActionService = new ActionService();
+
     private playerTargetZone: Phaser.GameObjects.Zone;
     private cpuTargetZone: Phaser.GameObjects.Zone;
-    // private playerHP: number;
-    // private cpuHP: number;
+    
     private playerStatus: StatusWindow;
     private cpuStatus: StatusWindow;
 
     private Players:string[] = [];
 
     // 手札のカードを管理する配列
-    // private handCards: Phaser.GameObjects.Container[] = [];
     private playerHandCards: Phaser.GameObjects.Container[] = [];
     private cpuHandCards: Phaser.GameObjects.Container[] = [];
 
     create ()
     {
-
+    // this.actionService = new ActionService();
     this.Players = ['player', 'cpu'];
         
     this.cpuTargetZone = this.add.zone(100, 200, 100, 150).setRectangleDropZone(100, 150);
@@ -83,6 +79,7 @@ export class Game extends Scene
 
     this.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container) => {
         const container = gameObject.parentContainer;
+
         if(container){
             container.setDepth(1000);
             container.setScale(1.1);
@@ -106,10 +103,18 @@ export class Game extends Scene
         
     this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dropped: boolean) => {
         const container = gameObject.parentContainer;
+
         if(container){
             container.setScale(1.0);
             container.setAlpha(1.0);
         }
+        
+        if(!(container as Card).checkPlayable(this.playerStatus)){
+            console.log('not playable');
+            this.updateHandLayout(this.playerHandCards);
+            return;
+        }
+        
         if (!dropped){
             const startX = container.getData('startX');
             const startY = container.getData('startY');
@@ -152,6 +157,11 @@ export class Game extends Scene
 
     // Zoneにドロップしたときの効果処理
     this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dropZone: Phaser.GameObjects.Zone) => {
+        if(!(gameObject.parentContainer as Card).checkPlayable(this.playerStatus)){
+            console.log('not playable');
+            return;
+        }
+        
         const container = gameObject.parentContainer;
         container.x = dropZone.x;
         container.y = dropZone.y;
@@ -159,20 +169,20 @@ export class Game extends Scene
         container.setDepth(depth);
         depth++;
 
+        // this.actionService.handCardEffect(container.getData('id') as CardData, dropZone); // 手札のカードの効果処理
+
         const index = this.playerHandCards.indexOf(container);
         if (index > -1){
             this.playerHandCards.splice(index, 1);
-            this.trash.push(container);
         }
 
         if(dropZone === this.cpuTargetZone){
-            const newHP = this.cpuStatus.getData('HP') + this.damageCalculation({type: container.getData('type'), value: container.getData('value')});
-            this.cpuStatus.updateStatusWindow(newHP);
+            this.actionService.handCardEffect(container as Card, this.cpuStatus, this.cpuTargetZone, this.trash);
         } else if(dropZone === this.playerTargetZone){
-            const newHP = this.playerStatus.getData('HP') + this.damageCalculation({type: container.getData('type'), value: container.getData('value')});
-            this.playerStatus.updateStatusWindow(newHP);
+            this.actionService.handCardEffect(container as Card, this.playerStatus, this.playerTargetZone, this.trash);
         }
-        // this.playerStatus.updateHandInfo(this.playerHandCards.length);
+        
+        this.updateHandLayout(this.playerHandCards);
         this.turnPlayer = (this.turnPlayer + 1) % 2 ;
         this.cpuTurn();
     });
@@ -211,15 +221,6 @@ export class Game extends Scene
 
     // 環境破壊レベルカード配布
     dealTheEarth(){
-        const earthLevels: CardData[] = [
-            {type: 'earth', value: 60},
-            {type: 'earth', value: 65},
-            {type: 'earth', value: 70},
-            {type: 'earth', value: 75},
-            {type: 'earth', value: 80},
-            {type: 'earth', value: 85}
-        ]
-        this.earth = earthLevels;
         Phaser.Utils.Array.Shuffle(this.earth);
         
         for(const p of this.Players){
@@ -233,7 +234,7 @@ export class Game extends Scene
                 targets: newCard, 
                 x: targetZone.x,
                 y: targetZone.y,
-                duration: 5000,
+                duration: 1000,
                 ease: 'Power2',
                 onComplete:() => {
                     newCard.destroy();
@@ -244,22 +245,12 @@ export class Game extends Scene
 
     // デックを初期化（最初の１回）
     initializeDeck(){
-        const allKindsOfCards: {CardData: CardData, NumberOfCards: number}[] = [
-            {CardData: {type: 'recovery', value: 5}, NumberOfCards: 10},
-            {CardData: {type: 'recovery', value: 10}, NumberOfCards: 16},
-            {CardData: {type: 'recovery', value: 15}, NumberOfCards: 14},
-            {CardData: {type: 'recovery', value: 20}, NumberOfCards: 6},
-            {CardData: {type: 'pollution', value: 10}, NumberOfCards: 5},
-            {CardData: {type: 'pollution', value: 15}, NumberOfCards: 5}
-        ];
-        this.deck = [];
-
-        allKindsOfCards.forEach(cardData => {
-            for(let i = 0; i < cardData.NumberOfCards; i++){
-                this.deck.push(cardData.CardData);
+        DECK_CARDS.forEach(card => {
+            const newCard = CARD_LIST.find(c => c.id === card.id)!;
+            for(let i = 0; i < card.count; i++){
+                this.deck.push(newCard);
             }
         });
-
         Phaser.Utils.Array.Shuffle(this.deck);
     }
 
@@ -291,21 +282,11 @@ export class Game extends Scene
             duration: 500,
             ease: 'Power2',
             onComplete: () => {
-                const newHP = this.playerStatus.getData('HP') + this.damageCalculation({ type: targetCard.getData('type'), value: targetCard.getData('value')});
-                this.playerStatus.updateStatusWindow(newHP);
-                this.trash.push(targetCard);
+                this.actionService.handCardEffect(targetCard as Card, this.playerStatus, this.playerTargetZone, this.trash);
                 this.cpuHandCards.splice(0, 1);
                 this.updateHandLayout(this.cpuHandCards);
-                // this.cpuStatus.updateHandInfo(this.cpuHandCards.length);
             }
         })
         this.turnPlayer = (this.turnPlayer + 1) % 2 ;
-    }
-
-    damageCalculation(card: CardData){
-        if(card.value === undefined){
-            return 0;
-        }
-        return card.type === 'recovery' ? -card.value : card.value;
     }
 }

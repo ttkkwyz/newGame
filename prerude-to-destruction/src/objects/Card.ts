@@ -1,9 +1,6 @@
 import * as Phaser from 'phaser';
-
-interface CardData {
-    type: string;
-    value?: number;
-}
+import { CardData, CardType } from '../game/constants/CardConfig';
+import { StatusWindow } from './StatusWindow';
 
 export class Card extends Phaser.GameObjects.Container {
     constructor(scene: Phaser.Scene, x: number, y: number, cardData: CardData, isPlayer: boolean) {
@@ -18,8 +15,12 @@ export class Card extends Phaser.GameObjects.Container {
             color: cardData.type === 'recovery' ? '#000000' : '#ff0000'
         }).setOrigin(0.5);
 
+        this.setData('id', cardData.id);
+        this.setData('name', cardData.name);
+        this.setData('description', cardData.description);
         this.setData('type', cardData.type);
         this.setData('value', cardData.value);
+        cardData.playable ? this.setData('playable', cardData.playable) : this.setData('playable', () => true);
 
         if(isPlayer){
             cardBg.setInteractive();
@@ -29,5 +30,12 @@ export class Card extends Phaser.GameObjects.Container {
         this.add([cardBg, text]);
         
         scene.add.existing(this);
+    }
+
+    checkPlayable(status: StatusWindow){
+        if(!this.getData('playable')){
+            return true;
+        }
+        return this.getData('playable')(status);
     }
 }

@@ -6,6 +6,11 @@ export class StatusWindow extends Phaser.GameObjects.Container {
     private HPText: Phaser.GameObjects.Text;
     private handInfo: Phaser.GameObjects.Text;
 
+    public waste: boolean;
+    public oceanPollution: boolean;
+    public deforestation: boolean;
+    public animalProtection: boolean;
+
     constructor(scene: Phaser.Scene, x: number, y: number, name: string) {
         
         super(scene, x, y);
@@ -18,7 +23,7 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         
         this.HPText = scene.add.text(40, -22, '', { fontSize: '18px', color: '#000000' });
         this.handInfo = scene.add.text(-55, -1, '5', { fontSize: '18px', color: '#000000' });
-
+  
         const cardIcon = scene.add.graphics();
         cardIcon.setPosition(-80, 6);
         cardIcon.fillStyle(0xffffff, 1);
@@ -27,7 +32,19 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         cardIcon.strokeRoundedRect(-10, -10, 16, 22, 3);
 
         this.setData('HP', 0);
-        this.add([bg, this.nameText, fixedText, fixedText2, this.HPText, this.handInfo, cardIcon]);
+        this.waste = false;
+        this.oceanPollution = false;
+        this.deforestation = false;
+        this.animalProtection = false;
+        this.add([
+            bg, 
+            this.nameText, 
+            fixedText, 
+            fixedText2, 
+            this.HPText, 
+            this.handInfo, 
+            cardIcon
+        ]);
 
         scene.add.existing(this);
 
@@ -42,4 +59,18 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         this.setData('handNumber', handNumber);
         this.handInfo.setText(handNumber.toString());
     }
+
+    addInterference(id: string){
+        switch(id){
+            case 'waste':
+                this.waste = true;
+                break;
+            case 'ocean-pollution':
+                this.oceanPollution = true;
+                break;
+            case 'deforestation':
+                this.deforestation = true;
+                break;
+    }
+}
 }
