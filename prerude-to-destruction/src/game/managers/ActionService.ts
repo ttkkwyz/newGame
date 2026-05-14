@@ -27,13 +27,22 @@ export class ActionService {
                 break;
             case 'regreen':
                 targetStatus.regreenStatus(id, targetStatus);
+                this.sendCardToTrash(card, trash);
                 this.offsetInterference(card, trash);
+                break;
+            case 'protect':
+                targetStatus.protectAnimal(targetStatus);
+                this.leaveCard(card, dropZone);
+                break;
+            case 'poaching':
+                targetStatus.poachAnimal(targetStatus);
+                this.leaveCard(card, dropZone);
                 break;
         }
     }
     
     sendCardToTrash(card: Card, trash: CardData[]){
-        trash.push(card.getData('id') as CardData);
+        trash.push(CARD_LIST.find(c => c.id === card.getData('id')) as CardData);
         card.destroy();
         console.log(trash);
     }
@@ -44,21 +53,15 @@ export class ActionService {
     
     offsetInterference(card: Card, trash: CardData[]){
         const id = card.getData('id') as string;
-
+        
         switch(id){
             case 'waste-treatment':
-                trash.push(card.getData('id') as CardData);
-                card.destroy();
                 trash.push(CARD_LIST.find(c => c.id === 'waste') as CardData);
                 break;
             case 'waste-water-treatment':
-                trash.push(card.getData('id') as CardData);
-                card.destroy();
                 trash.push(CARD_LIST.find(c => c.id === 'ocean-pollution') as CardData);
                 break;
             case 'planting':
-                trash.push(card.getData('id') as CardData);
-                card.destroy();
                 trash.push(CARD_LIST.find(c => c.id === 'deforestation') as CardData);
                 break;
         }

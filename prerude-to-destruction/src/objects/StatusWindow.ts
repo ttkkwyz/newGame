@@ -28,7 +28,7 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         this.wasteIcon = scene.add.text(-90, 25, '', { fontSize: '20px' });
         this.oceanPollutionIcon = scene.add.text(-70, 25, '', { fontSize: '20px' });
         this.deforestationIcon = scene.add.text(-50, 25, '', { fontSize: '20px' });
-        this.animalProtectionIcon = scene.add.text(-90, 20, '', { fontSize: '20px' });
+        this.animalProtectionIcon = scene.add.text(30, 25, '', { fontSize: '20px' });
 
         this.HPText = scene.add.text(40, -22, '', { fontSize: '18px', color: '#000000' });
         this.handInfo = scene.add.text(-55, -1, '5', { fontSize: '18px', color: '#000000' });
@@ -105,5 +105,15 @@ export class StatusWindow extends Phaser.GameObjects.Container {
                 target.deforestationIcon.setText('');
                 break;
         }
+    }
+
+    protectAnimal(target: StatusWindow){
+        target.animalProtection = true;
+        target.animalProtectionIcon.setText('🐻');
+    }
+
+    poachAnimal(target: StatusWindow){
+        target.animalProtection = false;
+        target.animalProtectionIcon.setText('');
     }
 }
