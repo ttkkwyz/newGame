@@ -21,7 +21,7 @@ export class ActionService {
                 this.leaveCard(card, dropZone);
                 break;
             case 'interference':
-                targetStatus.addInterference(id);
+                targetStatus.addInterference(id, targetStatus);
                 this.leaveCard(card, dropZone);
                 break;
         }

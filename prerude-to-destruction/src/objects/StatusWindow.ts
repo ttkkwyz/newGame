@@ -5,6 +5,10 @@ export class StatusWindow extends Phaser.GameObjects.Container {
     // private fixedText: Phaser.GameObjects.Text;
     private HPText: Phaser.GameObjects.Text;
     private handInfo: Phaser.GameObjects.Text;
+    private wasteIcon: Phaser.GameObjects.Text;
+    private oceanPollutionIcon: Phaser.GameObjects.Text;
+    private deforestationIcon: Phaser.GameObjects.Text;
+    private animalProtectionIcon: Phaser.GameObjects.Text;
 
     public waste: boolean;
     public oceanPollution: boolean;
@@ -21,6 +25,11 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         const fixedText = scene.add.text(-90, -20, '環境破壊レベル：', { fontSize: '16px', color: '#000000' });
         const fixedText2 = scene.add.text(-70, 0, '✕', { fontSize: '16px', color: '#000000' });
         
+        this.wasteIcon = scene.add.text(-90, 25, '', { fontSize: '20px' });
+        this.oceanPollutionIcon = scene.add.text(-70, 25, '', { fontSize: '20px' });
+        this.deforestationIcon = scene.add.text(-50, 25, '', { fontSize: '20px' });
+        this.animalProtectionIcon = scene.add.text(-90, 20, '', { fontSize: '20px' });
+
         this.HPText = scene.add.text(40, -22, '', { fontSize: '18px', color: '#000000' });
         this.handInfo = scene.add.text(-55, -1, '5', { fontSize: '18px', color: '#000000' });
   
@@ -43,7 +52,11 @@ export class StatusWindow extends Phaser.GameObjects.Container {
             fixedText2, 
             this.HPText, 
             this.handInfo, 
-            cardIcon
+            cardIcon,
+            this.wasteIcon,
+            this.oceanPollutionIcon,
+            this.deforestationIcon,
+            this.animalProtectionIcon
         ]);
 
         scene.add.existing(this);
@@ -60,17 +73,21 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         this.handInfo.setText(handNumber.toString());
     }
 
-    addInterference(id: string){
+    addInterference(id: string, target: StatusWindow){
         switch(id){
             case 'waste':
-                this.waste = true;
+                target.waste = true;
+                target.wasteIcon.setText('🚮');
                 break;
             case 'ocean-pollution':
-                this.oceanPollution = true;
+                target.oceanPollution = true;
+                target.oceanPollutionIcon.setText('🌊');
                 break;
             case 'deforestation':
-                this.deforestation = true;
+                target.deforestation = true;
+                target.deforestationIcon.setText('🌳');
                 break;
     }
-}
+    console.log(target.waste, target.oceanPollution, target.deforestation, target.animalProtection);
+    }
 }

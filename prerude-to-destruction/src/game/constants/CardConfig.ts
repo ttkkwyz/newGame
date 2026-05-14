@@ -1,6 +1,6 @@
 import { StatusWindow } from '../../objects/StatusWindow';
 
-export type CardType = 'earth' | 'recovery' | 'pollution' | 'interference' | 'regreen' | 'protect';
+export type CardType = 'earth' | 'recovery' | 'pollution' | 'interference' | 'regreen' | 'protect' | 'poaching';
 
 export interface CardData {
     id: string;
@@ -8,34 +8,147 @@ export interface CardData {
     type: CardType;
     value: number;
     description: string;
-    playable?: (playerStatus: StatusWindow) => boolean;
+    userPlayable?: (userStatus: StatusWindow) => boolean;
+    targetPlayable?: (targetStatus: StatusWindow) => boolean;
 }
 
 export const CARD_LIST: CardData[] = [
     // 環境回復レベルカード
-    { id: 'recovery-5', name: '環境回復レベル5', type: 'recovery', value: 5, description: '環境レベル5回復' },
-    { id: 'recovery-10', name: '環境回復レベル10', type: 'recovery', value: 10, description: '環境レベル10回復' },
-    { id: 'recovery-15', name: '環境回復レベル15', type: 'recovery', value: 15, description: '環境レベル15回復' },
-    { id: 'recovery-20', name: '環境回復レベル20', type: 'recovery', value: 20, description: '環境レベル20回復' },
+    { 
+        id: 'recovery-5', 
+        name: '環境回復レベル5', 
+        type: 'recovery', 
+        value: 5, 
+        description: '環境レベル5回復', 
+        userPlayable: (userStatus) => !userStatus.waste && !userStatus.oceanPollution && !userStatus.deforestation 
+    },
+    { 
+        id: 'recovery-10', 
+        name: '環境回復レベル10', 
+        type: 'recovery', 
+        value: 10, 
+        description: '環境レベル10回復', 
+        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
+    },
+    { 
+        id: 'recovery-15', 
+        name: '環境回復レベル15', 
+        type: 'recovery', 
+        value: 15, 
+        description: '環境レベル15回復', 
+        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
+    },
+    { 
+        id: 'recovery-20', 
+        name: '環境回復レベル20', 
+        type: 'recovery', 
+        value: 20, 
+        description: '環境レベル20回復', 
+        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
+    },
 
     // 公害カード
-    { id: 'pollution-10', name: '公害レベル10', type: 'pollution', value: 10, description: '環境破壊レベル10増加' },
-    { id: 'pollution-15', name: '公害レベル15', type: 'pollution', value: 15, description: '環境破壊レベル15増加' },
+    { 
+        id: 'pollution-10', 
+        name: '公害レベル10', 
+        type: 'pollution', 
+        value: 10, 
+        description: '環境破壊レベル10増加', 
+        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
+    },
+    { 
+        id: 'pollution-15', 
+        name: '公害レベル15', 
+        type: 'pollution', 
+        value: 15, 
+        description: '環境破壊レベル15増加', 
+        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
+    },
 
     // 妨害カード
-    {id: 'waste', name: '廃棄物', type: 'interference', value: 0, description: '行動不能'}, 
-    {id: 'ocean-pollution', name: '海洋汚染', type: 'interference', value: 0, description: '行動不能'},
-    {id: 'deforestation', name: '森林伐採', type: 'interference', value: 0, description: '行動不能'},
-    {id: 'poaching', name: '密猟', type: 'interference', value: 0, description: '動物保護キャンセル', playable: (status) => status.animalProtection},
+    {
+        id: 'waste', 
+        name: '廃棄物', 
+        type: 'interference', 
+        value: 0, 
+        description: '行動不能', 
+        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
+        targetPlayable: (targetstatus) => targetstatus.waste
+    }, 
+    {
+        id: 'ocean-pollution', 
+        name: '海洋汚染', 
+        type: 'interference', 
+        value: 0, 
+        description: '行動不能', 
+        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
+        targetPlayable: (targetstatus) => targetstatus.oceanPollution
+    },
+    {
+        id: 'deforestation', 
+        name: '森林伐採', 
+        type: 'interference', 
+        value: 0, 
+        description: '行動不能', 
+        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
+        targetPlayable: (targetstatus) => targetstatus.deforestation
+    },
 
     // 修復カード
-    {id: 'waste-treatment', name: '廃棄物処理工場', type: 'regreen', value: 0, description: '廃棄物無効化', playable: (status) => status.waste},
-    {id: 'waste-water-treatment', name: '汚水処理', type: 'regreen', value: 0, description: '海洋汚染無効化', playable: (status) => status.oceanPollution},
-    {id: 'planting', name: '植樹', type: 'regreen', value: 0, description: '森林伐採無効化', playable: (status) => status.deforestation},
-    {id: 'biosphere', name: 'バイオスフェア', type: 'regreen', value: 0, description: '全て無効化', playable: (status) => status.waste || status.oceanPollution || status.deforestation},
+    {
+        id: 'waste-treatment', 
+        name: '廃棄物処理工場', 
+        type: 'regreen', 
+        value: 0, 
+        description: '廃棄物無効化', 
+        targetPlayable: (targetstatus) => targetstatus.waste
+    },
+    {
+        id: 'waste-water-treatment', 
+        name: '汚水処理', 
+        type: 'regreen', 
+        value: 0, 
+        description: '海洋汚染無効化', 
+        targetPlayable: (targetstatus) => targetstatus.oceanPollution
+    },
+    {
+        id: 'planting', 
+        name: '植樹', 
+        type: 'regreen', 
+        value: 0, 
+        description: '森林伐採無効化', 
+        targetPlayable: (targetstatus) => targetstatus.deforestation
+    },
+    {
+        id: 'biosphere', 
+        name: 'バイオスフェア', 
+        type: 'regreen', 
+        value: 0, 
+        description: '全て無効化', 
+        targetPlayable: (targetstatus) => targetstatus.waste || targetstatus.oceanPollution || targetstatus.deforestation
+    },
 
     // 動物保護
-    {id: 'animal-protection', name: '動物保護', type: 'protect', value: 0, description: '勝利条件'}
+    {
+        id: 'animal-protection', 
+        name: '動物保護', 
+        type: 'protect', 
+        value: 0, 
+        description: '勝利条件', 
+        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation && !userstatus.animalProtection
+    },
+
+    // 密猟
+    {
+        id: 'poaching', 
+        name: '密猟', 
+        type: 'poaching', 
+        value: 0, 
+        description: '動物保護キャンセル', 
+        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
+        targetPlayable: (targetstatus) => targetstatus.animalProtection
+    },
+
 ];
 
 export const EARTH_CARDS: CardData[] = [

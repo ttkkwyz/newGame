@@ -79,6 +79,7 @@ export class Game extends Scene
 
     this.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container) => {
         const container = gameObject.parentContainer;
+        console.log(container.getData('id'));
 
         if(container){
             container.setDepth(1000);
@@ -107,12 +108,6 @@ export class Game extends Scene
         if(container){
             container.setScale(1.0);
             container.setAlpha(1.0);
-        }
-        
-        if(!(container as Card).checkPlayable(this.playerStatus)){
-            console.log('not playable');
-            this.updateHandLayout(this.playerHandCards);
-            return;
         }
         
         if (!dropped){
@@ -157,8 +152,10 @@ export class Game extends Scene
 
     // Zoneにドロップしたときの効果処理
     this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dropZone: Phaser.GameObjects.Zone) => {
-        if(!(gameObject.parentContainer as Card).checkPlayable(this.playerStatus)){
-            console.log('not playable');
+        const targetStatus = dropZone === this.cpuTargetZone ? this.cpuStatus : this.playerStatus;
+
+        if(!(gameObject.parentContainer as Card).checkPlayable(this.playerStatus, targetStatus)){
+            this.updateHandLayout(this.playerHandCards);
             return;
         }
         
