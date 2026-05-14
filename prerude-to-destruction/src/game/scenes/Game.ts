@@ -2,6 +2,7 @@ import { Scene } from 'phaser';
 import * as Phaser from 'phaser';
 import { Card } from '../../objects/Card';
 import { StatusWindow } from '../../objects/StatusWindow';
+import { CARD_LIST } from '../constants/CardConfig';
 
 interface CardData {
     type: string;
