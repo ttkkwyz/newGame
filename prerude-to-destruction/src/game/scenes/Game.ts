@@ -5,6 +5,8 @@ import { StatusWindow } from '../../objects/StatusWindow';
 import { CARD_LIST, EARTH_CARDS, DECK_CARDS, CardData, CardType } from '../constants/CardConfig';
 import { ActionService } from '../managers/ActionService';
 
+type TurnPhase = 'draw' | 'play' | 'discard' | 'end';
+
 export class Game extends Scene
 {
     // camera: Phaser.Cameras.Scene2D.Camera;
@@ -21,6 +23,7 @@ export class Game extends Scene
     private earth = EARTH_CARDS;
 
     private turnPlayer: number = 0;
+    private turnPhase: TurnPhase = 'draw';
 
     private actionService: ActionService = new ActionService();
 
@@ -63,11 +66,14 @@ export class Game extends Scene
     this.showStartText();
 
     deckVisual.on('pointerdown', () => {
-        const newCard = this.drawCard(500, 400, true);
-        if(newCard){
-            this.playerHandCards.push(newCard);
+        if(this.turnPhase === 'draw'){
+            this.drawPhase();
         }
-        this.updateHandLayout(this.playerHandCards);
+        // const newCard = this.drawCard(500, 400, true);
+        // if(newCard){
+        //     this.playerHandCards.push(newCard);
+        // }
+        // this.updateHandLayout(this.playerHandCards);
     });
 
     this.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container) => {
@@ -146,43 +152,49 @@ export class Game extends Scene
 
     // Zoneにドロップしたときの効果処理
     this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dropZone: Phaser.GameObjects.Zone) => {
-        if(dropZone === this.trashZone){
-            const index = this.playerHandCards.indexOf(gameObject.parentContainer);
-            console.log(index);
+        const targetStatus = dropZone === this.cpuTargetZone ? this.cpuStatus : this.playerStatus;
+     
+        if(dropZone === this.trashZone) {
+            if(this.turnPhase === 'discard'){
+                const index = this.playerHandCards.indexOf(gameObject.parentContainer);
+                if (index > -1){
+                    this.playerHandCards.splice(index, 1);
+                }
+                this.actionService.sendCardToTrash(gameObject.parentContainer as Card, this.trash);
+                this.updateHandLayout(this.playerHandCards);
+                this.turnPlayer = (this.turnPlayer + 1) % 2 ;
+                this.setPhase('end');
+                this.cpuTurn();
+                return;
+            }
+            this.updateHandLayout(this.playerHandCards);
+            return;
+        }
+
+        if(this.turnPhase === 'play'){
+            if(!(gameObject.parentContainer as Card).checkPlayable(this.playerStatus, targetStatus)){
+                this.updateHandLayout(this.playerHandCards);
+                return;
+            }
+            const container = gameObject.parentContainer;
+            container.x = dropZone.x;
+            container.y = dropZone.y;
+            container.setAngle(0);
+            container.setDepth(depth);
+            depth++;
+
+            const index = this.playerHandCards.indexOf(container);
             if (index > -1){
                 this.playerHandCards.splice(index, 1);
             }
-            this.actionService.sendCardToTrash(gameObject.parentContainer as Card, this.trash);
-            console.log(this.trash);
-            console.log(this.playerHandCards.length);
+
+            this.actionService.handCardEffect(container as Card, targetStatus, dropZone, this.trash);
+
             this.updateHandLayout(this.playerHandCards);
-            this.turnPlayer = (this.turnPlayer + 1) % 2 ;
-            this.cpuTurn();
-            return;
+            this.setPhase('discard');
         }
-
-        const targetStatus = dropZone === this.cpuTargetZone ? this.cpuStatus : this.playerStatus;
-     
-        if(!(gameObject.parentContainer as Card).checkPlayable(this.playerStatus, targetStatus)){
-            this.updateHandLayout(this.playerHandCards);
-            return;
-        }
-        
-        const container = gameObject.parentContainer;
-        container.x = dropZone.x;
-        container.y = dropZone.y;
-        container.setAngle(0);
-        container.setDepth(depth);
-        depth++;
-
-        const index = this.playerHandCards.indexOf(container);
-        if (index > -1){
-            this.playerHandCards.splice(index, 1);
-        }
-
-        this.actionService.handCardEffect(container as Card, targetStatus, dropZone, this.trash);
-
         this.updateHandLayout(this.playerHandCards);
+        return;
         });
     }
 
@@ -262,8 +274,18 @@ export class Game extends Scene
             }
         });
         Phaser.Utils.Array.Shuffle(this.deck);
+        console.log(this.deck);
     }
 
+    trashToDeck(){
+        Phaser.Utils.Array.Shuffle(this.trash);
+        this.trash.forEach(card => {
+            this.deck.push(card);
+        });
+        this.trash = [];
+    }
+
+    // 開始テキストを表示
     showStartText(){
         const startText = this.add.text(
             this.cameras.main.centerX,
@@ -304,12 +326,52 @@ export class Game extends Scene
     // カードを引く
     drawCard(x: number, y: number, isPlayer: boolean){
         if(this.deck.length === 0){
-            const emptyDeck = this.add.rectangle(500, 400, 100, 150, 0xeeeeee);
-            return;
+            this.trashToDeck();
         }
         const cardData = this.deck.pop()!;
         const newCard = new Card(this, x, y, cardData, isPlayer);
         return newCard;
+    }
+
+    drawPhase() {
+        if(this.turnPhase !== 'draw'){
+            return;
+        }
+        for(let i = 0; i < 2; i++){
+            const newCard = this.drawCard(500, 400, this.turnPlayer === 0);
+            if(newCard){
+                this.turnPlayer === 0 ? this.playerHandCards.push(newCard) : this.cpuHandCards.push(newCard);
+            }
+        }
+        this.updateHandLayout(this.turnPlayer === 0 ? this.playerHandCards : this.cpuHandCards);
+        this.setPhase('play');
+    }
+
+    setPhase(phase: TurnPhase){
+        this.turnPhase = phase;
+
+        switch(phase){
+            case 'draw':
+                this.trashZone.input!.enabled = false;
+                this.playerTargetZone.input!.enabled = false;
+                this.cpuTargetZone.input!.enabled = false;
+                break;
+            case 'play':
+                this.trashZone.input!.enabled = false;
+                this.playerTargetZone.input!.enabled = true;
+                this.cpuTargetZone.input!.enabled = true;
+                break;
+            case 'discard':
+                this.trashZone.input!.enabled = true;
+                this.playerTargetZone.input!.enabled = false;
+                this.cpuTargetZone.input!.enabled = false;
+                break;
+            case 'end':
+                this.trashZone.input!.enabled = false;
+                this.playerTargetZone.input!.enabled = false;
+                this.cpuTargetZone.input!.enabled = false;
+                break;
+        }
     }
 
     // CPUAI
@@ -335,5 +397,6 @@ export class Game extends Scene
             }
         })
         this.turnPlayer = (this.turnPlayer + 1) % 2 ;
+        this.setPhase('draw');
     }
 }
