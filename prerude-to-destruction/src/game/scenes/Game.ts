@@ -253,7 +253,8 @@ export class Game extends Scene
         });
 
         const handsIndex = handCards === this.playerHandCards ? -1 : this.enemyHandCards.indexOf(handCards);
-        const targetStatus = handsIndex > -1 ? this.playerStatus : this.enemyStatusWindows[handsIndex];
+        console.log(handsIndex);
+        const targetStatus = handsIndex === -1 ? this.playerStatus : this.enemyStatusWindows[handsIndex];
         console.log(targetStatus);
         targetStatus.updateHandInfo(handCards.length);
         
