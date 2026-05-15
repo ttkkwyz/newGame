@@ -4,6 +4,7 @@ import { Card } from '../../objects/Card';
 import { StatusWindow } from '../../objects/StatusWindow';
 import { CARD_LIST, EARTH_CARDS, DECK_CARDS, CardData, CardType } from '../constants/CardConfig';
 import { ActionService } from '../managers/ActionService';
+import { sleep } from '../utils/TimeUtil';
 
 type TurnPhase = 'draw' | 'play' | 'discard' | 'end';
 
@@ -274,7 +275,6 @@ export class Game extends Scene
             }
         });
         Phaser.Utils.Array.Shuffle(this.deck);
-        console.log(this.deck);
     }
 
     trashToDeck(){
@@ -375,27 +375,61 @@ export class Game extends Scene
     }
 
     // CPUAI
-    cpuTurn(){
-        const newCard = this.drawCard(500, 400, false);
-        if(newCard){
-            this.cpuHandCards.push(newCard);
+    async cpuTurn(){
+        // draw Phase
+        for(let i = 0; i < 2; i++){
+            const newCard = this.drawCard(500, 400, false);
+            if(newCard){
+                this.cpuHandCards.push(newCard);
+            }
         }
         this.updateHandLayout(this.cpuHandCards);
-        const targetCard = this.cpuHandCards[0];
-        
-        this.add.tween({
-            targets: targetCard,
-            x: this.playerTargetZone.x,
-            y: this.playerTargetZone.y,
-            angle: 0,
-            duration: 500,
-            ease: 'Power2',
-            onComplete: () => {
-                this.actionService.handCardEffect(targetCard as Card, this.playerStatus, this.playerTargetZone, this.trash);
-                this.cpuHandCards.splice(0, 1);
-                this.updateHandLayout(this.cpuHandCards);
+
+        await sleep(1000);
+
+        // play Phase
+        for(let i = 0; i < this.cpuHandCards.length; i++){
+            const handCard = this.cpuHandCards[i];
+            if(!(handCard as Card).checkPlayable(this.cpuStatus, this.playerStatus)){
+                continue;
             }
-        })
+            await new Promise<void>(resolve => {
+                this.add.tween({
+                    targets: handCard,
+                    x: this.playerTargetZone.x,
+                    y: this.playerTargetZone.y,
+                    angle: 0,
+                    duration: 500,
+                    ease: 'Power2',
+                    onComplete: () => {
+                        this.actionService.handCardEffect(handCard as Card, this.playerStatus, this.playerTargetZone, this.trash);
+                        this.cpuHandCards.splice(i, 1);
+                        this.updateHandLayout(this.cpuHandCards);
+                        resolve();
+                    }
+                })
+            });
+            break;
+        }
+
+        // discard Phase
+        const hand = this.cpuHandCards[2];
+        await new Promise<void>(resolve => {
+            this.add.tween({
+                targets: hand,
+                x: this.trashZone.x,
+                y: this.trashZone.y,
+                angle: 0,
+                duration: 500,
+                ease: 'Power2',
+                onComplete: () => {
+                    this.actionService.sendCardToTrash(hand as Card, this.trash);
+                    this.cpuHandCards.splice(2, 1);
+                    this.updateHandLayout(this.cpuHandCards);
+                    resolve();
+                }
+            });
+        });
         this.turnPlayer = (this.turnPlayer + 1) % 2 ;
         this.setPhase('draw');
     }
