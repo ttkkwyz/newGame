@@ -26,6 +26,7 @@ export class Game extends Scene
 
     private playerTargetZone: Phaser.GameObjects.Zone;
     private cpuTargetZone: Phaser.GameObjects.Zone;
+    private trashZone: Phaser.GameObjects.Zone;
     
     private playerStatus: StatusWindow;
     private cpuStatus: StatusWindow;
@@ -44,6 +45,7 @@ export class Game extends Scene
         
     this.cpuTargetZone = this.add.zone(100, 200, 100, 150).setRectangleDropZone(100, 150);
     this.playerTargetZone = this.add.zone(900, 550, 100, 150).setRectangleDropZone(100, 150);
+    this.trashZone = this.add.zone(300, 400, 100, 150).setRectangleDropZone(100, 150);
     
     this.playerStatus =  new StatusWindow(this, 900, 400, 'Player');
     this.cpuStatus = new StatusWindow(this, 100, 300, 'CPU');
@@ -123,6 +125,7 @@ export class Game extends Scene
     graphics.lineStyle(2, 0xffff00);
     graphics.strokeRect(this.cpuTargetZone.x - this.cpuTargetZone.input!.hitArea!.width / 2, this.cpuTargetZone.y - this.cpuTargetZone.input!.hitArea!.height / 2, this.cpuTargetZone.input!.hitArea!.width, this.cpuTargetZone.input!.hitArea!.height);
     graphics.strokeRect(this.playerTargetZone.x - this.playerTargetZone.input!.hitArea!.width / 2, this.playerTargetZone.y - this.playerTargetZone.input!.hitArea!.height / 2, this.playerTargetZone.input!.hitArea!.width, this.playerTargetZone.input!.hitArea!.height);
+    graphics.strokeRect(this.trashZone.x - this.trashZone.input!.hitArea!.width / 2, this.trashZone.y - this.trashZone.input!.hitArea!.height / 2, this.trashZone.input!.hitArea!.width, this.trashZone.input!.hitArea!.height);
 
     // Zoneにドラッグしてきたときの処理
     this.input.on('dragenter', (pointer: Phaser.Input.Pointer, gameObject: any, dropZone: Phaser.GameObjects.Zone) => {
@@ -143,11 +146,25 @@ export class Game extends Scene
 
     // Zoneにドロップしたときの効果処理
     this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dropZone: Phaser.GameObjects.Zone) => {
+        if(dropZone === this.trashZone){
+            const index = this.playerHandCards.indexOf(gameObject.parentContainer);
+            console.log(index);
+            if (index > -1){
+                this.playerHandCards.splice(index, 1);
+            }
+            this.actionService.sendCardToTrash(gameObject.parentContainer as Card, this.trash);
+            console.log(this.trash);
+            console.log(this.playerHandCards.length);
+            this.updateHandLayout(this.playerHandCards);
+            this.turnPlayer = (this.turnPlayer + 1) % 2 ;
+            this.cpuTurn();
+            return;
+        }
+
         const targetStatus = dropZone === this.cpuTargetZone ? this.cpuStatus : this.playerStatus;
      
         if(!(gameObject.parentContainer as Card).checkPlayable(this.playerStatus, targetStatus)){
             this.updateHandLayout(this.playerHandCards);
-            console.log('not playable');
             return;
         }
         
@@ -166,9 +183,7 @@ export class Game extends Scene
         this.actionService.handCardEffect(container as Card, targetStatus, dropZone, this.trash);
 
         this.updateHandLayout(this.playerHandCards);
-        this.turnPlayer = (this.turnPlayer + 1) % 2 ;
-        this.cpuTurn();
-    });
+        });
     }
 
     // 手札のレイアウトを更新
@@ -211,8 +226,7 @@ export class Game extends Scene
             const newCard = new Card(this, 500, 400, cardData, false);
             const targetZone = p === 'player' ? this.playerTargetZone : this.cpuTargetZone;
             const targetHP = cardData.value!;
-            p === 'player' ? this.playerStatus.updateStatusWindow(targetHP) : this.cpuStatus.updateStatusWindow(targetHP);
-
+            
             this.add.tween({
                 targets: newCard, 
                 x: targetZone.x,
@@ -221,6 +235,8 @@ export class Game extends Scene
                 ease: 'Power2',
                 onComplete:() => {
                     newCard.destroy();
+                    p === 'player' ? this.playerStatus.updateStatusWindow(targetHP) : this.cpuStatus.updateStatusWindow(targetHP);
+
                 }
             })
         }
