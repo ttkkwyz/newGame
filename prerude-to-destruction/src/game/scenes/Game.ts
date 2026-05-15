@@ -36,6 +36,7 @@ export class Game extends Scene
     private cpuStatus: StatusWindow;
 
     private Players:string[] = [];
+    private gameResult: string[] = [];
 
     // 手札のカードを管理する配列
     private playerHandCards: Phaser.GameObjects.Container[] = [];
@@ -433,5 +434,26 @@ export class Game extends Scene
         });
         this.turnPlayer = (this.turnPlayer + 1) % 2 ;
         this.setPhase('draw');
+    }
+
+    checkGameOver(){
+        if(this.playerStatus.getData('HP') <= 0){
+            this.gameResult.push('player');
+        }
+        if(this.cpuStatus.getData('HP') <= 0){
+            this.gameResult.push('cpu');
+        }
+        if(this.gameResult.length > 0){
+            this.transitionToResult(this.gameResult);
+        }
+    }
+
+    private transitionToResult(results: string[]){
+        this.input.enabled = false;
+
+        this.cameras.main.fade(1000,0,0,0);
+        this.cameras.main.once('camerafadeoutcomplete', () => {
+            this.scene.start('GameOver', { results });
+        });
     }
 }
