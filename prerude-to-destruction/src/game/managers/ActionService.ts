@@ -3,8 +3,14 @@ import { CardData, CardType } from '../constants/CardConfig';
 import { StatusWindow } from '../../objects/StatusWindow';
 import { Card } from '../../objects/Card';
 import { CARD_LIST } from '../constants/CardConfig';
+import type { Game } from '../scenes/Game';
 
 export class ActionService {
+    private scene: Game;
+
+    constructor(scene: Game){
+        this.scene = scene;
+    }
 
     handCardEffect(card: Card, targetStatus: StatusWindow, dropZone: Phaser.GameObjects.Zone, trash: CardData[]){
         const type = card.getData('type') as CardType;
@@ -46,6 +52,7 @@ export class ActionService {
                 this.leaveCard(card, dropZone);
                 break;
         }
+        this.scene.checkGameOver();
     }
     
     sendCardToTrash(card: Card, trash: CardData[]){

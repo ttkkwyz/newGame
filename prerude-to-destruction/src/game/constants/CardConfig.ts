@@ -135,7 +135,8 @@ export const CARD_LIST: CardData[] = [
         type: 'protect', 
         value: 0, 
         description: '勝利条件', 
-        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation && !userstatus.animalProtection
+        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation && !userstatus.animalProtection,
+        targetPlayable: (targetstatus) => targetstatus.getData('HP') !== 0
     },
 
     // 密猟

@@ -6,7 +6,7 @@ import { CARD_LIST, EARTH_CARDS, DECK_CARDS, CardData, CardType } from '../const
 import { ActionService } from '../managers/ActionService';
 import { sleep } from '../utils/TimeUtil';
 
-type TurnPhase = 'draw' | 'play' | 'discard' | 'end';
+type TurnPhase = 'draw' | 'play' | 'discard' | 'discard-2' | 'end';
 
 export class Game extends Scene
 {
@@ -26,7 +26,7 @@ export class Game extends Scene
     private turnPlayer: number = 0;
     private turnPhase: TurnPhase = 'draw';
 
-    private actionService: ActionService = new ActionService();
+    private actionService: ActionService;
 
     private playerTargetZone: Phaser.GameObjects.Zone;
     private cpuTargetZone: Phaser.GameObjects.Zone;
@@ -54,6 +54,8 @@ export class Game extends Scene
     
     this.playerStatus =  new StatusWindow(this, 900, 400, 'Player');
     this.cpuStatus = new StatusWindow(this, 100, 300, 'CPU');
+
+    this.actionService = new ActionService(this);
 
     this.dealTheEarth();
 
@@ -157,7 +159,7 @@ export class Game extends Scene
         const targetStatus = dropZone === this.cpuTargetZone ? this.cpuStatus : this.playerStatus;
      
         if(dropZone === this.trashZone) {
-            if(this.turnPhase === 'discard'){
+            if(this.turnPhase === 'discard' || this.turnPhase === 'discard-2'){
                 const index = this.playerHandCards.indexOf(gameObject.parentContainer);
                 if (index > -1){
                     this.playerHandCards.splice(index, 1);
@@ -165,7 +167,11 @@ export class Game extends Scene
                 this.actionService.sendCardToTrash(gameObject.parentContainer as Card, this.trash);
                 this.updateHandLayout(this.playerHandCards);
                 this.turnPlayer = (this.turnPlayer + 1) % 2 ;
-                this.setPhase('end');
+                if(this.turnPhase === 'discard'){
+                    this.setPhase('end');
+                } else {
+                    this.setPhase('discard');
+                }
                 this.cpuTurn();
                 return;
             }
@@ -191,7 +197,7 @@ export class Game extends Scene
             }
 
             this.actionService.handCardEffect(container as Card, targetStatus, dropZone, this.trash);
-            this.checkGameOver();
+            // this.checkGameOver();
 
             this.updateHandLayout(this.playerHandCards);
             this.setPhase('discard');
@@ -335,7 +341,7 @@ export class Game extends Scene
         return newCard;
     }
 
-    drawPhase() {
+    async drawPhase() {
         if(this.turnPhase !== 'draw'){
             return;
         }
@@ -346,7 +352,25 @@ export class Game extends Scene
             }
         }
         this.updateHandLayout(this.turnPlayer === 0 ? this.playerHandCards : this.cpuHandCards);
-        this.setPhase('play');
+        if(this.checkPlayableCards(this.turnPlayer === 0 ? this.playerHandCards : this.cpuHandCards, this.turnPlayer === 0 ? this.playerStatus : this.cpuStatus)){
+            this.setPhase('play');
+        } else {
+            this.showText('パス');
+            await sleep(1000);
+            this.setPhase('discard-2');
+        }
+    }
+
+    checkPlayableCards(handCards: Phaser.GameObjects.Container[], playerstatus: StatusWindow): boolean{
+        for(const card of handCards){
+            for(const p of this.Players){
+                const targetStatus = p === 'player' ? this.playerStatus : this.cpuStatus;
+                if((card as Card).checkPlayable(playerstatus, targetStatus)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     setPhase(phase: TurnPhase){
@@ -437,7 +461,7 @@ export class Game extends Scene
         this.setPhase('draw');
     }
 
-    checkGameOver(){
+   public checkGameOver(){
         if(this.playerStatus.getData('HP') <= 0){
             this.gameResult.push('player');
         }
@@ -455,6 +479,19 @@ export class Game extends Scene
         this.cameras.main.fade(1000,0,0,0);
         this.cameras.main.once('camerafadeoutcomplete', () => {
             this.scene.start('GameOver', { results });
+        });
+    }
+
+    showText(text: string){
+        const textObject = this.add.text(500, 400, text, {
+            fontSize: '32px',
+            color: '#ffffff'
+        }).setOrigin(0.5);
+        this.tweens.add({
+            targets: textObject,
+            scale: 1.2,
+            duration: 800,
+            ease: 'Back.easeOut',
         });
     }
 }
