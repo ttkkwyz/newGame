@@ -38,7 +38,8 @@ export class Game extends Scene
 
     create ()
     {
-    // this.actionService = new ActionService();
+    this.input.enabled = false;
+
     this.Players = ['player', 'cpu'];
         
     this.cpuTargetZone = this.add.zone(100, 200, 100, 150).setRectangleDropZone(100, 150);
@@ -54,23 +55,13 @@ export class Game extends Scene
     const deckVisual = this.add.rectangle(500, 400, 100, 150, 0x555555);
     deckVisual.setInteractive();
 
-    for(let i=0; i<5; i++){
-        const newCard = this.drawCard(500, 400, true);
-        if(newCard){
-            this.playerHandCards.push(newCard);
-        }
-    }
-    for(let i=0; i<5; i++){
-        const newCard = this.drawCard(500, 400, false);
-        if(newCard){
-            this.cpuHandCards.push(newCard);
-        }
-    }
-    this.updateHandLayout(this.playerHandCards);
-    this.updateHandLayout(this.cpuHandCards);
+    this.dealInitialCards(this.playerHandCards);
+    this.dealInitialCards(this.cpuHandCards);
+
+    this.showStartText();
 
     deckVisual.on('pointerdown', () => {
-        const newCard = this.drawCard(700, 500, true);
+        const newCard = this.drawCard(500, 400, true);
         if(newCard){
             this.playerHandCards.push(newCard);
         }
@@ -167,8 +158,6 @@ export class Game extends Scene
         container.setDepth(depth);
         depth++;
 
-        // this.actionService.handCardEffect(container.getData('id') as CardData, dropZone); // 手札のカードの効果処理
-
         const index = this.playerHandCards.indexOf(container);
         if (index > -1){
             this.playerHandCards.splice(index, 1);
@@ -237,6 +226,17 @@ export class Game extends Scene
         }
     }
 
+    // 初期手札を配布
+    dealInitialCards(handCards: Phaser.GameObjects.Container[]){
+        for(let i=0; i<5; i++){
+            const newCard = this.drawCard(500, 400, handCards === this.playerHandCards);
+            if(newCard){
+                handCards.push(newCard);
+            }
+        }
+        this.updateHandLayout(handCards);
+    }
+
     // デックを初期化（最初の１回）
     initializeDeck(){
         DECK_CARDS.forEach(card => {
@@ -246,6 +246,43 @@ export class Game extends Scene
             }
         });
         Phaser.Utils.Array.Shuffle(this.deck);
+    }
+
+    showStartText(){
+        const startText = this.add.text(
+            this.cameras.main.centerX,
+            this.cameras.main.centerY,
+            '開始！',
+            {
+                fontSize: '80px',
+                color: '#ffffoo',
+                stroke: '#000000',
+                strokeThickness: 6,
+            }
+        ).setOrigin(0.5).setScale(0).setAlpha(0);
+    
+        this.tweens.add({
+            targets: startText,
+            scale: 1.2,
+            alpha: 1,
+            duration: 800,
+            ease: 'Back.easeInOut',
+            hold: 500,
+            yoyo: false,
+            onComplete: () => {
+                this.tweens.add({
+                    targets: startText,
+                    scale: 2,
+                    alpha: 0,
+                    duration: 500,
+                    ease: 'Power2',
+                    onComplete: () => {
+                        startText.destroy();
+                        this.input.enabled = true;
+                    }
+                });
+            }
+        });
     }
 
     // カードを引く
