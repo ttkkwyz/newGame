@@ -376,6 +376,7 @@ export class Game extends Scene
 
     // CPUAI
     async cpuTurn(){
+        await sleep(1000);
         // draw Phase
         for(let i = 0; i < 2; i++){
             const newCard = this.drawCard(500, 400, false);
@@ -413,7 +414,7 @@ export class Game extends Scene
         }
 
         // discard Phase
-        const hand = this.cpuHandCards[2];
+        const hand = this.cpuHandCards[0];
         await new Promise<void>(resolve => {
             this.add.tween({
                 targets: hand,
@@ -424,7 +425,7 @@ export class Game extends Scene
                 ease: 'Power2',
                 onComplete: () => {
                     this.actionService.sendCardToTrash(hand as Card, this.trash);
-                    this.cpuHandCards.splice(2, 1);
+                    this.cpuHandCards.splice(0, 1);
                     this.updateHandLayout(this.cpuHandCards);
                     resolve();
                 }
