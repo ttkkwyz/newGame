@@ -26,6 +26,9 @@ export class Card extends Phaser.GameObjects.Container {
         if(isPlayer){
             cardBg.setInteractive();
             scene.input.setDraggable(cardBg);
+        } else {
+            cardBg.setScale(0.5);
+            text.setScale(0.5);
         }
 
         this.add([cardBg, text]);
