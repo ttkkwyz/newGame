@@ -191,6 +191,7 @@ export class Game extends Scene
             }
 
             this.actionService.handCardEffect(container as Card, targetStatus, dropZone, this.trash);
+            this.checkGameOver();
 
             this.updateHandLayout(this.playerHandCards);
             this.setPhase('discard');
