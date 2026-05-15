@@ -29,7 +29,7 @@ export class ActionService {
             case 'regreen':
                 targetStatus.regreenStatus(id, targetStatus);
                 this.sendCardToTrash(card, trash);
-                this.offsetInterference(card, trash);
+                this.offsetInterference(id, trash);
                 break;
             case 'biosphere':
                 targetStatus.biosphereStatus(targetStatus, (selected: string) => {
@@ -46,22 +46,18 @@ export class ActionService {
                 this.leaveCard(card, dropZone);
                 break;
         }
-        console.log(trash);
     }
     
     sendCardToTrash(card: Card, trash: CardData[]){
         trash.push(CARD_LIST.find(c => c.id === card.getData('id')) as CardData);
         card.destroy();
-        console.log(trash);
     }
 
     leaveCard(card: Card, dropZone: Phaser.GameObjects.Zone){
         card.destroy();
     }
     
-    offsetInterference(card: Card, trash: CardData[]){
-        const id = card.getData('id') as string;
-        
+    offsetInterference(id: string, trash: CardData[]){
         switch(id){
             case 'waste-treatment':
                 trash.push(CARD_LIST.find(c => c.id === 'waste') as CardData);
