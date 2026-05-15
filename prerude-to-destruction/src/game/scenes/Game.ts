@@ -462,10 +462,10 @@ export class Game extends Scene
     }
 
    public checkGameOver(){
-        if(this.playerStatus.getData('HP') <= 0){
+        if(this.playerStatus.getData('HP') === 0 && this.playerStatus.animalProtection){
             this.gameResult.push('player');
         }
-        if(this.cpuStatus.getData('HP') <= 0){
+        if(this.cpuStatus.getData('HP') === 0 && this.cpuStatus.animalProtection){
             this.gameResult.push('cpu');
         }
         if(this.gameResult.length > 0){
