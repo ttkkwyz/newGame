@@ -4,17 +4,13 @@ import { Card } from '../../objects/Card';
 
 
 export class CpuAI {
-    choicePlayCardStupidly(handCards: Phaser.GameObjects.Container[], playerstatus: StatusWindow, enemystatus: StatusWindow): { card: Card | null, index: number } {
-        console.log(handCards);
-        console.log(playerstatus);
-        console.log(enemystatus);
+    choicePlayCardStupidly(handCards: Phaser.GameObjects.Container[], userstatus: StatusWindow, targetstatus: StatusWindow): { card: Card | null, index: number } {
         for(let i = 0; i < handCards.length; i++){
             const handCard = handCards[i];
-            if(!(handCard as Card).checkPlayable(playerstatus, enemystatus)){
+            if(!(handCard as Card).checkPlayable(userstatus, targetstatus)){
+                console.log('not playable', handCard);
                 continue;
             }
-            console.log(handCard);
-            console.log(i);
             return { card: handCard as Card, index: i };
         }
         return { card: null, index: -1 };

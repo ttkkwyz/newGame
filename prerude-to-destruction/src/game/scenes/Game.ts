@@ -31,7 +31,6 @@ export class Game extends Scene
     private actionService: ActionService;
     private cpuAI: CpuAI;
 
-    private enemies: EnemyPlayer[] = [];
     private cpuCount: number = 1;
     private playerName: string = '';
 
@@ -42,7 +41,6 @@ export class Game extends Scene
     private playerStatus: StatusWindow;
     private enemyStatusWindows: StatusWindow[] = [];
 
-    private Players:{ name: string, type: string }[] = [];
     private gameResult: string[] = [];
 
     // 手札のカードを管理する配列
@@ -56,7 +54,7 @@ export class Game extends Scene
         }
     }
    
-    create ()
+    async create ()
     {
     this.input.enabled = false;
 
@@ -72,7 +70,7 @@ export class Game extends Scene
 
     for(let i = 0; i < this.cpuCount; i++){
         const xPos = (screenWidth / this.cpuCount) * (i + 0.5);
-        const statusWindow = new StatusWindow(this, xPos, yPos, `CPU${i}`);
+        const statusWindow = new StatusWindow(this, xPos, yPos, `CPU${i+1}`);
         this.add.existing(statusWindow);
         this.enemyStatusWindows.push(statusWindow);
 
@@ -88,19 +86,25 @@ export class Game extends Scene
     this.actionService = new ActionService(this);
     this.cpuAI = new CpuAI();
 
-    this.dealTheEarth();
+    await this.showCenterText('環境破壊レベルカード配布');
+
+    await this.dealTheEarth();
 
     this.initializeDeck();
 
-    const deckVisual = this.add.rectangle(500, 400, 100, 150, 0x555555);
+    const deckVisual = this.add.rectangle(500, 400, 80, 120, 0x555555);
     deckVisual.setInteractive();
 
-    this.dealInitialCards(this.playerHandCards);
+    await this.dealInitialCards(this.playerHandCards);
     for(let i = 0; i < this.cpuCount; i++){
-        this.dealInitialCards(this.enemyHandCards[i]);
+        await this.dealInitialCards(this.enemyHandCards[i]);
     }
 
-    this.showStartText();
+    await this.showCenterText('開始！');
+
+    await this.showSmallText(`${this.playerName}のターン`);
+    
+    this.input.enabled = true;
 
     deckVisual.on('pointerdown', () => {
         if(this.turnPhase === 'draw'){
@@ -161,9 +165,11 @@ export class Game extends Scene
 
     const graphics = this.add.graphics();
     graphics.lineStyle(2, 0xffff00);
-    graphics.strokeRect(this.enemyDropZones[0].x - this.enemyDropZones[0].input!.hitArea!.width / 2, this.enemyDropZones[0].y - this.enemyDropZones[0].input!.hitArea!.height / 2, this.enemyDropZones[0].input!.hitArea!.width, this.enemyDropZones[0].input!.hitArea!.height);
     graphics.strokeRect(this.playerDropZone.x - this.playerDropZone.input!.hitArea!.width / 2, this.playerDropZone.y - this.playerDropZone.input!.hitArea!.height / 2, this.playerDropZone.input!.hitArea!.width, this.playerDropZone.input!.hitArea!.height);
     graphics.strokeRect(this.trashZone.x - this.trashZone.input!.hitArea!.width / 2, this.trashZone.y - this.trashZone.input!.hitArea!.height / 2, this.trashZone.input!.hitArea!.width, this.trashZone.input!.hitArea!.height);
+    for(let i = 0; i < this.cpuCount; i++){
+        graphics.strokeRect(this.enemyDropZones[i].x - this.enemyDropZones[i].input!.hitArea!.width / 2, this.enemyDropZones[i].y - this.enemyDropZones[i].input!.hitArea!.height / 2, this.enemyDropZones[i].input!.hitArea!.width, this.enemyDropZones[i].input!.hitArea!.height);
+    }
 
     // // Zoneにドラッグしてきたときの処理
     // this.input.on('dragenter', (pointer: Phaser.Input.Pointer, gameObject: any, dropZone: Phaser.GameObjects.Zone) => {
@@ -254,7 +260,7 @@ export class Game extends Scene
                 x: targetX,
                 y: targetY,
                 angle: targetAngle,
-                duration: 200,
+                duration: 500,
                 ease: 'Power2',
             });
 
@@ -268,39 +274,44 @@ export class Game extends Scene
     }
 
     // 環境破壊レベルカード配布
-    dealTheEarth(){
-        Phaser.Utils.Array.Shuffle(this.earth);
+    dealTheEarth(): Promise<void> {
+        return new Promise((resolve) => {
+            Phaser.Utils.Array.Shuffle(this.earth);
         
-        for(let i = -1; i < this.cpuCount; i++){
-            const cardData = this.earth.pop()!;
-            const newCard = new Card(this, 500, 400, cardData, false);
-            const targetZone = i === -1 ? this.playerDropZone : this.enemyDropZones[i];
-            const targetHP = cardData.value!;
+            for(let i = -1; i < this.cpuCount; i++){
+                const cardData = this.earth.pop()!;
+                const newCard = new Card(this, 500, 400, cardData, false);
+                const targetZone = i === -1 ? this.playerDropZone : this.enemyDropZones[i];
+                const targetHP = cardData.value!;
             
-            this.add.tween({
-                targets: newCard, 
-                x: targetZone.x,
-                y: targetZone.y,
-                duration: 1000,
-                ease: 'Power2',
-                onComplete:() => {
-                    newCard.destroy();
-                    i === -1 ? this.playerStatus.updateStatusWindow(targetHP) : this.enemyStatusWindows[i].updateStatusWindow(targetHP);
-
-                }
-            })
-        }
+                this.add.tween({
+                    targets: newCard, 
+                    x: targetZone.x,
+                    y: targetZone.y,
+                    duration: 1000,
+                    ease: 'Power2',
+                    onComplete:() => {
+                        newCard.destroy();
+                        i === -1 ? this.playerStatus.updateStatusWindow(targetHP) : this.enemyStatusWindows[i].updateStatusWindow(targetHP);
+                        resolve();
+                    }
+                });
+            }
+        });
     }
 
     // 初期手札を配布
-    dealInitialCards(handCards: Phaser.GameObjects.Container[]){
-        for(let i=0; i<5; i++){
-            const newCard = this.drawCard(500, 400, handCards === this.playerHandCards);
-            if(newCard){
-                handCards.push(newCard);
+    dealInitialCards(handCards: Phaser.GameObjects.Container[]): Promise<void>{
+        return new Promise<void>(resolve => {
+            for(let i=0; i<5; i++){
+                const newCard = this.drawCard(500, 400, handCards === this.playerHandCards);
+                if(newCard){
+                    handCards.push(newCard);
+                }
             }
-        }
-        this.updateHandLayout(handCards);
+            this.updateHandLayout(handCards);
+            resolve();
+        });
     }
 
     // デックを初期化（最初の１回）
@@ -322,42 +333,83 @@ export class Game extends Scene
         });
         this.trash = [];
     }
-
-    // 開始テキストを表示
-    showStartText(){
-        const startText = this.add.text(
-            this.cameras.main.centerX,
-            this.cameras.main.centerY,
-            '開始！',
-            {
-                fontSize: '80px',
-                color: '#ffffoo',
-                stroke: '#000000',
-                strokeThickness: 6,
-            }
-        ).setOrigin(0.5).setScale(0).setAlpha(0);
     
-        this.tweens.add({
-            targets: startText,
-            scale: 1.2,
-            alpha: 1,
-            duration: 800,
-            ease: 'Back.easeInOut',
-            hold: 500,
-            yoyo: false,
-            onComplete: () => {
-                this.tweens.add({
-                    targets: startText,
-                    scale: 2,
-                    alpha: 0,
-                    duration: 500,
-                    ease: 'Power2',
-                    onComplete: () => {
-                        startText.destroy();
-                        this.input.enabled = true;
-                    }
-                });
-            }
+    // 中央にテキストを表示
+    showCenterText(text: string): Promise<void>{
+        return new Promise<void>(resolve => {
+            const textObject = this.add.text(
+                this.cameras.main.centerX,
+                this.cameras.main.centerY,
+                text,
+                {
+                    fontSize: '60px',
+                    color: '#ffffoo',
+                    stroke: '#000000',
+                    strokeThickness: 6,
+                }
+            ).setOrigin(0.5).setScale(0).setAlpha(0);
+    
+            this.tweens.add({
+                targets: textObject,
+                scale: 1.2,
+                alpha: 1,
+                duration: 800,
+                ease: 'Back.easeInOut',
+                hold: 500,
+                yoyo: false,
+                onComplete: () => {
+                    this.tweens.add({
+                        targets: textObject,
+                        scale: 2,
+                        alpha: 0,
+                        duration: 500,
+                        ease: 'Power2',
+                        onComplete: () => {
+                            textObject.destroy();
+                            resolve();
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    showSmallText(text: string): Promise<void>{
+        return new Promise<void>(resolve => {
+            const textObject = this.add.text(
+                this.cameras.main.centerX,
+                this.cameras.main.centerY,
+                text,
+                {
+                    fontSize: '30px',
+                    color: '#ffffoo',
+                    stroke: '#000000',
+                    strokeThickness: 6,
+                }
+            ).setOrigin(0.5).setScale(0).setAlpha(0);
+    
+            this.tweens.add({
+                targets: textObject,
+                scale: 1.2,
+                alpha: 1,
+                duration: 800,
+                ease: 'Back.easeInOut',
+                hold: 500,
+                yoyo: false,
+                onComplete: () => {
+                    this.tweens.add({
+                        targets: textObject,
+                        scale: 2,
+                        alpha: 0,
+                        duration: 500,
+                        ease: 'Power2',
+                        onComplete: () => {
+                            textObject.destroy();
+                            resolve();
+                        }
+                    });
+                }
+            });
         });
     }
 
@@ -371,6 +423,7 @@ export class Game extends Scene
         return newCard;
     }
 
+    // ドロップフェーズ
     async drawPhase() {
         if(this.turnPhase !== 'draw'){
             return;
@@ -387,7 +440,7 @@ export class Game extends Scene
         if(this.checkPlayableCards(targetHandCards, targetStatus)){
             this.setPhase('play');
         } else {
-            this.showText('パス');
+            this.showCenterText('パス');
             await sleep(1000);
             this.setPhase('discard-2');
         }
@@ -434,14 +487,15 @@ export class Game extends Scene
         }
     }
 
-    // CPUAI
+    // CPUのターン
     async cpuTurn(){
         while(this.turnPlayer !== 0){
+            await this.showSmallText(`CPU${this.turnPlayer}のターン`);
             await sleep(1000);
 
             // draw Phase
             const handCards = this.enemyHandCards[this.turnPlayer - 1];
-            const targetStatus = this.enemyStatusWindows[this.turnPlayer - 1];
+            const cpuStatus = this.enemyStatusWindows[this.turnPlayer - 1];
             for(let i = 0; i < 2; i++){
                 const newCard = this.drawCard(500, 400, false);
                 if(newCard){
@@ -453,13 +507,8 @@ export class Game extends Scene
             await sleep(1000);
             
             // play Phase
-            // for(let i = 0; i < handCards.length; i++){
-                // const handCard = handCards[i];
-                // if(!(handCard as Card).checkPlayable(targetStatus, this.playerStatus)){
-                    // continue;
-                // }
-
-            const { card, index } = this.cpuAI.choicePlayCardStupidly(handCards, this.playerStatus, targetStatus);
+            const { card, index } = this.cpuAI.choicePlayCardStupidly(handCards, cpuStatus, this.playerStatus);
+            console.log(card?.checkPlayable(cpuStatus, this.playerStatus));
             if(card){
                 await new Promise<void>(resolve => {
                     this.add.tween({
@@ -504,10 +553,12 @@ export class Game extends Scene
         }
 
         if(this.turnPlayer === 0){
+            await this.showSmallText(`${this.playerName}のターン`);
             this.setPhase('draw');
         }
     }
 
+    // ゲーム終了判定
    public checkGameOver(){
         if(this.playerStatus.getData('HP') === 0 && this.playerStatus.animalProtection){
             this.gameResult.push(this.playerName);
@@ -522,6 +573,7 @@ export class Game extends Scene
         }
     }
 
+    // ゲーム結果画面に遷移
     private transitionToResult(results: string[]){
         this.input.enabled = false;
 
@@ -531,16 +583,5 @@ export class Game extends Scene
         });
     }
 
-    showText(text: string){
-        const textObject = this.add.text(500, 400, text, {
-            fontSize: '32px',
-            color: '#ffffff'
-        }).setOrigin(0.5);
-        this.tweens.add({
-            targets: textObject,
-            scale: 1.2,
-            duration: 800,
-            ease: 'Back.easeOut',
-        });
-    }
+
 }
