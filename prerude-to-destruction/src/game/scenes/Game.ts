@@ -118,6 +118,7 @@ export class Game extends Scene
         console.log(container.getData('id'));
 
         if(container){
+            this.tweens.killTweensOf(container);
             container.setDepth(1000);
             container.setScale(1.1);
             container.setAlpha(0.8);
