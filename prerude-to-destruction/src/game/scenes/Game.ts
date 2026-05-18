@@ -201,11 +201,11 @@ export class Game extends Scene
                 this.turnPlayer = (this.turnPlayer + 1) % (this.cpuCount + 1);
                 if(this.turnPhase === 'discard'){
                     this.setPhase('end');
+                    this.cpuTurn();
+                    return;
                 } else {
                     this.setPhase('discard');
                 }
-                this.cpuTurn();
-                return;
             }
             this.updateHandLayout(this.playerHandCards);
             return;
@@ -475,6 +475,11 @@ export class Game extends Scene
                 this.enemyDropZones.forEach(zone => zone.input!.enabled = true);
                 break;
             case 'discard':
+                this.trashZone.input!.enabled = true;
+                this.playerDropZone.input!.enabled = false;
+                this.enemyDropZones.forEach(zone => zone.input!.enabled = false);
+                break;
+            case 'discard-2':
                 this.trashZone.input!.enabled = true;
                 this.playerDropZone.input!.enabled = false;
                 this.enemyDropZones.forEach(zone => zone.input!.enabled = false);
