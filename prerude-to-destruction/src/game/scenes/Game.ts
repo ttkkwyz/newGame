@@ -52,7 +52,7 @@ export class Game extends Scene
     {
     this.input.enabled = false;
 
-    this.cpuCount = 3;
+    this.cpuCount = 2;
 
     // this.Players = [{ name: 'あなた', type: 'player' }, { name: 'CPU1', type: 'よわい' }, { name: 'CPU2', type: 'よわい' }];
     // const cpus = this.Players.filter(p => p.type !== 'player');
@@ -80,6 +80,7 @@ export class Game extends Scene
     this.trashZone = this.add.zone(300, 400, 100, 150).setRectangleDropZone(100, 150);
     
     this.actionService = new ActionService(this);
+    this.cpuAI = new CpuAI();
 
     this.dealTheEarth();
 
