@@ -39,7 +39,7 @@ export class MainMenu extends Scene
 
         this.startText.setInteractive();
             this.startText.on('pointerdown', () => {
-                this.scene.start('Game');
+                this.scene.start('Settings');
             });
 
         this.rulesText = this.add.text(512, 500, 'Rules', {

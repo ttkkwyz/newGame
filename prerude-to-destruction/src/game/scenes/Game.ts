@@ -33,6 +33,7 @@ export class Game extends Scene
 
     private enemies: EnemyPlayer[] = [];
     private cpuCount: number = 1;
+    private playerName: string = '';
 
     private playerDropZone: Phaser.GameObjects.Zone;
     private trashZone: Phaser.GameObjects.Zone;
@@ -47,17 +48,22 @@ export class Game extends Scene
     // 手札のカードを管理する配列
     private playerHandCards: Phaser.GameObjects.Container[] = [];
     private enemyHandCards: Phaser.GameObjects.Container[][] = [];
+
+    init(data: { cpuCount: number, playerName: string }){
+        if(data && data.cpuCount){
+            this.cpuCount = data.cpuCount;
+            this.playerName = data.playerName;
+        }
+    }
    
     create ()
     {
     this.input.enabled = false;
 
-    this.cpuCount = 2;
-
     // this.Players = [{ name: 'あなた', type: 'player' }, { name: 'CPU1', type: 'よわい' }, { name: 'CPU2', type: 'よわい' }];
     // const cpus = this.Players.filter(p => p.type !== 'player');
 
-    this.playerStatus =  new StatusWindow(this, 900, 400, 'Player');
+    this.playerStatus =  new StatusWindow(this, 900, 400, this.playerName);
     this.playerDropZone = this.add.zone(900, 550, 100, 150).setRectangleDropZone(100, 150);
     
     const screenWidth = this.cameras.main.width;
@@ -504,7 +510,7 @@ export class Game extends Scene
 
    public checkGameOver(){
         if(this.playerStatus.getData('HP') === 0 && this.playerStatus.animalProtection){
-            this.gameResult.push('player');
+            this.gameResult.push(this.playerName);
         }
         for(let i = 0; i < this.cpuCount; i++){
             if(this.enemyStatusWindows[i].getData('HP') === 0 && this.enemyStatusWindows[i].animalProtection){
