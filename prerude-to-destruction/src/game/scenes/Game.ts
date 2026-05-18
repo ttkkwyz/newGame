@@ -42,6 +42,7 @@ export class Game extends Scene
     private enemyStatusWindows: StatusWindow[] = [];
 
     private gameResult: string[] = [];
+    private loser: string[] = [];
 
     // 手札のカードを管理する配列
     private playerHandCards: Phaser.GameObjects.Container[] = [];
@@ -423,7 +424,7 @@ export class Game extends Scene
         return newCard;
     }
 
-    // ドロップフェーズ
+    // ドローフェーズ
     async drawPhase() {
         if(this.turnPhase !== 'draw'){
             return;
@@ -448,16 +449,35 @@ export class Game extends Scene
 
     // プレイ可能なカードをチェック
     checkPlayableCards(handCards: Phaser.GameObjects.Container[], playerstatus: StatusWindow): boolean{
-        for(const card of handCards){
-            for(let i = -1; i < this.cpuCount; i++){
-                const targetStatus = i === -1 ? this.playerStatus : this.enemyStatusWindows[i];
-                if((card as Card).checkPlayable(playerstatus, targetStatus)){
-                    return true;
-                }
-            }
+        // for(const card of handCards){
+        //     for(let i = -1; i < this.cpuCount; i++){
+        //         const targetStatus = i === -1 ? this.playerStatus : this.enemyStatusWindows[i];
+        //         if((card as Card).checkPlayable(playerstatus, targetStatus)){
+        //             return true;
+        //         }
+        //     }
+        // }
+        // return false;
+
+        if(handCards.find(card => card.getData('id') === 'biosphere')){
+            return true;
         }
-        return false;
+
+        if(playerstatus.waste && !handCards.find(card => card.getData('id') === 'waste-treatment')){
+            return false;
+        }
+
+        if(playerstatus.oceanPollution && !handCards.find(card => card.getData('id') === 'waste-water-treatment')){
+            return false;
+        }
+        
+        if(playerstatus.deforestation && !handCards.find(card => card.getData('id') === 'planting')){
+            return false;
+        }
+
+        return true;
     }
+    
 
     // フェーズを設定
     setPhase(phase: TurnPhase){
@@ -512,25 +532,26 @@ export class Game extends Scene
             await sleep(1000);
             
             // play Phase
-            const { card, index } = this.cpuAI.choicePlayCardStupidly(handCards, cpuStatus, this.playerStatus);
-            console.log(card?.checkPlayable(cpuStatus, this.playerStatus));
-            if(card){
-                await new Promise<void>(resolve => {
-                    this.add.tween({
-                        targets: card,
-                        x: this.playerDropZone.x,
-                        y: this.playerDropZone.y,
-                        angle: 0,
-                        duration: 500,
-                        ease: 'Power2',
-                        onComplete: () => {
-                            this.actionService.handCardEffect(card as Card, this.playerStatus, this.playerDropZone, this.trash);
-                            handCards.splice(index, 1);
-                            this.updateHandLayout(handCards);
-                            resolve();
-                        }
-                    })
-                });
+            if(this.checkPlayableCards(handCards, cpuStatus)){
+                const { card, index } = this.cpuAI.choicePlayCardStupidly(handCards, cpuStatus, this.playerStatus);
+                if(card){
+                    await new Promise<void>(resolve => {
+                        this.add.tween({
+                            targets: card,
+                            x: this.playerDropZone.x,
+                            y: this.playerDropZone.y,
+                            angle: 0,
+                            duration: 500,
+                            ease: 'Power2',
+                            onComplete: () => {
+                                this.actionService.handCardEffect(card as Card, this.playerStatus, this.playerDropZone, this.trash);
+                                handCards.splice(index, 1);
+                                this.updateHandLayout(handCards);
+                                resolve();
+                            }
+                        })
+                    });
+                }
             }
 
             // discard Phase
@@ -567,13 +588,20 @@ export class Game extends Scene
    public checkGameOver(){
         if(this.playerStatus.getData('HP') === 0 && this.playerStatus.animalProtection){
             this.gameResult.push(this.playerName);
+        } else if(this.playerStatus.getData('HP') === 100){
+            this.loser.push(this.playerName);
         }
         for(let i = 0; i < this.cpuCount; i++){
             if(this.enemyStatusWindows[i].getData('HP') === 0 && this.enemyStatusWindows[i].animalProtection){
                 this.gameResult.push(`cpu${i}`);
+            } else if(this.enemyStatusWindows[i].getData('HP') === 100){
+                this.loser.push(`cpu${i}`);
             }
         }
         if(this.gameResult.length > 0){
+            // while(this.loser.length > 0){
+            //     this.gameResult.push(this.loser.pop()!);
+            // }
             this.transitionToResult(this.gameResult);
         }
     }
