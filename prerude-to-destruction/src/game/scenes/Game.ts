@@ -467,7 +467,7 @@ export class Game extends Scene
         }
     }
 
-    // プレイ可能なカードをチェック
+    // 手札にプレイ可能なカードがあるかをチェック
     checkPlayableCards(handCards: Phaser.GameObjects.Container[], playerstatus: StatusWindow): boolean{
         if(playerstatus.waste || playerstatus.oceanPollution || playerstatus.deforestation) {
             if(handCards.find(card => card.getData('id') === 'biosphere')){
