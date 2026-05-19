@@ -37,6 +37,13 @@ export class Card extends Phaser.GameObjects.Container {
     }
 
     checkPlayable(userStatus: StatusWindow, targetStatus: StatusWindow){
+        if(userStatus.turnCount === 0){
+            if(this.getData('type') === 'recovery' || this.getData('type') === 'protect'){
+                return true;
+            } else {
+                return false;
+            }
+        }
         if(this.getData('userPlayable') && this.getData('targetPlayable')){
             return this.getData('userPlayable')(userStatus) && this.getData('targetPlayable')(targetStatus);
         } else if(this.getData('userPlayable')){

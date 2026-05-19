@@ -91,6 +91,8 @@ export class Game extends Scene
 
     await this.dealTheEarth();
 
+    await this.chooseFirstPlayer();
+
     this.initializeDeck();
 
     const deckVisual = this.add.rectangle(500, 400, 80, 120, 0x555555);
@@ -103,8 +105,13 @@ export class Game extends Scene
 
     await this.showCenterText('開始！');
 
-    await this.showSmallText(`${this.playerName}のターン`);
-    
+    if(this.turnPlayer !== 0){
+        this.setPhase('end');
+        await this.cpuTurn();
+    } else {
+        await this.showSmallText(`${this.playerName}のターン`);
+    }
+
     this.input.enabled = true;
 
     deckVisual.on('pointerdown', () => {
@@ -302,6 +309,18 @@ export class Game extends Scene
         });
     }
 
+    // 環境破壊レベルが大きい人から
+    chooseFirstPlayer(): Promise<void>{
+        return new Promise<void>(resolve => {
+            const allHP = [this.playerStatus.getData('HP'), ...this.enemyStatusWindows.map(status => status.getData('HP'))];
+            const maxHP = Math.max(...allHP);
+            const maxHPIndex = allHP.indexOf(maxHP);
+            this.turnPlayer = maxHPIndex;
+            console.log(this.turnPlayer);
+            resolve();
+        });
+    }
+
     // 初期手札を配布
     dealInitialCards(handCards: Phaser.GameObjects.Container[]): Promise<void>{
         return new Promise<void>(resolve => {
@@ -376,6 +395,7 @@ export class Game extends Scene
         });
     }
 
+    // テキスト表示
     showSmallText(text: string): Promise<void>{
         return new Promise<void>(resolve => {
             const textObject = this.add.text(
@@ -425,21 +445,20 @@ export class Game extends Scene
         return newCard;
     }
 
-    // ドローフェーズ
+    // プレイヤーのドローフェーズ
     async drawPhase() {
         if(this.turnPhase !== 'draw'){
             return;
         }
-        const targetHandCards = this.turnPlayer === 0 ? this.playerHandCards : this.enemyHandCards[this.turnPlayer - 1];
-        const targetStatus = this.turnPlayer === 0 ? this.playerStatus : this.enemyStatusWindows[this.turnPlayer - 1];
         for(let i = 0; i < 2; i++){
-            const newCard = this.drawCard(500, 400, this.turnPlayer === 0);
+            const newCard = this.drawCard(500, 400, true);
             if(newCard){
-                targetHandCards.push(newCard);
+                this.playerHandCards.push(newCard);
             }
         }
-        this.updateHandLayout(targetHandCards);
-        if(this.checkPlayableCards(targetHandCards, targetStatus)){
+        this.playerStatus.turnCount++;
+        this.updateHandLayout(this.playerHandCards);
+        if(this.checkPlayableCards(this.playerHandCards, this.playerStatus)){
             this.setPhase('play');
         } else {
             this.showCenterText('パス');
@@ -450,36 +469,48 @@ export class Game extends Scene
 
     // プレイ可能なカードをチェック
     checkPlayableCards(handCards: Phaser.GameObjects.Container[], playerstatus: StatusWindow): boolean{
-        // for(const card of handCards){
-        //     for(let i = -1; i < this.cpuCount; i++){
-        //         const targetStatus = i === -1 ? this.playerStatus : this.enemyStatusWindows[i];
-        //         if((card as Card).checkPlayable(playerstatus, targetStatus)){
-        //             return true;
-        //         }
-        //     }
-        // }
-        // return false;
-
-        if(handCards.find(card => card.getData('id') === 'biosphere')){
-            return true;
-        }
-
-        if(playerstatus.waste && !handCards.find(card => card.getData('id') === 'waste-treatment')){
+        if(playerstatus.waste || playerstatus.oceanPollution || playerstatus.deforestation) {
+            if(handCards.find(card => card.getData('id') === 'biosphere')){
+                return true;
+            } else if (playerstatus.waste && handCards.find(card => card.getData('id') === 'waste-treatment')) {
+                return true;
+            } else if (playerstatus.oceanPollution && handCards.find(card => card.getData('id') === 'waste-water-treatment')) {
+                return true;
+            } else if (playerstatus.deforestation && handCards.find(card => card.getData('id') === 'planting')) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            for(const card of handCards){
+                switch(card.getData('type')){
+                    case 'recovery':
+                        return true;
+                    case 'pollution':
+                        return true;
+                    case 'protect':
+                        if(!playerstatus.animalProtection) return true;
+                        break;
+                    case 'poaching':
+                        for(let i=-1; i<this.cpuCount; i++){
+                            if(this.turnPlayer === i+1) continue;
+                            const targetStatus = i === -1 ? this.playerStatus : this.enemyStatusWindows[i];
+                            if(targetStatus.animalProtection) return true;
+                        }
+                        break;
+                    case 'interference':
+                        for(let i=-1; i<this.cpuCount; i++){
+                            if(this.turnPlayer === i+1) continue;
+                            const targetStatus = i === -1 ? this.playerStatus : this.enemyStatusWindows[i];
+                            if((card as Card).checkPlayable(playerstatus, targetStatus)) return true;
+                        }
+                        break;
+                    }
+                }
+            }
             return false;
         }
-
-        if(playerstatus.oceanPollution && !handCards.find(card => card.getData('id') === 'waste-water-treatment')){
-            return false;
-        }
-        
-        if(playerstatus.deforestation && !handCards.find(card => card.getData('id') === 'planting')){
-            return false;
-        }
-
-        return true;
-    }
     
-
     // フェーズを設定
     setPhase(phase: TurnPhase){
         this.turnPhase = phase;
@@ -517,6 +548,7 @@ export class Game extends Scene
     async cpuTurn(){
         while(this.turnPlayer !== 0){
             await this.showSmallText(`CPU${this.turnPlayer}のターン`);
+            this.enemyStatusWindows[this.turnPlayer - 1].turnCount++;
             await sleep(1000);
 
             // draw Phase
