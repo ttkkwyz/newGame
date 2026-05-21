@@ -97,6 +97,14 @@ export class Game extends Scene
 
     const deckVisual = this.add.rectangle(500, 400, 80, 120, 0x555555);
     deckVisual.setInteractive();
+    
+    const graphics = this.add.graphics();
+    graphics.lineStyle(2, 0xffff00);
+    graphics.strokeRect(this.playerDropZone.x - this.playerDropZone.input!.hitArea!.width / 2, this.playerDropZone.y - this.playerDropZone.input!.hitArea!.height / 2, this.playerDropZone.input!.hitArea!.width, this.playerDropZone.input!.hitArea!.height);
+    graphics.strokeRect(this.trashZone.x - this.trashZone.input!.hitArea!.width / 2, this.trashZone.y - this.trashZone.input!.hitArea!.height / 2, this.trashZone.input!.hitArea!.width, this.trashZone.input!.hitArea!.height);
+    for(let i = 0; i < this.cpuCount; i++){
+        graphics.strokeRect(this.enemyDropZones[i].x - this.enemyDropZones[i].input!.hitArea!.width / 2, this.enemyDropZones[i].y - this.enemyDropZones[i].input!.hitArea!.height / 2, this.enemyDropZones[i].input!.hitArea!.width, this.enemyDropZones[i].input!.hitArea!.height);
+    }
 
     await this.dealInitialCards(this.playerHandCards);
     for(let i = 0; i < this.cpuCount; i++){
@@ -105,14 +113,15 @@ export class Game extends Scene
 
     await this.showCenterText('開始！');
 
+    this.setPhase('end');
+    this.input.enabled = true;
+
     if(this.turnPlayer !== 0){
-        this.setPhase('end');
-        await this.cpuTurn();
+        this.cpuTurn();
     } else {
         await this.showSmallText(`${this.playerName}のターン`);
+        this.setPhase('draw');
     }
-
-    this.input.enabled = true;
 
     deckVisual.on('pointerdown', () => {
         if(this.turnPhase === 'draw'){
@@ -172,14 +181,7 @@ export class Game extends Scene
         }
     });
 
-    const graphics = this.add.graphics();
-    graphics.lineStyle(2, 0xffff00);
-    graphics.strokeRect(this.playerDropZone.x - this.playerDropZone.input!.hitArea!.width / 2, this.playerDropZone.y - this.playerDropZone.input!.hitArea!.height / 2, this.playerDropZone.input!.hitArea!.width, this.playerDropZone.input!.hitArea!.height);
-    graphics.strokeRect(this.trashZone.x - this.trashZone.input!.hitArea!.width / 2, this.trashZone.y - this.trashZone.input!.hitArea!.height / 2, this.trashZone.input!.hitArea!.width, this.trashZone.input!.hitArea!.height);
-    for(let i = 0; i < this.cpuCount; i++){
-        graphics.strokeRect(this.enemyDropZones[i].x - this.enemyDropZones[i].input!.hitArea!.width / 2, this.enemyDropZones[i].y - this.enemyDropZones[i].input!.hitArea!.height / 2, this.enemyDropZones[i].input!.hitArea!.width, this.enemyDropZones[i].input!.hitArea!.height);
-    }
-
+    
     // // Zoneにドラッグしてきたときの処理
     // this.input.on('dragenter', (pointer: Phaser.Input.Pointer, gameObject: any, dropZone: Phaser.GameObjects.Zone) => {
     //     graphics.clear();

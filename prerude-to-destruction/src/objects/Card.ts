@@ -37,12 +37,29 @@ export class Card extends Phaser.GameObjects.Container {
     }
 
     checkPlayable(userStatus: StatusWindow, targetStatus: StatusWindow){
-        if(userStatus.turnCount === 0){
-            if(this.getData('type') === 'recovery' || this.getData('type') === 'protect'){
-                return true;
-            } else {
-                return false;
+        console.log('checkPlayable', this.getData('name'));
+        console.log('userStatus.turnCount', userStatus.turnCount);
+        if(userStatus.turnCount === 1){
+            console.log('first turn', this.getData('name'));
+            switch(this.getData('type')){
+                case 'recovery':
+                    return true;
+                case 'pollution':
+                    return false;
+                case 'interference':
+                    return false;
+                case 'regreen':
+                    return false;
+                case 'biosphere':
+                    return false;
+                case 'protect':
+                    return this.getData('userPlayable')(userStatus) && this.getData('targetPlayable')(targetStatus);
+                case 'poaching':
+                    return false;
+                default:
+                    return false;
             }
+
         }
         if(this.getData('userPlayable') && this.getData('targetPlayable')){
             return this.getData('userPlayable')(userStatus) && this.getData('targetPlayable')(targetStatus);
@@ -51,6 +68,7 @@ export class Card extends Phaser.GameObjects.Container {
         } else if(this.getData('targetPlayable')){
             return this.getData('targetPlayable')(targetStatus);
         } else {
+            console.log('playable', this.getData('name'));
         return true;
         }
     }
