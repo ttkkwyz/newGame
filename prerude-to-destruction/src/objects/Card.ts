@@ -37,10 +37,7 @@ export class Card extends Phaser.GameObjects.Container {
     }
 
     checkPlayable(userStatus: StatusWindow, targetStatus: StatusWindow){
-        console.log('checkPlayable', this.getData('name'));
-        console.log('userStatus.turnCount', userStatus.turnCount);
         if(userStatus.turnCount === 1){
-            console.log('first turn', this.getData('name'));
             switch(this.getData('type')){
                 case 'recovery':
                     return true;
@@ -68,7 +65,6 @@ export class Card extends Phaser.GameObjects.Container {
         } else if(this.getData('targetPlayable')){
             return this.getData('targetPlayable')(targetStatus);
         } else {
-            console.log('playable', this.getData('name'));
         return true;
         }
     }

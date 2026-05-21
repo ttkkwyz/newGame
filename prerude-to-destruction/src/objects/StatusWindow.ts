@@ -25,18 +25,18 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         
         super(scene, x, y);
 
-        const bg = scene.add.rectangle(0, 0, 200, 100, 0x000000, 0.5);
+        const bg = scene.add.rectangle(0, 10, 200, 120, 0x000000, 0.5);
 
         this.nameText = scene.add.text(-90, -40, name, { fontSize: '18px' });
         const fixedText = scene.add.text(-90, -20, '環境破壊レベル：', { fontSize: '16px', color: '#000000' });
         const fixedText2 = scene.add.text(-70, 0, '✕', { fontSize: '16px', color: '#000000' });
         
-        this.pollution10Icon = scene.add.text(-130, 25, '', { fontSize: '20px' });
-        this.pollution15Icon = scene.add.text(-110, 25, '', { fontSize: '20px' });
-        this.wasteIcon = scene.add.text(-90, 25, '', { fontSize: '20px' });
-        this.oceanPollutionIcon = scene.add.text(-70, 25, '', { fontSize: '20px' });
-        this.deforestationIcon = scene.add.text(-50, 25, '', { fontSize: '20px' });
-        this.animalProtectionIcon = scene.add.text(30, 25, '', { fontSize: '20px' });
+        this.pollution10Icon = scene.add.text(-90, 25, '', { fontSize: '16px' });
+        this.pollution15Icon = scene.add.text(-90, 45, '', { fontSize: '16px' });
+        this.wasteIcon = scene.add.text(-10, 0, '', { fontSize: '20px' });
+        this.oceanPollutionIcon = scene.add.text(15, 0, '', { fontSize: '20px' });
+        this.deforestationIcon = scene.add.text(40, 0, '', { fontSize: '20px' });
+        this.animalProtectionIcon = scene.add.text(70, -40, '', { fontSize: '20px' });
 
         this.HPText = scene.add.text(40, -22, '', { fontSize: '18px', color: '#000000' });
         this.handInfo = scene.add.text(-55, -1, '5', { fontSize: '18px', color: '#000000' });
@@ -90,11 +90,11 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         switch(id){
             case 'pollution-10':
                 target.pollution10 += 10;
-                target.pollution10Icon.setText("+" + target.pollution10.toString());
+                target.pollution10Icon.setText("フロンガス　+" + target.pollution10.toString());
                 break;
             case 'pollution-15':
                 target.pollution15 += 15;
-                target.pollution15Icon.setText("+" + target.pollution15.toString());
+                target.pollution15Icon.setText("放射能　+" + target.pollution15.toString());
                 break;
         }
     }
@@ -122,11 +122,23 @@ export class StatusWindow extends Phaser.GameObjects.Container {
                 target.waste = false;
                 target.wasteIcon.setText('');
                 break;
+            case 'waste':
+                target.waste = false;
+                target.wasteIcon.setText('');
+                break;
             case 'waste-water-treatment':
                 target.oceanPollution = false;
                 target.oceanPollutionIcon.setText('');
                 break;
+            case 'ocean-pollution':
+                target.oceanPollution = false;
+                target.oceanPollutionIcon.setText('');
+                break;
             case 'planting':
+                target.deforestation = false;
+                target.deforestationIcon.setText('');
+                break;
+            case 'deforestation':
                 target.deforestation = false;
                 target.deforestationIcon.setText('');
                 break;
@@ -175,6 +187,7 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         if(activeStatus.length === 0) return;
 
         if(activeStatus.length === 1){
+            console.log('regreenStatus', activeStatus[0]);
             this.regreenStatus(activeStatus[0], target);
             onComplete(activeStatus[0]);
         } else {

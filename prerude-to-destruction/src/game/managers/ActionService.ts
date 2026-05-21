@@ -40,8 +40,11 @@ export class ActionService {
             case 'biosphere':
                 targetStatus.biosphereStatus(targetStatus, (selected: string) => {
                     trash.push(CARD_LIST.find(c => c.id === selected) as CardData);
+                    console.log('biosphere', selected);
+                    console.log(targetStatus.getActiveStatus());
                 });
                 this.sendCardToTrash(card, trash);
+                console.log('biosphere', trash);
                 break;
             case 'protect':
                 targetStatus.protectAnimal(targetStatus);

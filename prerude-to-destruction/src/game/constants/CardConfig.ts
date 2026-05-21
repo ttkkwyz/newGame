@@ -135,8 +135,8 @@ export const CARD_LIST: CardData[] = [
         type: 'protect', 
         value: 0, 
         description: 'このカードをプレイした状態で環境破壊レベルを0にすれば勝利（環境破壊レベルが0になる前にプレイしなければならない）', 
-        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation && !userstatus.animalProtection,
-        targetPlayable: (targetstatus) => targetstatus.getData('HP') !== 0
+        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
+        targetPlayable: (targetstatus) => targetstatus.getData('HP') !== 0 && !targetstatus.animalProtection
     },
 
     // 密猟

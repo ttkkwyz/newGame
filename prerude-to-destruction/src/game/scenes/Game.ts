@@ -209,9 +209,9 @@ export class Game extends Scene
                 }
                 this.actionService.sendCardToTrash(gameObject.parentContainer as Card, this.trash);
                 this.updateHandLayout(this.playerHandCards);
-                this.turnPlayer = (this.turnPlayer + 1) % (this.cpuCount + 1);
                 if(this.turnPhase === 'discard'){
                     this.setPhase('end');
+                    this.turnPlayer = (this.turnPlayer + 1) % (this.cpuCount + 1);
                     this.cpuTurn();
                     return;
                 } else {
