@@ -17,4 +17,8 @@ export class CpuAI {
 
     }
 
+    choiceDiscardCardStupidly(handCards: Phaser.GameObjects.Container[], userstatus: StatusWindow, targetstatus: StatusWindow): { card: Card | null, index: number } {
+        return { card: handCards[0] as Card, index: 0 };
+    }
+
 }

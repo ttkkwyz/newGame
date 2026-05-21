@@ -316,7 +316,6 @@ export class Game extends Scene
             const maxHP = Math.max(...allHP);
             const maxHPIndex = allHP.indexOf(maxHP);
             this.turnPlayer = maxHPIndex;
-            console.log(this.turnPlayer);
             resolve();
         });
     }
@@ -364,8 +363,8 @@ export class Game extends Scene
                 text,
                 {
                     fontSize: '60px',
-                    color: '#ffffoo',
-                    stroke: '#000000',
+                    color: '#000000',
+                    stroke: '#ffffff',
                     strokeThickness: 6,
                 }
             ).setOrigin(0.5).setScale(0).setAlpha(0);
@@ -404,8 +403,8 @@ export class Game extends Scene
                 text,
                 {
                     fontSize: '30px',
-                    color: '#ffffoo',
-                    stroke: '#000000',
+                    color: '#000000',
+                    stroke: '#ffffff',
                     strokeThickness: 6,
                 }
             ).setOrigin(0.5).setScale(0).setAlpha(0);
@@ -589,23 +588,25 @@ export class Game extends Scene
 
             // discard Phase
             while(handCards.length > 5){
-                const hand = handCards[0];
-                await new Promise<void>(resolve => {
-                    this.add.tween({
-                        targets: hand,
-                        x: this.trashZone.x,
-                        y: this.trashZone.y,
-                        angle: 0,
-                        duration: 500,
-                        ease: 'Power2',
-                        onComplete: () => {
-                            this.actionService.sendCardToTrash(hand as Card, this.trash);
-                            handCards.splice(0, 1);
-                            this.updateHandLayout(handCards);
-                            resolve();
-                        }
+                const { card, index } = this.cpuAI.choiceDiscardCardStupidly(handCards, cpuStatus, this.playerStatus);
+                if(card){
+                    await new Promise<void>(resolve => {
+                        this.add.tween({
+                            targets: card,
+                            x: this.trashZone.x,
+                            y: this.trashZone.y,
+                            angle: 0,
+                            duration: 500,
+                            ease: 'Power2',
+                            onComplete: () => {
+                                this.actionService.sendCardToTrash(card as Card, this.trash);
+                                handCards.splice(index, 1);
+                                this.updateHandLayout(handCards);
+                                resolve();
+                             }
+                        });
                     });
-                });
+                }
             }
         
             this.turnPlayer = (this.turnPlayer + 1) % (this.cpuCount + 1);
