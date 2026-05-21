@@ -21,14 +21,14 @@ export class Credit extends Scene
         this.text = this.add.text(512, 350, 
             'ゲーム製作：わたなべ\nプログラミング：わたなべ'
             , {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
+            fontFamily: 'Arial Black', fontSize: 38, color: '#000000',
+            // stroke: '#000000', strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5);
 
         this.exitText = this.add.text(512, 400, 'トップに戻る', {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
+            fontFamily: 'Arial Black', fontSize: 38, color: '#000000',
+            // stroke: '#000000', strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5);
 

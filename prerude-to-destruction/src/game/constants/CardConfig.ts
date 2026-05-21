@@ -19,7 +19,7 @@ export const CARD_LIST: CardData[] = [
         name: '環境回復レベル5', 
         type: 'recovery', 
         value: 5, 
-        description: '環境レベル5回復', 
+        description: '環境回復レベル5\n環境破壊レベルを5回復します', 
         userPlayable: (userStatus) => !userStatus.waste && !userStatus.oceanPollution && !userStatus.deforestation 
     },
     { 
@@ -27,7 +27,7 @@ export const CARD_LIST: CardData[] = [
         name: '環境回復レベル10', 
         type: 'recovery', 
         value: 10, 
-        description: '環境レベル10回復', 
+        description: '環境回復レベル10\n環境破壊レベルを10回復します', 
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
     },
     { 
@@ -35,7 +35,7 @@ export const CARD_LIST: CardData[] = [
         name: '環境回復レベル15', 
         type: 'recovery', 
         value: 15, 
-        description: '環境レベル15回復', 
+        description: '環境回復レベル15\n環境破壊レベルを15回復します', 
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
     },
     { 
@@ -43,25 +43,25 @@ export const CARD_LIST: CardData[] = [
         name: '環境回復レベル20', 
         type: 'recovery', 
         value: 20, 
-        description: '環境レベル20回復', 
+        description: '環境回復レベル20\n環境破壊レベルを20回復します', 
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
     },
 
     // 公害カード
     { 
         id: 'pollution-10', 
-        name: '公害レベル10', 
+        name: 'フロンガス', 
         type: 'pollution', 
         value: 10, 
-        description: '環境破壊レベル10増加', 
+        description: 'フロンガス\n使った相手の環境破壊レベルを10増加します', 
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
     },
     { 
         id: 'pollution-15', 
-        name: '公害レベル15', 
+        name: '放射能漏れ事故', 
         type: 'pollution', 
         value: 15, 
-        description: '環境破壊レベル15増加', 
+        description: '放射能漏れ事故\n使った相手の環境破壊レベルを15増加します', 
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
     },
 
@@ -71,7 +71,7 @@ export const CARD_LIST: CardData[] = [
         name: '廃棄物', 
         type: 'interference', 
         value: 0, 
-        description: '廃棄物処理工場またはバイオスフェアをプレイするまで行動不能', 
+        description: '廃棄物\n使った相手を行動不能にします\n廃棄物処理工場かバイオスフェアで回復できます', 
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
         targetPlayable: (targetstatus) => !targetstatus.waste
     }, 
@@ -80,7 +80,7 @@ export const CARD_LIST: CardData[] = [
         name: '海洋汚染', 
         type: 'interference', 
         value: 0, 
-        description: '汚水処理またはバイオスフェアをプレイするまで行動不能', 
+        description: '海洋汚染\n使った相手を行動不能にします\n汚水処理かバイオスフェアで回復できます', 
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
         targetPlayable: (targetstatus) => !targetstatus.oceanPollution
     },
@@ -89,7 +89,7 @@ export const CARD_LIST: CardData[] = [
         name: '森林伐採', 
         type: 'interference', 
         value: 0, 
-        description: '植樹またはバイオスフェアをプレイするまで行動不能', 
+        description: '森林伐採\n使った相手を行動不能にします\n植樹かバイオスフェアで回復できます', 
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
         targetPlayable: (targetstatus) => !targetstatus.deforestation
     },
@@ -100,7 +100,7 @@ export const CARD_LIST: CardData[] = [
         name: '廃棄物処理工場', 
         type: 'regreen', 
         value: 0, 
-        description: '廃棄物による妨害を無効化', 
+        description: '廃棄物処理工場\n廃棄物による妨害を無効化します', 
         targetPlayable: (targetstatus) => targetstatus.waste
     },
     {
@@ -108,7 +108,7 @@ export const CARD_LIST: CardData[] = [
         name: '汚水処理', 
         type: 'regreen', 
         value: 0, 
-        description: '海洋汚染による妨害を無効化', 
+        description: '汚水処理\n海洋汚染による妨害を無効化します', 
         targetPlayable: (targetstatus) => targetstatus.oceanPollution
     },
     {
@@ -116,7 +116,7 @@ export const CARD_LIST: CardData[] = [
         name: '植樹', 
         type: 'regreen', 
         value: 0, 
-        description: '森林伐採による妨害を無効化', 
+        description: '植樹\n森林伐採による妨害を無効化します', 
         targetPlayable: (targetstatus) => targetstatus.deforestation
     },
     {
@@ -124,7 +124,7 @@ export const CARD_LIST: CardData[] = [
         name: 'バイオスフェア', 
         type: 'biosphere', 
         value: 0, 
-        description: '全ての妨害カードの中から1つを無効化（フロンガス、放射能漏れ事故にも対応）', 
+        description: 'バイオスフェア\n全ての妨害カードの中から1つを無効化します\nフロンガス、放射能漏れ事故による汚染も回復できます', 
         targetPlayable: (targetstatus) => targetstatus.waste || targetstatus.oceanPollution || targetstatus.deforestation || targetstatus.pollution10 !== 0 || targetstatus.pollution15 !== 0
     },
 
@@ -134,7 +134,7 @@ export const CARD_LIST: CardData[] = [
         name: '動物保護', 
         type: 'protect', 
         value: 0, 
-        description: 'このカードをプレイした状態で環境破壊レベルを0にすれば勝利（環境破壊レベルが0になる前にプレイしなければならない）', 
+        description: '動物保護\nこのカードをプレイした状態で環境破壊レベルを0にすれば勝利します\n環境破壊レベルが0になる前にプレイしなければなりません', 
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
         targetPlayable: (targetstatus) => targetstatus.getData('HP') !== 0 && !targetstatus.animalProtection
     },
@@ -145,7 +145,7 @@ export const CARD_LIST: CardData[] = [
         name: '密猟', 
         type: 'poaching', 
         value: 0, 
-        description: '動物保護を無効化', 
+        description: '密猟\n動物保護を無効化します', 
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
         targetPlayable: (targetstatus) => targetstatus.animalProtection
     },
