@@ -20,6 +20,7 @@ export class StatusWindow extends Phaser.GameObjects.Container {
     public pollution10: number;
     public pollution15: number;
     public turnCount: number;
+    public isDead: boolean;
 
     constructor(scene: Phaser.Scene, x: number, y: number, name: string) {
         
@@ -56,6 +57,7 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         this.pollution10 = 0;
         this.pollution15 = 0;
         this.turnCount = 0;
+        this.isDead = false;
         this.add([
             bg, 
             this.nameText, 

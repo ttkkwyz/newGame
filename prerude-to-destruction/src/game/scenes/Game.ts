@@ -438,11 +438,9 @@ export class Game extends Scene
 
     // カードを引く
     drawCard(x: number, y: number, isPlayer: boolean){
-        if(this.deck.length === 0){
-            this.trashToDeck();
-        }
         const cardData = this.deck.pop()!;
         const newCard = new Card(this, x, y, cardData, isPlayer);
+        
         return newCard;
     }
 
@@ -456,6 +454,9 @@ export class Game extends Scene
             if(newCard){
                 this.playerHandCards.push(newCard);
             }
+        }
+        if(this.deck.length <= 1){
+            this.trashToDeck();
         }
         this.playerStatus.turnCount++;
         this.updateHandLayout(this.playerHandCards);
@@ -548,6 +549,10 @@ export class Game extends Scene
     // CPUのターン
     async cpuTurn(){
         while(this.turnPlayer !== 0){
+            if(this.enemyStatusWindows[this.turnPlayer - 1].isDead){
+                this.turnPlayer = (this.turnPlayer + 1) % (this.cpuCount + 1);
+                continue;
+            }
             await this.showSmallText(`CPU${this.turnPlayer}のターン`);
             this.enemyStatusWindows[this.turnPlayer - 1].turnCount++;
             await sleep(1000);
@@ -560,6 +565,9 @@ export class Game extends Scene
                 if(newCard){
                     handCards.push(newCard);
                 }
+            }
+            if(this.deck.length <= 1){
+                this.trashToDeck();
             }
             this.updateHandLayout(handCards);
 
@@ -586,6 +594,9 @@ export class Game extends Scene
                         })
                     });
                 }
+            } else {
+                await this.showCenterText('パス');
+                await sleep(1000);
             }
 
             // discard Phase
@@ -624,14 +635,21 @@ export class Game extends Scene
    public checkGameOver(){
         if(this.playerStatus.getData('HP') === 0 && this.playerStatus.animalProtection){
             this.gameResult.push(this.playerName);
-        } else if(this.playerStatus.getData('HP') === 100){
+        } else if(this.playerStatus.getData('HP') >= 100){
+            this.playerStatus.isDead = true;
             this.loser.push(this.playerName);
         }
         for(let i = 0; i < this.cpuCount; i++){
             if(this.enemyStatusWindows[i].getData('HP') === 0 && this.enemyStatusWindows[i].animalProtection){
                 this.gameResult.push(`cpu${i}`);
-            } else if(this.enemyStatusWindows[i].getData('HP') === 100){
+            } else if(this.enemyStatusWindows[i].getData('HP') >= 100){
+                this.enemyStatusWindows[i].isDead = true;
                 this.loser.push(`cpu${i}`);
+                const targetZone = this.enemyDropZones[i];
+                if(targetZone){
+                    targetZone.disableInteractive();
+                    this.enemyStatusWindows[i].setAlpha(0.3);
+                }
             }
         }
         if(this.gameResult.length > 0){

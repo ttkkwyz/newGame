@@ -27,12 +27,12 @@ export class GameOver extends Scene
 
         this.add.rectangle(0, 0, width, height, 0x000000, 0.8).setOrigin(0);
 
-        this.add.text(width / 2, height / 3, 'Winner', {
-            fontSize: '64px',
-            color: '#ffffff'
-        }).setOrigin(0.5);
+        // this.add.text(width / 2, height / 3, 'Winner', {
+        //     fontSize: '64px',
+        //     color: '#ffffff'
+        // }).setOrigin(0.5);
 
-        const winnerText = this.add.text(width / 2, height / 2, this.results[0], {
+        const winnerText = this.add.text(width / 2, height / 2, `${this.results[0]}の勝利！`, {
             fontSize: '32px',
             color: '#ffffff'
         }).setOrigin(0.5);
@@ -65,10 +65,10 @@ export class GameOver extends Scene
         // });
         // this.gameover_text.setOrigin(0.5);
 
-        // this.input.once('pointerdown', () => {
+        this.input.once('pointerdown', () => {
 
-        //     this.scene.start('MainMenu');
+            this.scene.start('MainMenu');
 
-        // });
+        });
     }
 }
