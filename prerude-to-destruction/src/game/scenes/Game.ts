@@ -146,7 +146,7 @@ export class Game extends Scene
         const description = container.getData('description');
         if(description){
             this.descriptionText.setText(description);
-            this.descriptionText.setVisible(true);
+            this.descriptionText.setVisible(false);
         }
 
         if(container){
