@@ -41,6 +41,8 @@ export class Game extends Scene
     private playerStatus: StatusWindow;
     private enemyStatusWindows: StatusWindow[] = [];
 
+    private descriptionText: Phaser.GameObjects.Text;
+
     private gameResult: string[] = [];
     private loser: string[] = [];
 
@@ -106,6 +108,16 @@ export class Game extends Scene
         graphics.strokeRect(this.enemyDropZones[i].x - this.enemyDropZones[i].input!.hitArea!.width / 2, this.enemyDropZones[i].y - this.enemyDropZones[i].input!.hitArea!.height / 2, this.enemyDropZones[i].input!.hitArea!.width, this.enemyDropZones[i].input!.hitArea!.height);
     }
 
+    this.descriptionText = this.add.text(40,screenHeight-200, '', {
+        fontSize: '18px',
+        color: '#ffffff',
+        backgroundColor: '#000000aa',
+        padding: { x: 10, y: 5 },
+        wordWrap: { width: 300 }
+    });
+    this.descriptionText.setDepth(1000);
+    this.descriptionText.setVisible(true);
+
     await this.dealInitialCards(this.playerHandCards);
     for(let i = 0; i < this.cpuCount; i++){
         await this.dealInitialCards(this.enemyHandCards[i]);
@@ -131,7 +143,11 @@ export class Game extends Scene
 
     this.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container) => {
         const container = gameObject.parentContainer;
-        console.log(container.getData('id'));
+        const description = container.getData('description');
+        if(description){
+            this.descriptionText.setText(description);
+            this.descriptionText.setVisible(true);
+        }
 
         if(container){
             this.tweens.killTweensOf(container);
@@ -157,7 +173,8 @@ export class Game extends Scene
         
     this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dropped: boolean) => {
         const container = gameObject.parentContainer;
-
+        this.descriptionText.setVisible(false);
+        
         if(container){
             container.setScale(1.0);
             container.setAlpha(1.0);
