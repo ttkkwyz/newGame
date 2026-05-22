@@ -19,7 +19,7 @@ export class Credit extends Scene
         }).setOrigin(0.5);
 
         this.text = this.add.text(512, 350, 
-            'ゲーム製作：わたなべ\nプログラミング：わたなべ'
+            'ゲーム製作：わたなべ\nプログラミング：わたなべ\n使用したフレームワーク：Phaser 3'
             , {
             fontFamily: 'Arial Black', fontSize: 38, color: '#000000',
             // stroke: '#000000', strokeThickness: 8,
