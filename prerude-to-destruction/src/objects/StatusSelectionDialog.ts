@@ -1,7 +1,11 @@
 import * as Phaser from 'phaser';
 
 export class StatusSelectionDialog extends Phaser.GameObjects.Container {
-    constructor(scene: Phaser.Scene, options: string[], onSelect: (selected: string) => void) {
+    constructor(
+        scene: Phaser.Scene, 
+        options: string[], 
+        onSelect: (selected: string) => void
+    ) {
         super(scene, scene.cameras.main.centerX, scene.cameras.main.centerY);
 
         scene.tweens.pauseAll();
@@ -30,8 +34,8 @@ export class StatusSelectionDialog extends Phaser.GameObjects.Container {
                 scene.tweens.resumeAll();
                 scene.time.paused = false;
                 
-                onSelect(stateName); // 選択された値を返す
-                this.destroy();      // ダイアログを消す
+                onSelect(stateName);
+                this.destroy();
             });
 
             this.add(btn);

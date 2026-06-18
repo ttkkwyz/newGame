@@ -130,7 +130,16 @@ export const CARD_LIST: CardData[] = [
 
     // 動物保護
     {
-        id: 'animal-protection', 
+        id: 'animal-protection-1', 
+        name: '動物保護', 
+        type: 'protect', 
+        value: 0, 
+        description: '動物保護\nこのカードをプレイした状態で環境破壊レベルを0にすれば勝利します\n環境破壊レベルが0になる前にプレイしなければなりません', 
+        userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
+        targetPlayable: (targetstatus) => targetstatus.getData('HP') !== 0 && !targetstatus.animalProtection
+    },
+    {
+        id: 'animal-protection-2', 
         name: '動物保護', 
         type: 'protect', 
         value: 0, 
@@ -154,12 +163,49 @@ export const CARD_LIST: CardData[] = [
 
 export const EARTH_CARDS: CardData[] = [
      // 環境破壊レベルカード
-     { id: 'earth-60', name: '環境破壊レベル60', type: 'earth', value: 60, description: '環境破壊レベルの初期値 60' },
-     { id: 'earth-65', name: '環境破壊レベル65', type: 'earth', value: 65, description: '環境破壊レベルの初期値 65' },
-     { id: 'earth-70', name: '環境破壊レベル70', type: 'earth', value: 70, description: '環境破壊レベルの初期値 70' },
-     { id: 'earth-75', name: '環境破壊レベル75', type: 'earth', value: 75, description: '環境破壊レベルの初期値 75' },
-     { id: 'earth-80', name: '環境破壊レベル80', type: 'earth', value: 80, description: '環境破壊レベルの初期値 80' },
-     { id: 'earth-85', name: '環境破壊レベル85', type: 'earth', value: 85, description: '環境破壊レベルの初期値 85' }
+     { 
+        id: 'earth-60', 
+        name: '環境破壊レベル60', 
+        type: 'earth', 
+        value: 60, 
+        description: '環境破壊レベルの初期値 60' 
+    },
+     { 
+        id: 'earth-65', 
+        name: '環境破壊レベル65', 
+        type: 'earth', 
+        value: 65, 
+        description: 
+        '環境破壊レベルの初期値 65' 
+    },
+     { 
+        id: 'earth-70', 
+        name: '環境破壊レベル70', 
+        type: 'earth', 
+        value: 70, 
+        description: '環境破壊レベルの初期値 70' 
+    },
+     { 
+        id: 'earth-75', 
+        name: '環境破壊レベル75', 
+        type: 'earth', 
+        value: 75, 
+        description: '環境破壊レベルの初期値 75' 
+    },
+     { 
+        id: 'earth-80', 
+        name: '環境破壊レベル80', 
+        type: 'earth', 
+        value: 80, 
+        description: '環境破壊レベルの初期値 80' 
+    },
+     { 
+        id: 'earth-85', 
+        name: '環境破壊レベル85', 
+        type: 'earth', 
+        value: 85, 
+        description: '環境破壊レベルの初期値 85' 
+    }
 ];
 
 export const DECK_CARDS = [
@@ -177,5 +223,6 @@ export const DECK_CARDS = [
     {id: 'waste-water-treatment', count: 5},
     {id: 'planting', count: 5},
     {id: 'biosphere', count: 2},
-    {id: 'animal-protection', count: 7}
+    {id: 'animal-protection-1', count: 4},
+    {id: 'animal-protection-2', count: 3}
 ]

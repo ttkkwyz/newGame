@@ -102,10 +102,25 @@ export class Game extends Scene
     
     const graphics = this.add.graphics();
     graphics.lineStyle(2, 0xffff00);
-    graphics.strokeRect(this.playerDropZone.x - this.playerDropZone.input!.hitArea!.width / 2, this.playerDropZone.y - this.playerDropZone.input!.hitArea!.height / 2, this.playerDropZone.input!.hitArea!.width, this.playerDropZone.input!.hitArea!.height);
-    graphics.strokeRect(this.trashZone.x - this.trashZone.input!.hitArea!.width / 2, this.trashZone.y - this.trashZone.input!.hitArea!.height / 2, this.trashZone.input!.hitArea!.width, this.trashZone.input!.hitArea!.height);
+    graphics.strokeRect(
+        this.trashZone.x - this.trashZone.input!.hitArea!.width / 2, 
+        this.trashZone.y - this.trashZone.input!.hitArea!.height / 2, 
+        this.trashZone.input!.hitArea!.width, 
+        this.trashZone.input!.hitArea!.height
+    );
+    graphics.strokeRect(
+        this.playerDropZone.x - this.playerDropZone.input!.hitArea!.width / 2, 
+        this.playerDropZone.y - this.playerDropZone.input!.hitArea!.height / 2, 
+        this.playerDropZone.input!.hitArea!.width, 
+        this.playerDropZone.input!.hitArea!.height
+    );
     for(let i = 0; i < this.cpuCount; i++){
-        graphics.strokeRect(this.enemyDropZones[i].x - this.enemyDropZones[i].input!.hitArea!.width / 2, this.enemyDropZones[i].y - this.enemyDropZones[i].input!.hitArea!.height / 2, this.enemyDropZones[i].input!.hitArea!.width, this.enemyDropZones[i].input!.hitArea!.height);
+        graphics.strokeRect(
+            this.enemyDropZones[i].x - this.enemyDropZones[i].input!.hitArea!.width / 2, 
+            this.enemyDropZones[i].y - this.enemyDropZones[i].input!.hitArea!.height / 2, 
+            this.enemyDropZones[i].input!.hitArea!.width, 
+            this.enemyDropZones[i].input!.hitArea!.height
+        );
     }
 
     this.descriptionText = this.add.text(40,screenHeight-200, '', {
@@ -116,7 +131,7 @@ export class Game extends Scene
         wordWrap: { width: 300 }
     });
     this.descriptionText.setDepth(1000);
-    this.descriptionText.setVisible(true);
+    this.descriptionText.setVisible(false);
 
     await this.dealInitialCards(this.playerHandCards);
     for(let i = 0; i < this.cpuCount; i++){
@@ -141,12 +156,15 @@ export class Game extends Scene
         }
     });
 
-    this.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container) => {
+    this.input.on('dragstart', (
+        pointer: Phaser.Input.Pointer, 
+        gameObject: Phaser.GameObjects.Container
+    ) => {
         const container = gameObject.parentContainer;
         const description = container.getData('description');
         if(description){
             this.descriptionText.setText(description);
-            this.descriptionText.setVisible(false);
+            this.descriptionText.setVisible(true);
         }
 
         if(container){
@@ -160,7 +178,12 @@ export class Game extends Scene
         }
     });
 
-    this.input.on('drag', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dragX: number, dragY: number) => {
+    this.input.on('drag', (
+        pointer: Phaser.Input.Pointer, 
+        gameObject: Phaser.GameObjects.Container, 
+        dragX: number, 
+        dragY: number
+    ) => {
         const container = gameObject.parentContainer;
         if(container){
             container.x = pointer.worldX;
@@ -171,7 +194,11 @@ export class Game extends Scene
         }
     });
         
-    this.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dropped: boolean) => {
+    this.input.on('dragend', (
+        pointer: Phaser.Input.Pointer, 
+        gameObject: Phaser.GameObjects.Container, 
+        dropped: boolean
+    ) => {
         const container = gameObject.parentContainer;
         this.descriptionText.setVisible(false);
         
@@ -217,14 +244,21 @@ export class Game extends Scene
     let depth = 1;
 
     // Zoneにドロップしたときの効果処理
-    this.input.on('drop', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container, dropZone: Phaser.GameObjects.Zone) => {
+    this.input.on('drop', (
+        pointer: Phaser.Input.Pointer, 
+        gameObject: Phaser.GameObjects.Container, 
+        dropZone: Phaser.GameObjects.Zone
+    ) => {
         if(dropZone === this.trashZone) {
             if(this.turnPhase === 'discard' || this.turnPhase === 'discard-2'){
                 const index = this.playerHandCards.indexOf(gameObject.parentContainer);
                 if (index > -1){
                     this.playerHandCards.splice(index, 1);
                 }
-                this.actionService.sendCardToTrash(gameObject.parentContainer as Card, this.trash);
+                this.actionService.sendCardToTrash(
+                    gameObject.parentContainer as Card, 
+                    this.trash
+                );
                 this.updateHandLayout(this.playerHandCards);
                 if(this.turnPhase === 'discard'){
                     this.setPhase('end');
@@ -259,7 +293,12 @@ export class Game extends Scene
                 this.playerHandCards.splice(index, 1);
             }
 
-            this.actionService.handCardEffect(container as Card, targetStatus, dropZone, this.trash);
+            this.actionService.handCardEffect(
+                container as Card, 
+                targetStatus, 
+                dropZone, 
+                this.trash
+            );
             
             this.updateHandLayout(this.playerHandCards);
             this.setPhase('discard');
@@ -272,8 +311,8 @@ export class Game extends Scene
     // 手札のレイアウトを更新
     updateHandLayout(handCards: Phaser.GameObjects.Container[]){
         const Index = handCards === this.playerHandCards ? -1 : this.enemyHandCards.indexOf(handCards);
-        const centerX = handCards === this.playerHandCards ? 500 : (this.cameras.main.width / this.cpuCount) * (Index + 0.5);
-        const centerY = handCards == this.playerHandCards ? 550 : 250 ;
+        const centerX = Index === -1 ? 500 : (this.cameras.main.width / this.cpuCount) * (Index + 0.5);
+        const centerY = Index === -1 ? 550 : 250 ;
         const cardSpacing = Math.min(60, 400 / handCards.length);
 
         handCards.forEach((card, index) => {
@@ -295,10 +334,8 @@ export class Game extends Scene
             card.setDepth(100 + index);
         });
 
-        const handsIndex = handCards === this.playerHandCards ? -1 : this.enemyHandCards.indexOf(handCards);
-        const targetStatus = handsIndex === -1 ? this.playerStatus : this.enemyStatusWindows[handsIndex];
-        targetStatus.updateHandInfo(handCards.length);
-        
+        const targetStatus = Index === -1 ? this.playerStatus : this.enemyStatusWindows[Index];
+        targetStatus.updateHandInfo(handCards.length);   
     }
 
     // 環境破壊レベルカード配布
@@ -331,7 +368,10 @@ export class Game extends Scene
     // 環境破壊レベルが大きい人から
     chooseFirstPlayer(): Promise<void>{
         return new Promise<void>(resolve => {
-            const allHP = [this.playerStatus.getData('HP'), ...this.enemyStatusWindows.map(status => status.getData('HP'))];
+            const allHP = [
+                this.playerStatus.getData('HP'), 
+                ...this.enemyStatusWindows.map(status => status.getData('HP'))
+            ];
             const maxHP = Math.max(...allHP);
             const maxHPIndex = allHP.indexOf(maxHP);
             this.turnPlayer = maxHPIndex;
@@ -487,7 +527,10 @@ export class Game extends Scene
     }
 
     // 手札にプレイ可能なカードがあるかをチェック
-    checkPlayableCards(handCards: Phaser.GameObjects.Container[], playerstatus: StatusWindow): boolean{
+    checkPlayableCards(
+        handCards: Phaser.GameObjects.Container[], 
+        playerstatus: StatusWindow
+    ): boolean{
         if(playerstatus.waste || playerstatus.oceanPollution || playerstatus.deforestation) {
             if(handCards.find(card => card.getData('id') === 'biosphere')){
                 return true;
@@ -592,7 +635,11 @@ export class Game extends Scene
             
             // play Phase
             if(this.checkPlayableCards(handCards, cpuStatus)){
-                const { card, index } = this.cpuAI.choicePlayCardStupidly(handCards, cpuStatus, this.playerStatus);
+                const { card, index } = this.cpuAI.choicePlayCardStupidly(
+                    handCards, 
+                    cpuStatus, 
+                    this.playerStatus
+                );
                 if(card){
                     await new Promise<void>(resolve => {
                         this.add.tween({
@@ -603,7 +650,12 @@ export class Game extends Scene
                             duration: 500,
                             ease: 'Power2',
                             onComplete: () => {
-                                this.actionService.handCardEffect(card as Card, this.playerStatus, this.playerDropZone, this.trash);
+                                this.actionService.handCardEffect(
+                                    card as Card, 
+                                    this.playerStatus, 
+                                    this.playerDropZone, 
+                                    this.trash
+                                );
                                 handCards.splice(index, 1);
                                 this.updateHandLayout(handCards);
                                 resolve();
@@ -618,7 +670,11 @@ export class Game extends Scene
 
             // discard Phase
             while(handCards.length > 5){
-                const { card, index } = this.cpuAI.choiceDiscardCardStupidly(handCards, cpuStatus, this.playerStatus);
+                const { card, index } = this.cpuAI.choiceDiscardCardStupidly(
+                    handCards, 
+                    cpuStatus, 
+                    this.playerStatus
+                );
                 if(card){
                     await new Promise<void>(resolve => {
                         this.add.tween({
@@ -629,7 +685,10 @@ export class Game extends Scene
                             duration: 500,
                             ease: 'Power2',
                             onComplete: () => {
-                                this.actionService.sendCardToTrash(card as Card, this.trash);
+                                this.actionService.sendCardToTrash(
+                                    card as Card, 
+                                    this.trash
+                                );
                                 handCards.splice(index, 1);
                                 this.updateHandLayout(handCards);
                                 resolve();

@@ -12,7 +12,12 @@ export class ActionService {
         this.scene = scene;
     }
 
-    handCardEffect(card: Card, targetStatus: StatusWindow, dropZone: Phaser.GameObjects.Zone, trash: CardData[]){
+    handCardEffect(
+        card: Card, 
+        targetStatus: StatusWindow, 
+        dropZone: Phaser.GameObjects.Zone, 
+        trash: CardData[]
+    ){
         const type = card.getData('type') as CardType;
         const value = card.getData('value') as number;
         const id = card.getData('id') as string;

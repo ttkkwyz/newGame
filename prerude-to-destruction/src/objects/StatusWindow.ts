@@ -22,7 +22,12 @@ export class StatusWindow extends Phaser.GameObjects.Container {
     public turnCount: number;
     public isDead: boolean;
 
-    constructor(scene: Phaser.Scene, x: number, y: number, name: string) {
+    constructor(
+        scene: Phaser.Scene, 
+        x: number, 
+        y: number, 
+        name: string
+    ) {
         
         super(scene, x, y);
 
@@ -183,7 +188,10 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         return activeStatus;
     }
 
-    biosphereStatus(target: StatusWindow, onComplete: (selected: string) => void) {
+    biosphereStatus(
+        target: StatusWindow, 
+        onComplete: (selected: string) => void
+    ) {
         const activeStatus = this.getActiveStatus();
 
         if(activeStatus.length === 0) return;
@@ -193,10 +201,14 @@ export class StatusWindow extends Phaser.GameObjects.Container {
             this.regreenStatus(activeStatus[0], target);
             onComplete(activeStatus[0]);
         } else {
-            new StatusSelectionDialog(this.scene as Phaser.Scene, activeStatus, (selected: string) => {
-            this.regreenStatus(selected, target);
-            onComplete(selected);
-            });
+            new StatusSelectionDialog(
+                this.scene as Phaser.Scene, 
+                activeStatus, 
+                (selected: string) => {
+                this.regreenStatus(selected, target);
+                onComplete(selected);
+                }
+            );
         }
     }
 

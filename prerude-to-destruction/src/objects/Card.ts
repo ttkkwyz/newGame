@@ -3,7 +3,13 @@ import { CardData, CardType } from '../game/constants/CardConfig';
 import { StatusWindow } from './StatusWindow';
 
 export class Card extends Phaser.GameObjects.Container {
-    constructor(scene: Phaser.Scene, x: number, y: number, cardData: CardData, isPlayer: boolean) {
+    constructor(
+        scene: Phaser.Scene, 
+        x: number, 
+        y: number, 
+        cardData: CardData, 
+        isPlayer: boolean
+    ) {
 
         super(scene, x, y);
 
@@ -20,8 +26,14 @@ export class Card extends Phaser.GameObjects.Container {
         this.setData('description', cardData.description);
         this.setData('type', cardData.type);
         this.setData('value', cardData.value);
-        cardData.userPlayable ? this.setData('userPlayable', cardData.userPlayable) : this.setData('userPlayable', () => true);
-        cardData.targetPlayable ? this.setData('targetPlayable', cardData.targetPlayable) : this.setData('targetPlayable', () => true);
+        cardData.userPlayable ? this.setData(
+            'userPlayable', 
+            cardData.userPlayable
+        ) : this.setData('userPlayable', () => true);
+        cardData.targetPlayable ? this.setData(
+            'targetPlayable', 
+            cardData.targetPlayable
+        ) : this.setData('targetPlayable', () => true);
 
         if(isPlayer){
             cardBg.setInteractive();
