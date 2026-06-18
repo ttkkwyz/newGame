@@ -156,90 +156,7 @@ export class Game extends Scene
         }
     });
 
-    this.input.on('dragstart', (
-        pointer: Phaser.Input.Pointer, 
-        gameObject: Phaser.GameObjects.Container
-    ) => {
-        const container = gameObject.parentContainer;
-        const description = container.getData('description');
-        if(description){
-            this.descriptionText.setText(description);
-            this.descriptionText.setVisible(true);
-        }
-
-        if(container){
-            this.tweens.killTweensOf(container);
-            container.setDepth(1000);
-            container.setScale(1.1);
-            container.setAlpha(0.8);
-            container.setAngle(0);
-            container.setData('startX', container.x);
-            container.setData('startY', container.y);
-        }
-    });
-
-    this.input.on('drag', (
-        pointer: Phaser.Input.Pointer, 
-        gameObject: Phaser.GameObjects.Container, 
-        dragX: number, 
-        dragY: number
-    ) => {
-        const container = gameObject.parentContainer;
-        if(container){
-            container.x = pointer.worldX;
-            container.y = pointer.worldY;
-        } else {
-            gameObject.x = pointer.worldX;
-            gameObject.y = pointer.worldY;
-        }
-    });
-        
-    this.input.on('dragend', (
-        pointer: Phaser.Input.Pointer, 
-        gameObject: Phaser.GameObjects.Container, 
-        dropped: boolean
-    ) => {
-        const container = gameObject.parentContainer;
-        this.descriptionText.setVisible(false);
-        
-        if(container){
-            container.setScale(1.0);
-            container.setAlpha(1.0);
-        }
-        
-        if (!dropped){
-            const startX = container.getData('startX');
-            const startY = container.getData('startY');
-
-        this.add.tween({
-            targets: container,
-            x: startX,
-            y: startY,
-            duration: 200,
-            ease: 'Power2',
-            onComplete: () => {
-                this.updateHandLayout(this.playerHandCards);
-            }
-        })} else {
-            this.updateHandLayout(this.playerHandCards);
-        }
-    });
-
-    
-    // // Zoneにドラッグしてきたときの処理
-    // this.input.on('dragenter', (pointer: Phaser.Input.Pointer, gameObject: any, dropZone: Phaser.GameObjects.Zone) => {
-    //     graphics.clear();
-    //     graphics.lineStyle(2, 0x00ff00);
-    //     graphics.strokeRect(this.enemyDropZones[0].x - this.enemyDropZones[0].input!.hitArea!.width / 2, this.enemyDropZones[0].y - this.enemyDropZones[0].input!.hitArea!.height / 2, this.enemyDropZones[0].input!.hitArea!.width, this.enemyDropZones[0].input!.hitArea!.height);
-    //     graphics.strokeRect(this.playerTargetZone.x - this.playerTargetZone.input!.hitArea!.width / 2, this.playerTargetZone.y - this.playerTargetZone.input!.hitArea!.height / 2, this.playerTargetZone.input!.hitArea!.width, this.playerTargetZone.input!.hitArea!.height);
-    // });
-
-    // this.input.on('dragleave', (pointer: Phaser.Input.Pointer, gameObject: any, dropZone: Phaser.GameObjects.Zone) => {
-    //     graphics.clear();
-    //     graphics.lineStyle(2, 0xffff00);
-    //     graphics.strokeRect(this.cpuTargetZone.x - this.cpuTargetZone.input!.hitArea!.width / 2, this.cpuTargetZone.y - this.cpuTargetZone.input!.hitArea!.height / 2, this.cpuTargetZone.input!.hitArea!.width, this.cpuTargetZone.input!.hitArea!.height);
-    //     graphics.strokeRect(this.playerTargetZone.x - this.playerTargetZone.input!.hitArea!.width / 2, this.playerTargetZone.y - this.playerTargetZone.input!.hitArea!.height / 2, this.playerTargetZone.input!.hitArea!.width, this.playerTargetZone.input!.hitArea!.height);
-    // });
+    this.setupDragEvents();
 
     let depth = 1;
 
@@ -249,6 +166,7 @@ export class Game extends Scene
         gameObject: Phaser.GameObjects.Container, 
         dropZone: Phaser.GameObjects.Zone
     ) => {
+        this.descriptionText.setVisible(false);
         if(dropZone === this.trashZone) {
             if(this.turnPhase === 'discard' || this.turnPhase === 'discard-2'){
                 const index = this.playerHandCards.indexOf(gameObject.parentContainer);
@@ -308,6 +226,77 @@ export class Game extends Scene
         });
     }
 
+    setupDragEvents(){
+        this.input.on('dragstart', (
+            pointer: Phaser.Input.Pointer, 
+            gameObject: Phaser.GameObjects.Container
+        ) => {
+            const container = gameObject.parentContainer;
+            const description = container.getData('description');
+            if(description){
+                this.descriptionText.setText(description);
+                this.descriptionText.setVisible(true);
+            }
+    
+            if(container){
+                this.tweens.killTweensOf(container);
+                container.setDepth(1000);
+                container.setScale(1.1);
+                container.setAlpha(0.8);
+                container.setAngle(0);
+                container.setData('startX', container.x);
+                container.setData('startY', container.y);
+            }
+        });
+    
+        this.input.on('drag', (
+            pointer: Phaser.Input.Pointer, 
+            gameObject: Phaser.GameObjects.Container, 
+            dragX: number, 
+            dragY: number
+        ) => {
+            const container = gameObject.parentContainer;
+            if(container){
+                container.x = pointer.worldX;
+                container.y = pointer.worldY;
+            } else {
+                gameObject.x = pointer.worldX;
+                gameObject.y = pointer.worldY;
+            }
+        });
+            
+        this.input.on('dragend', (
+            pointer: Phaser.Input.Pointer, 
+            gameObject: Phaser.GameObjects.Container, 
+            dropped: boolean
+        ) => {
+            const container = gameObject.parentContainer;
+            this.descriptionText.setVisible(false);
+            
+            if(container){
+                container.setScale(1.0);
+                container.setAlpha(1.0);
+            }
+            
+            if (!dropped){
+                const startX = container.getData('startX');
+                const startY = container.getData('startY');
+    
+            this.add.tween({
+                targets: container,
+                x: startX,
+                y: startY,
+                duration: 200,
+                ease: 'Power2',
+                onComplete: () => {
+                    this.updateHandLayout(this.playerHandCards);
+                }
+            })} else {
+                this.updateHandLayout(this.playerHandCards);
+            }
+        });
+    }
+
     // 手札のレイアウトを更新
     updateHandLayout(handCards: Phaser.GameObjects.Container[]){
         const Index = handCards === this.playerHandCards ? -1 : this.enemyHandCards.indexOf(handCards);
@@ -355,6 +344,10 @@ export class Game extends Scene
                     y: targetZone.y,
                     duration: 1000,
                     ease: 'Power2',
+                    onStart: () => {
+                        newCard.showFront();
+                        newCard.setScale(1.5);
+                    },
                     onComplete:() => {
                         newCard.destroy();
                         i === -1 ? this.playerStatus.updateStatusWindow(targetHP) : this.enemyStatusWindows[i].updateStatusWindow(targetHP);
@@ -649,6 +642,10 @@ export class Game extends Scene
                             angle: 0,
                             duration: 500,
                             ease: 'Power2',
+                            onStart: () => {
+                                card.showFront();
+                                card.setScale(1.5);
+                            },
                             onComplete: () => {
                                 this.actionService.handCardEffect(
                                     card as Card, 
@@ -684,6 +681,10 @@ export class Game extends Scene
                             angle: 0,
                             duration: 500,
                             ease: 'Power2',
+                            onStart: () => {
+                                card.showFront();
+                                card.setScale(1.5);
+                            },
                             onComplete: () => {
                                 this.actionService.sendCardToTrash(
                                     card as Card, 

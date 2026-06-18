@@ -3,6 +3,10 @@ import { CardData, CardType } from '../game/constants/CardConfig';
 import { StatusWindow } from './StatusWindow';
 
 export class Card extends Phaser.GameObjects.Container {
+    private cardImage: Phaser.GameObjects.Image;
+    private frontKey: string;
+    private backKey: string = 'back';
+
     constructor(
         scene: Phaser.Scene, 
         x: number, 
@@ -13,13 +17,26 @@ export class Card extends Phaser.GameObjects.Container {
 
         super(scene, x, y);
 
-        const cardBg = scene.add.rectangle(0, 0, 100, 150, 0xffffff);
-        cardBg.setStrokeStyle(2, 0x000000);
+        // const cardBg = scene.add.rectangle(0, 0, 100, 150, 0xffffff);
+        // cardBg.setStrokeStyle(2, 0x000000);
 
-        const text = scene.add.text(0, 0, cardData.value?.toString() || '', { 
-            fontSize: '24px', 
-            color: cardData.type === 'recovery' ? '#000000' : '#ff0000'
-        }).setOrigin(0.5);
+        this.frontKey = cardData.imageKey;
+
+        const inititalKey = isPlayer ? this.frontKey : this.backKey;
+        this.cardImage = scene.add.image(0, 0, inititalKey);
+        this.cardImage.setScale(0.15);
+
+        if(isPlayer){
+            this.cardImage.setInteractive();
+            scene.input.setDraggable(this.cardImage);
+        } else {
+            this.cardImage.setScale(0.1);
+        }
+
+        // const text = scene.add.text(0, 0, cardData.value?.toString() || '', { 
+        //     fontSize: '24px', 
+        //     color: cardData.type === 'recovery' ? '#000000' : '#ff0000'
+        // }).setOrigin(0.5);
 
         this.setData('id', cardData.id);
         this.setData('name', cardData.name);
@@ -35,17 +52,18 @@ export class Card extends Phaser.GameObjects.Container {
             cardData.targetPlayable
         ) : this.setData('targetPlayable', () => true);
 
-        if(isPlayer){
-            cardBg.setInteractive();
-            scene.input.setDraggable(cardBg);
-        } else {
-            cardBg.setScale(0.5);
-            text.setScale(0.5);
-        }
-
-        this.add([cardBg, text]);
+        // this.add([cardBg, text]);
+        this.add(this.cardImage);
         
         scene.add.existing(this);
+    }
+
+    public showFront(){
+        this.cardImage.setTexture(this.frontKey);
+    }
+
+    public showBack(){
+        this.cardImage.setTexture(this.backKey);
     }
 
     checkPlayable(userStatus: StatusWindow, targetStatus: StatusWindow){

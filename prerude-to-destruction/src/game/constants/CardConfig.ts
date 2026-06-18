@@ -8,6 +8,7 @@ export interface CardData {
     type: CardType;
     value: number;
     description: string;
+    imageKey: string;
     userPlayable?: (userStatus: StatusWindow) => boolean;
     targetPlayable?: (targetStatus: StatusWindow) => boolean;
 }
@@ -20,6 +21,7 @@ export const CARD_LIST: CardData[] = [
         type: 'recovery', 
         value: 5, 
         description: '環境回復レベル5\n環境破壊レベルを5回復します', 
+        imageKey: 'recovery-5',
         userPlayable: (userStatus) => !userStatus.waste && !userStatus.oceanPollution && !userStatus.deforestation 
     },
     { 
@@ -28,6 +30,7 @@ export const CARD_LIST: CardData[] = [
         type: 'recovery', 
         value: 10, 
         description: '環境回復レベル10\n環境破壊レベルを10回復します', 
+        imageKey: 'recovery-10',
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
     },
     { 
@@ -36,6 +39,7 @@ export const CARD_LIST: CardData[] = [
         type: 'recovery', 
         value: 15, 
         description: '環境回復レベル15\n環境破壊レベルを15回復します', 
+        imageKey: 'recovery-15',
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
     },
     { 
@@ -44,6 +48,7 @@ export const CARD_LIST: CardData[] = [
         type: 'recovery', 
         value: 20, 
         description: '環境回復レベル20\n環境破壊レベルを20回復します', 
+        imageKey: 'recovery-20',
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
     },
 
@@ -54,6 +59,7 @@ export const CARD_LIST: CardData[] = [
         type: 'pollution', 
         value: 10, 
         description: 'フロンガス\n使った相手の環境破壊レベルを10増加します', 
+        imageKey: 'pollution-10',
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
     },
     { 
@@ -62,6 +68,7 @@ export const CARD_LIST: CardData[] = [
         type: 'pollution', 
         value: 15, 
         description: '放射能漏れ事故\n使った相手の環境破壊レベルを15増加します', 
+        imageKey: 'pollution-15',
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation 
     },
 
@@ -72,6 +79,7 @@ export const CARD_LIST: CardData[] = [
         type: 'interference', 
         value: 0, 
         description: '廃棄物\n使った相手を行動不能にします\n廃棄物処理工場かバイオスフェアで回復できます', 
+        imageKey: 'waste',
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
         targetPlayable: (targetstatus) => !targetstatus.waste
     }, 
@@ -81,6 +89,7 @@ export const CARD_LIST: CardData[] = [
         type: 'interference', 
         value: 0, 
         description: '海洋汚染\n使った相手を行動不能にします\n汚水処理かバイオスフェアで回復できます', 
+        imageKey: 'ocean-pollution',
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
         targetPlayable: (targetstatus) => !targetstatus.oceanPollution
     },
@@ -90,6 +99,7 @@ export const CARD_LIST: CardData[] = [
         type: 'interference', 
         value: 0, 
         description: '森林伐採\n使った相手を行動不能にします\n植樹かバイオスフェアで回復できます', 
+        imageKey: 'deforestation',
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
         targetPlayable: (targetstatus) => !targetstatus.deforestation
     },
@@ -101,6 +111,7 @@ export const CARD_LIST: CardData[] = [
         type: 'regreen', 
         value: 0, 
         description: '廃棄物処理工場\n廃棄物による妨害を無効化します', 
+        imageKey: 'waste-treatment',
         targetPlayable: (targetstatus) => targetstatus.waste
     },
     {
@@ -109,6 +120,7 @@ export const CARD_LIST: CardData[] = [
         type: 'regreen', 
         value: 0, 
         description: '汚水処理\n海洋汚染による妨害を無効化します', 
+        imageKey: 'waste-water-treatment',
         targetPlayable: (targetstatus) => targetstatus.oceanPollution
     },
     {
@@ -117,6 +129,7 @@ export const CARD_LIST: CardData[] = [
         type: 'regreen', 
         value: 0, 
         description: '植樹\n森林伐採による妨害を無効化します', 
+        imageKey: 'planting',
         targetPlayable: (targetstatus) => targetstatus.deforestation
     },
     {
@@ -125,6 +138,7 @@ export const CARD_LIST: CardData[] = [
         type: 'biosphere', 
         value: 0, 
         description: 'バイオスフェア\n全ての妨害カードの中から1つを無効化します\nフロンガス、放射能漏れ事故による汚染も回復できます', 
+        imageKey: 'biosphere',
         targetPlayable: (targetstatus) => targetstatus.waste || targetstatus.oceanPollution || targetstatus.deforestation || targetstatus.pollution10 !== 0 || targetstatus.pollution15 !== 0
     },
 
@@ -135,6 +149,7 @@ export const CARD_LIST: CardData[] = [
         type: 'protect', 
         value: 0, 
         description: '動物保護\nこのカードをプレイした状態で環境破壊レベルを0にすれば勝利します\n環境破壊レベルが0になる前にプレイしなければなりません', 
+        imageKey: 'animal-protection-1',
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
         targetPlayable: (targetstatus) => targetstatus.getData('HP') !== 0 && !targetstatus.animalProtection
     },
@@ -144,6 +159,7 @@ export const CARD_LIST: CardData[] = [
         type: 'protect', 
         value: 0, 
         description: '動物保護\nこのカードをプレイした状態で環境破壊レベルを0にすれば勝利します\n環境破壊レベルが0になる前にプレイしなければなりません', 
+        imageKey: 'animal-protection-2',
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
         targetPlayable: (targetstatus) => targetstatus.getData('HP') !== 0 && !targetstatus.animalProtection
     },
@@ -155,6 +171,7 @@ export const CARD_LIST: CardData[] = [
         type: 'poaching', 
         value: 0, 
         description: '密猟\n動物保護を無効化します', 
+        imageKey: 'poaching',
         userPlayable: (userstatus) => !userstatus.waste && !userstatus.oceanPollution && !userstatus.deforestation,
         targetPlayable: (targetstatus) => targetstatus.animalProtection
     },
@@ -168,43 +185,48 @@ export const EARTH_CARDS: CardData[] = [
         name: '環境破壊レベル60', 
         type: 'earth', 
         value: 60, 
-        description: '環境破壊レベルの初期値 60' 
+        description: '環境破壊レベルの初期値 60',
+        imageKey: 'earth-60',
     },
      { 
         id: 'earth-65', 
         name: '環境破壊レベル65', 
         type: 'earth', 
         value: 65, 
-        description: 
-        '環境破壊レベルの初期値 65' 
+        description: '環境破壊レベルの初期値 65',
+        imageKey: 'earth-65',
     },
      { 
         id: 'earth-70', 
         name: '環境破壊レベル70', 
         type: 'earth', 
         value: 70, 
-        description: '環境破壊レベルの初期値 70' 
+        description: '環境破壊レベルの初期値 70',
+        imageKey: 'earth-70',
     },
      { 
         id: 'earth-75', 
         name: '環境破壊レベル75', 
         type: 'earth', 
         value: 75, 
-        description: '環境破壊レベルの初期値 75' 
+        description: '環境破壊レベルの初期値 75',
+        imageKey: 'earth-75',
     },
      { 
         id: 'earth-80', 
         name: '環境破壊レベル80', 
         type: 'earth', 
         value: 80, 
-        description: '環境破壊レベルの初期値 80' 
+        description: '環境破壊レベルの初期値 80',
+        imageKey: 'earth-80',
     },
      { 
         id: 'earth-85', 
         name: '環境破壊レベル85', 
         type: 'earth', 
         value: 85, 
-        description: '環境破壊レベルの初期値 85' 
+        description: '環境破壊レベルの初期値 85',
+        imageKey: 'earth-85',
     }
 ];
 

@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { CARD_LIST, EARTH_CARDS } from '../constants/CardConfig';
 
 export class Preloader extends Scene
 {
@@ -29,10 +30,19 @@ export class Preloader extends Scene
 
     preload ()
     {
+        this.add.text(400, 300, 'Loading...', { fontSize: '24px' }).setOrigin(0.5);
         //  Load the assets for the game - Replace with your own assets
-        this.load.setPath('assets');
+        this.load.setPath('assets/jokyokuCards/4x');
 
-        this.load.image('logo', 'logo.png');
+        this.load.image('logo', 'package-4x.png');
+
+        this.load.image('back', 'back-4x.png');
+        CARD_LIST.forEach(card => {
+            this.load.image(card.imageKey, `${card.imageKey}-4x.png`);
+        });
+        EARTH_CARDS.forEach(card => {
+            this.load.image(card.imageKey, `${card.imageKey}-4x.png`);
+        });
     }
 
     create ()
