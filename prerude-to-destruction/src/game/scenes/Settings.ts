@@ -2,7 +2,11 @@ import { Scene } from "phaser";
 
 export class Settings extends Scene {
     private selectedCpuCount: number = 3; 
-    private radioButtons: { count: number, bg: Phaser.GameObjects.Rectangle, dot: Phaser.GameObjects.Rectangle }[] = [];
+    private radioButtons: { 
+        count: number, 
+        bg: Phaser.GameObjects.Rectangle, 
+        dot: Phaser.GameObjects.Rectangle 
+    }[] = [];
     private playerNameInput: Phaser.GameObjects.DOMElement;
 
     constructor() {
