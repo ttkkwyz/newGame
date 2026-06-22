@@ -64,12 +64,17 @@ export class Game extends Scene
     // this.Players = [{ name: 'あなた', type: 'player' }, { name: 'CPU1', type: 'よわい' }, { name: 'CPU2', type: 'よわい' }];
     // const cpus = this.Players.filter(p => p.type !== 'player');
 
-    this.playerStatus =  new StatusWindow(this, 900, 400, this.playerName);
-    this.playerDropZone = this.add.zone(900, 550, 100, 150).setRectangleDropZone(100, 150);
+    this.playerStatus =  new StatusWindow(this, 900, 550, this.playerName);
+    this.playerDropZone = this.add.zone(900, 550, 200, 150).setRectangleDropZone(200, 150);
     
     const screenWidth = this.cameras.main.width;
     const screenHeight = this.cameras.main.height;
     const yPos = 150;
+
+    const deckX = 500;
+    const deckY = 400;
+    const cardW = 100;
+    const cardH = 150;
 
     for(let i = 0; i < this.cpuCount; i++){
         const xPos = (screenWidth / this.cpuCount) * (i + 0.5);
@@ -77,7 +82,7 @@ export class Game extends Scene
         this.add.existing(statusWindow);
         this.enemyStatusWindows.push(statusWindow);
 
-        const enemyDropZone = this.add.zone(xPos, yPos+150, 100, 150).setRectangleDropZone(100, 150);
+        const enemyDropZone = this.add.zone(xPos, yPos, 200, 150).setRectangleDropZone(200, 150);
         this.enemyDropZones.push(enemyDropZone);
 
         const enemyHandCards: Phaser.GameObjects.Container[] = [];
@@ -85,6 +90,7 @@ export class Game extends Scene
     }
 
     this.trashZone = this.add.zone(300, 400, 100, 150).setRectangleDropZone(100, 150);
+    // this.trashImage = this.add.image(300, 400, 'back').setScale(0.15);
     
     this.actionService = new ActionService(this);
     this.cpuAI = new CpuAI();
@@ -99,6 +105,9 @@ export class Game extends Scene
 
     const deckVisual = this.add.rectangle(500, 400, 80, 120, 0x555555);
     deckVisual.setInteractive();
+    this.add.rectangle(deckX + 6, deckY + 6, cardW, cardH, 0x999999).setStrokeStyle(1, 0x555555);
+    this.add.rectangle(deckX + 3, deckY + 3, cardW, cardH, 0xbbbbbb).setStrokeStyle(1, 0x777777);
+    const deckImage = this.add.image(deckX, deckY, 'back').setScale(0.16);
     
     const graphics = this.add.graphics();
     graphics.lineStyle(2, 0xffff00);
@@ -301,7 +310,7 @@ export class Game extends Scene
     updateHandLayout(handCards: Phaser.GameObjects.Container[]){
         const Index = handCards === this.playerHandCards ? -1 : this.enemyHandCards.indexOf(handCards);
         const centerX = Index === -1 ? 500 : (this.cameras.main.width / this.cpuCount) * (Index + 0.5);
-        const centerY = Index === -1 ? 550 : 250 ;
+        const centerY = Index === -1 ? 600 : 250 ;
         const cardSpacing = Math.min(60, 400 / handCards.length);
 
         handCards.forEach((card, index) => {

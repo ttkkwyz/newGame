@@ -1,10 +1,13 @@
-import { Scene } from 'phaser';
+import { Scene, GameObjects, Cameras } from 'phaser';
 
 export class GameOver extends Scene
 {
-    camera: Phaser.Cameras.Scene2D.Camera;
-    background: Phaser.GameObjects.Image;
-    gameover_text : Phaser.GameObjects.Text;
+    camera: Cameras.Scene2D.Camera;
+    background: GameObjects.Image;
+    gameover_text : GameObjects.Text;
+
+    toTopText: GameObjects.Text;
+    retryText: GameObjects.Text;
 
     private results: string[] = [];
     private resultText: string[] = [];
@@ -65,10 +68,32 @@ export class GameOver extends Scene
         // });
         // this.gameover_text.setOrigin(0.5);
 
-        this.input.once('pointerdown', () => {
+        this.toTopText = this.add.text(512, 460, 'トップに戻る', {
+            fontFamily: 'Arial Black', fontSize: 38, color: '#000000',
+            stroke: '#000000', strokeThickness: 8,
+            align: 'center'
+        }).setOrigin(0.5);
 
+        this.toTopText.setInteractive();
+        this.toTopText.on('pointerdown', () => {
             this.scene.start('MainMenu');
-
         });
+
+        this.retryText = this.add.text(512, 500, 'もう一度遊ぶ', {
+            fontFamily: 'Arial Black', fontSize: 38, color: '#000000',
+            stroke: '#000000', strokeThickness: 8,
+            align: 'center'
+        }).setOrigin(0.5);
+
+        this.retryText.setInteractive();
+        this.retryText.on('pointerdown', () => {
+            this.scene.start('Settings');
+        });
+
+        // this.input.once('pointerdown', () => {
+
+            // this.scene.start('MainMenu');
+
+        // });
     }
 }
