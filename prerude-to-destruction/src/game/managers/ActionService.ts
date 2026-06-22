@@ -4,6 +4,7 @@ import { StatusWindow } from '../../objects/StatusWindow';
 import { Card } from '../../objects/Card';
 import { CARD_LIST } from '../constants/CardConfig';
 import type { Game } from '../scenes/Game';
+import { Layout } from '../constants/LayoutConfig';
 
 export class ActionService {
     private scene: Game;
@@ -21,7 +22,6 @@ export class ActionService {
         const type = card.getData('type') as CardType;
         const value = card.getData('value') as number;
         const id = card.getData('id') as string;
-        const name = card.getData('name') as string;
 
         switch(type){
             case 'recovery':
@@ -65,7 +65,23 @@ export class ActionService {
     
     sendCardToTrash(card: Card, trash: CardData[]){
         trash.push(CARD_LIST.find(c => c.id === card.getData('id')) as CardData);
-        card.destroy();
+
+        this.scene.add.tween({
+            targets: card,
+            x: Layout.trashZone.x,
+            y: Layout.trashZone.y,
+            duration: 500,
+            ease: 'Power2',
+            onComplete: () => {
+                this.scene.add.image(
+                    Layout.trashZone.x, 
+                    Layout.trashZone.y, 
+                    card.getData('imageKey')
+                ).setScale(0.15);
+                card.destroy();
+            }
+        });
+        console.log(trash);
     }
 
     leaveCard(card: Card, dropZone: Phaser.GameObjects.Zone){

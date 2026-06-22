@@ -119,6 +119,14 @@ export class Game extends Scene
         Layout.trashZone.width, 
         Layout.trashZone.height
     );
+    const trashText = this.add.text(
+        Layout.trashZone.x, 
+        Layout.trashZone.y, 
+        '廃棄カード', {
+            fontSize: '18px',
+            color: '#000000',
+        }
+    ).setOrigin(0.5);
     
     this.actionService = new ActionService(this);
     this.cpuAI = new CpuAI();
@@ -471,6 +479,13 @@ export class Game extends Scene
 
     // trashからdeckにカードを移動
     trashToDeck(){
+        this.add.tween({
+            targets: this.trash[this.trash.length - 1],
+            x: Layout.deck.x,
+            y: Layout.deck.y,
+            duration: 500,
+            ease: 'Power2',
+        });
         Phaser.Utils.Array.Shuffle(this.trash);
         this.trash.forEach(card => {
             this.deck.push(card);
@@ -745,8 +760,8 @@ export class Game extends Scene
                 }
             } else {
                 await this.showCenterText('パス');
-                await sleep(1000);
             }
+            await sleep(1000);
 
             // discard Phase
             while(handCards.length > 5){
