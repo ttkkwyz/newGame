@@ -5,7 +5,7 @@ import { StatusWindow } from '../../objects/StatusWindow';
 import { CARD_LIST, EARTH_CARDS, DECK_CARDS, CardData, CardType } from '../constants/CardConfig';
 import { ActionService } from '../managers/ActionService';
 import { sleep } from '../utils/TimeUtil';
-import { EnemyPlayer } from '../constants/EnemyPlayer';
+import { Layout } from '../constants/LayoutConfig';
 import { CpuAI } from '../managers/CpuAI';
 
 type TurnPhase = 'draw' | 'play' | 'discard' | 'discard-2' | 'end';
@@ -64,33 +64,61 @@ export class Game extends Scene
     // this.Players = [{ name: 'あなた', type: 'player' }, { name: 'CPU1', type: 'よわい' }, { name: 'CPU2', type: 'よわい' }];
     // const cpus = this.Players.filter(p => p.type !== 'player');
 
-    this.playerStatus =  new StatusWindow(this, 900, 550, this.playerName);
-    this.playerDropZone = this.add.zone(900, 550, 200, 150).setRectangleDropZone(200, 150);
+    this.playerStatus =  new StatusWindow(
+        this, 
+        Layout.playerStatus.x, 
+        Layout.playerStatus.y, 
+        this.playerName
+    );
+    this.playerDropZone = this.add.zone(
+        Layout.playerDropZone.x, 
+        Layout.playerDropZone.y, 
+        Layout.playerDropZone.width, 
+        Layout.playerDropZone.height
+    ).setRectangleDropZone(
+        Layout.playerDropZone.width, 
+        Layout.playerDropZone.height
+    );
     
     const screenWidth = this.cameras.main.width;
     const screenHeight = this.cameras.main.height;
-    const yPos = 150;
-
-    const deckX = 500;
-    const deckY = 400;
-    const cardW = 100;
-    const cardH = 150;
+    const yPos = Layout.enemyStatusWindow.y;
 
     for(let i = 0; i < this.cpuCount; i++){
         const xPos = (screenWidth / this.cpuCount) * (i + 0.5);
-        const statusWindow = new StatusWindow(this, xPos, yPos, `CPU${i+1}`);
+        const statusWindow = new StatusWindow(
+            this, 
+            xPos, 
+            yPos, 
+            `CPU${i+1}`
+        );
         this.add.existing(statusWindow);
         this.enemyStatusWindows.push(statusWindow);
 
-        const enemyDropZone = this.add.zone(xPos, yPos, 200, 150).setRectangleDropZone(200, 150);
+        const enemyDropZone = this.add.zone(
+            xPos, 
+            yPos, 
+            Layout.enemyDropZone.width, 
+            Layout.enemyDropZone.height
+        ).setRectangleDropZone(
+            Layout.enemyDropZone.width, 
+            Layout.enemyDropZone.height
+        );
         this.enemyDropZones.push(enemyDropZone);
 
         const enemyHandCards: Phaser.GameObjects.Container[] = [];
         this.enemyHandCards.push(enemyHandCards);
     }
 
-    this.trashZone = this.add.zone(300, 400, 100, 150).setRectangleDropZone(100, 150);
-    // this.trashImage = this.add.image(300, 400, 'back').setScale(0.15);
+    this.trashZone = this.add.zone(
+        Layout.trashZone.x, 
+        Layout.trashZone.y, 
+        Layout.trashZone.width, 
+        Layout.trashZone.height
+    ).setRectangleDropZone(
+        Layout.trashZone.width, 
+        Layout.trashZone.height
+    );
     
     this.actionService = new ActionService(this);
     this.cpuAI = new CpuAI();
@@ -103,11 +131,34 @@ export class Game extends Scene
 
     this.initializeDeck();
 
-    const deckVisual = this.add.rectangle(500, 400, 80, 120, 0x555555);
-    deckVisual.setInteractive();
-    this.add.rectangle(deckX + 6, deckY + 6, cardW, cardH, 0x999999).setStrokeStyle(1, 0x555555);
-    this.add.rectangle(deckX + 3, deckY + 3, cardW, cardH, 0xbbbbbb).setStrokeStyle(1, 0x777777);
-    const deckImage = this.add.image(deckX, deckY, 'back').setScale(0.16);
+    // const deckVisual = this.add.rectangle(
+    //     Layout.deck.x, 
+    //     Layout.deck.y, 
+    //     Layout.deck.width, 
+    //     Layout.deck.height, 
+    //     0x555555
+    // );
+    // deckVisual.setInteractive();
+    this.add.rectangle(
+        Layout.deck.x + 6, 
+        Layout.deck.y + 6, 
+        Layout.card.width, 
+        Layout.card.height, 
+        0x999999
+    ).setStrokeStyle(1, 0x555555);
+    this.add.rectangle(
+        Layout.deck.x + 3, 
+        Layout.deck.y + 3, 
+        Layout.card.width, 
+        Layout.card.height, 
+        0xbbbbbb
+    ).setStrokeStyle(1, 0x777777);
+    const deckImage = this.add.image(
+        Layout.deck.x, 
+        Layout.deck.y, 
+        'back'
+    ).setScale(0.16);
+    deckImage.setInteractive();
     
     const graphics = this.add.graphics();
     graphics.lineStyle(2, 0xffff00);
@@ -159,7 +210,7 @@ export class Game extends Scene
         this.setPhase('draw');
     }
 
-    deckVisual.on('pointerdown', () => {
+    deckImage.on('pointerdown', () => {
         if(this.turnPhase === 'draw'){
             this.drawPhase();
         }
@@ -309,8 +360,8 @@ export class Game extends Scene
     // 手札のレイアウトを更新
     updateHandLayout(handCards: Phaser.GameObjects.Container[]){
         const Index = handCards === this.playerHandCards ? -1 : this.enemyHandCards.indexOf(handCards);
-        const centerX = Index === -1 ? 500 : (this.cameras.main.width / this.cpuCount) * (Index + 0.5);
-        const centerY = Index === -1 ? 600 : 250 ;
+        const centerX = Index === -1 ? Layout.playerHand.x : (this.cameras.main.width / this.cpuCount) * (Index + 0.5);
+        const centerY = Index === -1 ? Layout.playerHand.y : Layout.enemyHand.y ;
         const cardSpacing = Math.min(60, 400 / handCards.length);
 
         handCards.forEach((card, index) => {
@@ -343,7 +394,13 @@ export class Game extends Scene
         
             for(let i = -1; i < this.cpuCount; i++){
                 const cardData = this.earth.pop()!;
-                const newCard = new Card(this, 500, 400, cardData, false);
+                const newCard = new Card(
+                    this, 
+                    Layout.deck.x, 
+                    Layout.deck.y, 
+                    cardData, 
+                    false
+                );
                 const targetZone = i === -1 ? this.playerDropZone : this.enemyDropZones[i];
                 const targetHP = cardData.value!;
             
@@ -382,10 +439,16 @@ export class Game extends Scene
     }
 
     // 初期手札を配布
-    dealInitialCards(handCards: Phaser.GameObjects.Container[]): Promise<void>{
+    dealInitialCards(
+        handCards: Phaser.GameObjects.Container[]
+    ): Promise<void>{
         return new Promise<void>(resolve => {
             for(let i=0; i<5; i++){
-                const newCard = this.drawCard(500, 400, handCards === this.playerHandCards);
+                const newCard = this.drawCard(
+                    Layout.deck.x, 
+                    Layout.deck.y, 
+                    handCards === this.playerHandCards
+                );
                 if(newCard){
                     handCards.push(newCard);
                 }
@@ -509,7 +572,11 @@ export class Game extends Scene
             return;
         }
         for(let i = 0; i < 2; i++){
-            const newCard = this.drawCard(500, 400, true);
+            const newCard = this.drawCard(
+                Layout.deck.x, 
+                Layout.deck.y, 
+                true
+            );
             if(newCard){
                 this.playerHandCards.push(newCard);
             }
@@ -519,7 +586,10 @@ export class Game extends Scene
         }
         this.playerStatus.turnCount++;
         this.updateHandLayout(this.playerHandCards);
-        if(this.checkPlayableCards(this.playerHandCards, this.playerStatus)){
+        if(this.checkPlayableCards(
+            this.playerHandCards, 
+            this.playerStatus
+        )){
             this.setPhase('play');
         } else {
             this.showCenterText('パス');
@@ -623,7 +693,11 @@ export class Game extends Scene
             const handCards = this.enemyHandCards[this.turnPlayer - 1];
             const cpuStatus = this.enemyStatusWindows[this.turnPlayer - 1];
             for(let i = 0; i < 2; i++){
-                const newCard = this.drawCard(500, 400, false);
+                const newCard = this.drawCard(
+                    Layout.deck.x, 
+                    Layout.deck.y, 
+                    false
+                );
                 if(newCard){
                     handCards.push(newCard);
                 }
