@@ -180,10 +180,10 @@ export class StatusWindow extends Phaser.GameObjects.Container {
             activeStatus.push('deforestation');
         }
         if(this.pollution10 > 0){
-            activeStatus.push('pollution10');
+            activeStatus.push('pollution-10');
         }
         if(this.pollution15 > 0){
-            activeStatus.push('pollution15');
+            activeStatus.push('pollution-15');
         }
         return activeStatus;
     }

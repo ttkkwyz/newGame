@@ -21,6 +21,7 @@ export class Card extends Phaser.GameObjects.Container {
         // cardBg.setStrokeStyle(2, 0x000000);
 
         this.frontKey = cardData.imageKey;
+        this.setData('imageKey', this.frontKey);
 
         const inititalKey = isPlayer ? this.frontKey : this.backKey;
         this.cardImage = scene.add.image(0, 0, inititalKey);

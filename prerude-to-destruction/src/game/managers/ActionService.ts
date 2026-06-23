@@ -21,7 +21,7 @@ export class ActionService {
     ){
         const type = card.getData('type') as CardType;
         const value = card.getData('value') as number;
-        const id = card.getData('id') as string;
+        const cardId = card.getData('id') as string;
 
         switch(type){
             case 'recovery':
@@ -30,17 +30,17 @@ export class ActionService {
                 break;
             case 'pollution':
                 targetStatus.updateStatusWindow(targetStatus.getData('HP') + value);
-                targetStatus.addPollution(id, targetStatus);
+                targetStatus.addPollution(cardId, targetStatus);
                 this.leaveCard(card, dropZone);
                 break;
             case 'interference':
-                targetStatus.addInterference(id, targetStatus);
+                targetStatus.addInterference(cardId, targetStatus);
                 this.leaveCard(card, dropZone);
                 break;
             case 'regreen':
-                targetStatus.regreenStatus(id, targetStatus);
+                targetStatus.regreenStatus(cardId, targetStatus);
+                this.offsetInterference(cardId, trash);
                 this.sendCardToTrash(card, trash);
-                this.offsetInterference(id, trash);
                 break;
             case 'biosphere':
                 targetStatus.biosphereStatus(targetStatus, (selected: string) => {
@@ -57,7 +57,7 @@ export class ActionService {
                 break;
             case 'poaching':
                 targetStatus.poachAnimal(targetStatus);
-                this.leaveCard(card, dropZone);
+                this.sendCardToTrash(card, trash);
                 break;
         }
         this.scene.checkGameOver();
@@ -73,7 +73,11 @@ export class ActionService {
             duration: 500,
             ease: 'Power2',
             onComplete: () => {
-                this.scene.add.image(
+                if(this.scene.trashImage){
+                    this.scene.trashImage.destroy();
+                    this.scene.trashImage = null;
+                }
+                this.scene.trashImage = this.scene.add.image(
                     Layout.trashZone.x, 
                     Layout.trashZone.y, 
                     card.getData('imageKey')
@@ -81,7 +85,6 @@ export class ActionService {
                 card.destroy();
             }
         });
-        console.log(trash);
     }
 
     leaveCard(card: Card, dropZone: Phaser.GameObjects.Zone){

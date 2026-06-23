@@ -46,6 +46,8 @@ export class Game extends Scene
     private gameResult: string[] = [];
     private loser: string[] = [];
 
+    public trashImage: Phaser.GameObjects.Image | null = null;
+
     // 手札のカードを管理する配列
     private playerHandCards: Phaser.GameObjects.Container[] = [];
     private enemyHandCards: Phaser.GameObjects.Container[][] = [];
@@ -478,14 +480,46 @@ export class Game extends Scene
     }
 
     // trashからdeckにカードを移動
-    trashToDeck(){
-        this.add.tween({
-            targets: this.trash[this.trash.length - 1],
-            x: Layout.deck.x,
-            y: Layout.deck.y,
-            duration: 500,
-            ease: 'Power2',
+    async trashToDeck(){
+        if(this.trash.length === 0) return;
+
+        if(this.trashImage){
+            this.trashImage.destroy();
+            this.trashImage = null;
+        }
+
+        const animationPromises = this.trash.map((card, index) => {
+            return new Promise<void>((resolve) => {
+                this.time.delayedCall(index * 10, () => {
+                    const dummy = this.add.image(Layout.trashZone.x, Layout.trashZone.y, 'back');
+                    dummy.setDisplaySize(Layout.card.width, Layout.card.height);
+                    dummy.setDepth(200);
+    
+                    this.tweens.add({
+                        targets: dummy,
+                        x: Layout.deck.x,
+                        y: Layout.deck.y,
+                        angle: Phaser.Math.Between(-10, 10),
+                        duration: 400,
+                        ease: 'Quad.out',
+                        onComplete: () => {
+                            dummy.destroy();
+                            resolve();
+                        }
+                    });
+                });
+            });
         });
+
+        await Promise.all(animationPromises);
+
+        // this.add.tween({
+        //     targets: this.trash[this.trash.length - 1],
+        //     x: Layout.deck.x,
+        //     y: Layout.deck.y,
+        //     duration: 500,
+        //     ease: 'Power2',
+        // });
         Phaser.Utils.Array.Shuffle(this.trash);
         this.trash.forEach(card => {
             this.deck.push(card);
@@ -597,7 +631,7 @@ export class Game extends Scene
             }
         }
         if(this.deck.length <= 1){
-            this.trashToDeck();
+            await this.trashToDeck();
         }
         this.playerStatus.turnCount++;
         this.updateHandLayout(this.playerHandCards);
@@ -718,7 +752,7 @@ export class Game extends Scene
                 }
             }
             if(this.deck.length <= 1){
-                this.trashToDeck();
+                await this.trashToDeck();
             }
             this.updateHandLayout(handCards);
 
