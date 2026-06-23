@@ -274,7 +274,6 @@ class brainLevel3 implements CpuBrain {
                     targetStatus,
                     j
                 );
-                console.log(handCard.getData('id'), j, score);
                 if(!choice || score > choice.score){
                     choice = { 
                         card: handCard as Card, 
@@ -294,7 +293,29 @@ class brainLevel3 implements CpuBrain {
         playerStatus: StatusWindow,
         enemyStatusWindows: StatusWindow[]
     ): { card: Card, index: number } | null {
-        return { card: handCards[0] as Card, index: 0 };
+        const userStatus = enemyStatusWindows[cpuId];
+        let choice: { 
+            card: Card, 
+            index: number, 
+            score: number
+         } | null = null;
+        for(let i = 0; i < handCards.length; i++){
+            const handCard = handCards[i];
+            let score = calculateDiscardScore(
+                handCard as Card, 
+                handCards,
+                userStatus
+            );
+            console.log(handCard.getData('id'),score);
+            if(!choice || score < choice.score){
+                choice = { 
+                    card: handCard as Card, 
+                    index: i, 
+                    score: score 
+                };
+            }
+        }
+        return choice;
     }
 }
 
@@ -421,5 +442,53 @@ function calculatePlayScore(
             score += 0;
             break;
     }
+    return score;
+}
+
+function calculateDiscardScore(
+    card: Card, 
+    handCards: Phaser.GameObjects.Container[],
+    userStatus: StatusWindow
+): number {
+    let score = 50;
+    const cardValue = card.getData('value');
+    const userHP = userStatus.getData('HP');
+    switch(card.getData('type')){
+        case 'recovery':
+            if(userHP > cardValue){
+                score += cardValue;
+            } else if(userHP === cardValue){
+                score += cardValue * 5;
+            } else {
+                score -= cardValue * 5;
+            }
+            break;
+        case 'pollution':
+            score += cardValue;
+            break;
+        case 'interference':
+            score += 50;
+            break;
+        case 'regreen':
+            score += 50;
+            break;
+        case 'biosphere':
+            score += 100;
+            break;
+        case 'protect':
+            score += 50;
+            break;
+        case 'poaching':
+            score += 50;
+            break;
+        default:
+            score += 0;
+            break;
+    }
+
+    const duplicatedCards = handCards.filter(card => 
+        card.getData('id') === card.getData('id')
+    );
+    score -= duplicatedCards.length * 50;
     return score;
 }
