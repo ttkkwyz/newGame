@@ -22,7 +22,7 @@ export class Game extends Scene
     }
 
     private deck: CardData[] = [];
-    private trash: CardData[] = [];
+    public trash: CardData[] = [];
     private earth = EARTH_CARDS;
 
     private turnPlayer: number = 0;
@@ -245,7 +245,6 @@ export class Game extends Scene
                 }
                 this.actionService.sendCardToTrash(
                     gameObject.parentContainer as Card, 
-                    this.trash
                 );
                 this.updateHandLayout(this.playerHandCards);
                 if(this.turnPhase === 'discard'){
@@ -284,8 +283,7 @@ export class Game extends Scene
             this.actionService.handCardEffect(
                 container as Card, 
                 targetStatus, 
-                dropZone, 
-                this.trash
+                dropZone
             );
             
             this.updateHandLayout(this.playerHandCards);
@@ -782,8 +780,7 @@ export class Game extends Scene
                                 this.actionService.handCardEffect(
                                     card as Card, 
                                     this.playerStatus, 
-                                    this.playerDropZone, 
-                                    this.trash
+                                    this.playerDropZone
                                 );
                                 handCards.splice(index, 1);
                                 this.updateHandLayout(handCards);
@@ -820,7 +817,6 @@ export class Game extends Scene
                             onComplete: () => {
                                 this.actionService.sendCardToTrash(
                                     card as Card, 
-                                    this.trash
                                 );
                                 handCards.splice(index, 1);
                                 this.updateHandLayout(handCards);

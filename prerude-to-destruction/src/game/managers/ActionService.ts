@@ -16,8 +16,7 @@ export class ActionService {
     handCardEffect(
         card: Card, 
         targetStatus: StatusWindow, 
-        dropZone: Phaser.GameObjects.Zone, 
-        trash: CardData[]
+        dropZone: Phaser.GameObjects.Zone
     ){
         const type = card.getData('type') as CardType;
         const value = card.getData('value') as number;
@@ -26,7 +25,7 @@ export class ActionService {
         switch(type){
             case 'recovery':
                 targetStatus.updateStatusWindow(targetStatus.getData('HP') - value);
-                this.sendCardToTrash(card, trash);
+                this.sendCardToTrash(card);
                 break;
             case 'pollution':
                 targetStatus.updateStatusWindow(targetStatus.getData('HP') + value);
@@ -39,17 +38,14 @@ export class ActionService {
                 break;
             case 'regreen':
                 targetStatus.regreenStatus(cardId, targetStatus);
-                this.offsetInterference(cardId, trash);
-                this.sendCardToTrash(card, trash);
+                this.offsetInterference(cardId);
+                this.sendCardToTrash(card);
                 break;
             case 'biosphere':
                 targetStatus.biosphereStatus(targetStatus, (selected: string) => {
-                    trash.push(CARD_LIST.find(c => c.id === selected) as CardData);
-                    console.log('biosphere', selected);
-                    console.log(targetStatus.getActiveStatus());
+                    this.scene.trash.push(CARD_LIST.find(c => c.id === selected) as CardData);
                 });
-                this.sendCardToTrash(card, trash);
-                console.log('biosphere', trash);
+                this.sendCardToTrash(card);
                 break;
             case 'protect':
                 targetStatus.protectAnimal(targetStatus);
@@ -57,14 +53,14 @@ export class ActionService {
                 break;
             case 'poaching':
                 targetStatus.poachAnimal(targetStatus);
-                this.sendCardToTrash(card, trash);
+                this.sendCardToTrash(card);
                 break;
         }
         this.scene.checkGameOver();
     }
     
-    sendCardToTrash(card: Card, trash: CardData[]){
-        trash.push(CARD_LIST.find(c => c.id === card.getData('id')) as CardData);
+    sendCardToTrash(card: Card){
+        this.scene.trash.push(CARD_LIST.find(c => c.id === card.getData('id')) as CardData);
 
         this.scene.add.tween({
             targets: card,
@@ -91,16 +87,16 @@ export class ActionService {
         card.destroy();
     }
     
-    offsetInterference(id: string, trash: CardData[]){
+    offsetInterference(id: string){
         switch(id){
             case 'waste-treatment':
-                trash.push(CARD_LIST.find(c => c.id === 'waste') as CardData);
+                this.scene.trash.push(CARD_LIST.find(c => c.id === 'waste') as CardData);
                 break;
             case 'waste-water-treatment':
-                trash.push(CARD_LIST.find(c => c.id === 'ocean-pollution') as CardData);
+                this.scene.trash.push(CARD_LIST.find(c => c.id === 'ocean-pollution') as CardData);
                 break;
             case 'planting':
-                trash.push(CARD_LIST.find(c => c.id === 'deforestation') as CardData);
+                this.scene.trash.push(CARD_LIST.find(c => c.id === 'deforestation') as CardData);
                 break;
         }
     }
