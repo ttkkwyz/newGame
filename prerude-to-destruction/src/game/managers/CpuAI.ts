@@ -364,7 +364,7 @@ function calculatePlayScore(
                     } else if (
                         targetHP - cardValue < 0
                     ) {
-                        score += cardValue - 5;
+                        score += cardValue - 1;
                     }
                     break;
                 default:
