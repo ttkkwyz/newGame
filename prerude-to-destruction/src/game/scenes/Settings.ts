@@ -2,12 +2,15 @@ import { Scene } from "phaser";
 
 export class Settings extends Scene {
     private selectedCpuCount: number = 3; 
+    private cpuStrengths: number[] = [2, 2, 2, 2, 2];
+    
     private radioButtons: { 
         count: number, 
         bg: Phaser.GameObjects.Rectangle, 
         dot: Phaser.GameObjects.Rectangle 
     }[] = [];
     private playerNameInput: Phaser.GameObjects.DOMElement;
+    private strengthContainers: Phaser.GameObjects.Container[] = [];
 
     constructor() {
         super('Settings');
@@ -35,7 +38,7 @@ export class Settings extends Scene {
         inputElement.style.backgroundColor = '#fff';
         inputElement.style.textAlign = 'center';
 
-        this.add.text(width / 2, height / 2-50, 'CPUの人数を選択してください', { fontSize: '20px', color: '#ccc' }).setOrigin(0.5);
+        this.add.text(width / 2, height / 2 - 50, 'CPUの人数を選択してください', { fontSize: '20px', color: '#ccc' }).setOrigin(0.5);
 
         const options = [
             { count: 1, x: width / 2 - 300 },
@@ -56,9 +59,13 @@ export class Settings extends Scene {
             this.radioButtons.push({ count: opt.count, bg: bgCircle, dot: dot });
 
             bgCircle.on('pointerdown', () => {
+                this.selectedCpuCount = opt.count;
                 this.updateRadioButtons(opt.count);
+                this.createStrengthSettings();
             });
         });
+
+        this.createStrengthSettings();
 
         const startBtn = this.add.text(width / 2, height * 0.75, 'ゲーム開始', {
             fontSize: '28px',
@@ -75,11 +82,50 @@ export class Settings extends Scene {
                 name = 'あなた';
             }
 
+            const strengthsToSend = this.cpuStrengths.slice(0, this.selectedCpuCount);
+
             this.scene.start('Game', { 
                 cpuCount: this.selectedCpuCount,
+                cpuStrengths: strengthsToSend,
                 playerName: name 
             });
         });
+    }
+
+    private createStrengthSettings() {
+        const { width, height } = this.cameras.main;
+
+        this.strengthContainers.forEach(container => {
+            container.destroy();
+        });
+        this.strengthContainers = [];
+
+        for(let i = 0; i < this.selectedCpuCount; i++){
+            const yPos = height / 2 + 50 + (i * 45);
+            const container = this.add.container(width / 2, yPos);
+
+            const label = this.add.text(-120, 0, `CPU${i+1}`, { fontSize: '18px', color: '#ccc' }).setOrigin(0.5);
+            container.add(label);
+
+            [1, 2, 3].forEach(level => {
+                const btnX = 50 + (level * 60);
+                const btnBg = this.add.rectangle(btnX, 0, 50, 30, 0x333333).setStrokeStyle(1, 0xffffff).setInteractive({ useHandCursor: true });
+                const btnText = this.add.text(btnX, 0, `Lv.${level}`, { fontSize: '14px', color: '#ccc' }).setOrigin(0.5);
+
+                if(this.cpuStrengths[i] === level){
+                    btnBg.setFillStyle(0x0055aa);
+                }
+
+                container.add([btnBg, btnText]);
+
+                btnBg.on('pointerdown', () => {
+                    this.cpuStrengths[i] = level;
+                    this.createStrengthSettings();
+                });
+            });
+
+            this.strengthContainers.push(container);
+        }
     }
 
     private updateRadioButtons(chosenCount: number) {

@@ -15,8 +15,7 @@ export class ActionService {
 
     handCardEffect(
         card: Card, 
-        targetStatus: StatusWindow, 
-        dropZone: Phaser.GameObjects.Zone
+        targetStatus: StatusWindow
     ){
         const type = card.getData('type') as CardType;
         const value = card.getData('value') as number;
@@ -30,11 +29,11 @@ export class ActionService {
             case 'pollution':
                 targetStatus.updateStatusWindow(targetStatus.getData('HP') + value);
                 targetStatus.addPollution(cardId, targetStatus);
-                this.leaveCard(card, dropZone);
+                this.leaveCard(card);
                 break;
             case 'interference':
                 targetStatus.addInterference(cardId, targetStatus);
-                this.leaveCard(card, dropZone);
+                this.leaveCard(card);
                 break;
             case 'regreen':
                 targetStatus.regreenStatus(cardId, targetStatus);
@@ -49,7 +48,7 @@ export class ActionService {
                 break;
             case 'protect':
                 targetStatus.protectAnimal(targetStatus);
-                this.leaveCard(card, dropZone);
+                this.leaveCard(card);
                 break;
             case 'poaching':
                 targetStatus.poachAnimal(targetStatus);
@@ -83,7 +82,7 @@ export class ActionService {
         });
     }
 
-    leaveCard(card: Card, dropZone: Phaser.GameObjects.Zone){
+    leaveCard(card: Card){
         card.destroy();
     }
     

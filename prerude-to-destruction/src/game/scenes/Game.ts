@@ -6,7 +6,7 @@ import { CARD_LIST, EARTH_CARDS, DECK_CARDS, CardData, CardType } from '../const
 import { ActionService } from '../managers/ActionService';
 import { sleep } from '../utils/TimeUtil';
 import { Layout } from '../constants/LayoutConfig';
-import { CpuAI } from '../managers/CpuAI';
+import { createBrain } from '../managers/CpuAI';
 
 type TurnPhase = 'draw' | 'play' | 'discard' | 'discard-2' | 'end';
 
@@ -29,16 +29,18 @@ export class Game extends Scene
     private turnPhase: TurnPhase = 'draw';
 
     private actionService: ActionService;
-    private cpuAI: CpuAI;
+    // private cpuAI: CpuAI;
 
-    private cpuCount: number = 1;
+    public cpuCount: number = 3;
+    private cpuPlayers: any[] = [];
+    private cpuStrengths: number[] = [2, 2, 2, 2, 2];
     private playerName: string = '';
 
     private playerDropZone: Phaser.GameObjects.Zone;
     private trashZone: Phaser.GameObjects.Zone;
     private enemyDropZones: Phaser.GameObjects.Zone[] = [];
     
-    private playerStatus: StatusWindow;
+    public playerStatus: StatusWindow;
     private enemyStatusWindows: StatusWindow[] = [];
 
     private descriptionText: Phaser.GameObjects.Text;
@@ -52,9 +54,10 @@ export class Game extends Scene
     private playerHandCards: Phaser.GameObjects.Container[] = [];
     private enemyHandCards: Phaser.GameObjects.Container[][] = [];
 
-    init(data: { cpuCount: number, playerName: string }){
-        if(data && data.cpuCount){
+    init(data: { cpuCount: number, cpuStrengths: number[], playerName: string }){
+        if(data && data.cpuCount && data.cpuStrengths){
             this.cpuCount = data.cpuCount;
+            this.cpuStrengths = data.cpuStrengths;
             this.playerName = data.playerName;
         }
     }
@@ -88,6 +91,12 @@ export class Game extends Scene
 
     for(let i = 0; i < this.cpuCount; i++){
         const xPos = (screenWidth / this.cpuCount) * (i + 0.5);
+        this.cpuPlayers.push({
+            id: i+1,
+            name: `CPU${i+1}`,
+            strength: this.cpuStrengths[i],
+            brain: createBrain(this.cpuStrengths[i])
+        })
         const statusWindow = new StatusWindow(
             this, 
             xPos, 
@@ -131,7 +140,7 @@ export class Game extends Scene
     ).setOrigin(0.5);
     
     this.actionService = new ActionService(this);
-    this.cpuAI = new CpuAI();
+    // this.cpuAI = new CpuAI();
 
     await this.showCenterText('環境破壊レベルカード配布');
 
@@ -282,8 +291,7 @@ export class Game extends Scene
 
             this.actionService.handCardEffect(
                 container as Card, 
-                targetStatus, 
-                dropZone
+                targetStatus
             );
             
             this.updateHandLayout(this.playerHandCards);
@@ -737,6 +745,7 @@ export class Game extends Scene
             await sleep(1000);
 
             // draw Phase
+            const currentCpu = this.cpuPlayers[this.turnPlayer - 1];
             const handCards = this.enemyHandCards[this.turnPlayer - 1];
             const cpuStatus = this.enemyStatusWindows[this.turnPlayer - 1];
             for(let i = 0; i < 2; i++){
@@ -758,17 +767,20 @@ export class Game extends Scene
             
             // play Phase
             if(this.checkPlayableCards(handCards, cpuStatus)){
-                const { card, index } = this.cpuAI.choicePlayCardStupidly(
+                const { card, index, target } = currentCpu.brain.choicePlayCard(
+                    this.turnPlayer -1,
                     handCards, 
-                    cpuStatus, 
-                    this.playerStatus
+                    this.playerStatus,
+                    this.enemyStatusWindows
                 );
+                const targetStatus = target === -1 ? this.playerStatus : this.enemyStatusWindows[target];
+                const targetDropZone = target === -1 ? this.playerDropZone : this.enemyDropZones[target];
                 if(card){
                     await new Promise<void>(resolve => {
                         this.add.tween({
                             targets: card,
-                            x: this.playerDropZone.x,
-                            y: this.playerDropZone.y,
+                            x: targetDropZone.x,
+                            y: targetDropZone.y,
                             angle: 0,
                             duration: 500,
                             ease: 'Power2',
@@ -779,8 +791,7 @@ export class Game extends Scene
                             onComplete: () => {
                                 this.actionService.handCardEffect(
                                     card as Card, 
-                                    this.playerStatus, 
-                                    this.playerDropZone
+                                    targetStatus
                                 );
                                 handCards.splice(index, 1);
                                 this.updateHandLayout(handCards);
@@ -796,10 +807,11 @@ export class Game extends Scene
 
             // discard Phase
             while(handCards.length > 5){
-                const { card, index } = this.cpuAI.choiceDiscardCardStupidly(
+                const { card, index } = currentCpu.brain.choiceDiscardCard(
+                    this.turnPlayer -1,
                     handCards, 
-                    cpuStatus, 
-                    this.playerStatus
+                    this.playerStatus,
+                    this.enemyStatusWindows
                 );
                 if(card){
                     await new Promise<void>(resolve => {
