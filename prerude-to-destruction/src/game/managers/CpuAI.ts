@@ -364,7 +364,7 @@ function calculatePlayScore(
                     } else if (
                         targetHP - cardValue < 0
                     ) {
-                        score += cardValue;
+                        score += cardValue - 5;
                     }
                     break;
                 default:
@@ -384,7 +384,7 @@ function calculatePlayScore(
                     } 
                     break;
                 case false:
-                    if( targetHP >= 0){
+                    if( targetHP > 0){
                         score += cardValue;
                     } else {
                         score -= cardValue * 5;
@@ -432,7 +432,7 @@ function calculatePlayScore(
             break;
         case 'poaching':
             if( !myself && targetStatus.animalProtection) {
-                score += 50;
+                score += (100 - targetHP);
             } else {
                 score -= 100;
             }

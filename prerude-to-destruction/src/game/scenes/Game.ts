@@ -46,6 +46,7 @@ export class Game extends Scene
     private descriptionText: Phaser.GameObjects.Text;
 
     private gameResult: string[] = [];
+    private winner: string[] = [];
     private loser: string[] = [];
 
     public trashImage: Phaser.GameObjects.Image | null = null;
@@ -850,18 +851,32 @@ export class Game extends Scene
 
     // ゲーム終了判定
    public checkGameOver(){
-        if(this.playerStatus.getData('HP') === 0 && this.playerStatus.animalProtection){
-            this.gameResult.push(this.playerName);
+        if(
+            this.playerStatus.getData('HP') === 0 
+            && this.playerStatus.animalProtection
+        ){
+            this.winner.push(this.playerName);
+            this.transitionToResult(this.winner, true);
         } else if(this.playerStatus.getData('HP') >= 100){
-            this.playerStatus.isDead = true;
             this.loser.push(this.playerName);
+            this.transitionToResult(this.winner, false);
         }
         for(let i = 0; i < this.cpuCount; i++){
-            if(this.enemyStatusWindows[i].getData('HP') === 0 && this.enemyStatusWindows[i].animalProtection){
-                this.gameResult.push(`cpu${i}`);
+            if(
+                this.enemyStatusWindows[i].getData('HP') === 0 
+                && this.enemyStatusWindows[i].animalProtection
+                && !this.enemyStatusWindows[i].isDead
+            ){
+                this.enemyStatusWindows[i].isDead = true;
+                this.winner.push(`cpu${i+1}`);
+                const targetZone = this.enemyDropZones[i];
+                if(targetZone){
+                    targetZone.disableInteractive();
+                    this.enemyStatusWindows[i].setAlpha(0.3);
+                }
             } else if(this.enemyStatusWindows[i].getData('HP') >= 100){
                 this.enemyStatusWindows[i].isDead = true;
-                this.loser.push(`cpu${i}`);
+                this.loser.push(`cpu${i+1}`);
                 const targetZone = this.enemyDropZones[i];
                 if(targetZone){
                     targetZone.disableInteractive();
@@ -869,21 +884,19 @@ export class Game extends Scene
                 }
             }
         }
-        if(this.gameResult.length > 0){
-            // while(this.loser.length > 0){
-            //     this.gameResult.push(this.loser.pop()!);
-            // }
-            this.transitionToResult(this.gameResult);
+        if(this.winner.length + this.loser.length === this.cpuCount){
+            this.winner.push(this.playerName);
+            this.transitionToResult(this.winner, true);
         }
     }
 
     // ゲーム結果画面に遷移
-    private transitionToResult(results: string[]){
+    private transitionToResult(winner: string[], playerWin: boolean){
         this.input.enabled = false;
 
         this.cameras.main.fade(1000,0,0,0);
         this.cameras.main.once('camerafadeoutcomplete', () => {
-            this.scene.start('GameOver', { results });
+            this.scene.start('GameOver', { winner, playerWin });
         });
     }
 

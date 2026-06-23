@@ -17,10 +17,13 @@ export class GameOver extends Scene
         super('GameOver');
     }
 
-    init(data: { results: string[] }){
-        for (let i = 0; i < data.results.length; i++){
-            this.results.push(data.results[i]);
-            this.resultText.push(`${i + 1}位: ${this.results[i]}`);
+    init(data: { winner: string[], playerWin: boolean }){
+        if(!data.playerWin){
+            this.resultText.push('敗北');
+        } else {
+            for (let i = 0; i < data.winner.length; i++){
+                this.resultText.push(`${i + 1}位: ${data.winner[i]}`);
+            }
         }
     }
 
@@ -30,30 +33,18 @@ export class GameOver extends Scene
 
         this.add.rectangle(0, 0, width, height, 0x000000, 0.8).setOrigin(0);
 
-        // this.add.text(width / 2, height / 3, 'Winner', {
-        //     fontSize: '64px',
-        //     color: '#ffffff'
-        // }).setOrigin(0.5);
-
-        const winnerText = this.add.text(width / 2, height / 2, `${this.results[0]}の勝利！`, {
-            fontSize: '32px',
-            color: '#ffffff'
-        }).setOrigin(0.5);
-
-
-        // for(let i = 0; i < this.results.length; i++){
-        //     const rankText = this.add.text(width / 2, height / 2 + i * 50, this.results[i], {
-        //         fontSize: '32px',
-        //         color: '#ffffff'
-        //     }).setOrigin(0.5);
-        // }
-
-        this.tweens.add({
-            targets: winnerText,
-            scale: { from: 0.5, to: 1.0 },
-            duration: 800,
-            ease: 'Back.easeOut',
-        });
+        for(let i = 0; i < this.resultText.length; i++){
+            const rankText = this.add.text(width / 2, height / 2 + i * 50, this.resultText[i], {
+                fontSize: '40px',
+                color: '#ffffff'
+            }).setOrigin(0.5);
+            this.tweens.add({
+                targets: rankText,
+                scale: { from: 0.5, to: 1.0 },
+                duration: 800,
+                ease: 'Back.easeOut',
+            });
+        }
 
         // this.camera = this.cameras.main
         // this.camera.setBackgroundColor(0xff0000);

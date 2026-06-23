@@ -197,7 +197,6 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         if(activeStatus.length === 0) return;
 
         if(activeStatus.length === 1){
-            console.log('regreenStatus', activeStatus[0]);
             this.regreenStatus(activeStatus[0], target);
             onComplete(activeStatus[0]);
         } else {
