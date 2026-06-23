@@ -306,7 +306,6 @@ class brainLevel3 implements CpuBrain {
                 handCards,
                 userStatus
             );
-            console.log(handCard.getData('id'),score);
             if(!choice || score < choice.score){
                 choice = { 
                     card: handCard as Card, 
