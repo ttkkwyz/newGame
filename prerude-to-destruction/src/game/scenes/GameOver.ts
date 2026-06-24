@@ -70,16 +70,16 @@ export class GameOver extends Scene
             this.scene.start('MainMenu');
         });
 
-        this.retryText = this.add.text(512, 500, 'もう一度遊ぶ', {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#000000',
-            stroke: '#000000', strokeThickness: 8,
-            align: 'center'
-        }).setOrigin(0.5);
+        // this.retryText = this.add.text(512, 500, 'もう一度遊ぶ', {
+        //     fontFamily: 'Arial Black', fontSize: 38, color: '#000000',
+        //     stroke: '#000000', strokeThickness: 8,
+        //     align: 'center'
+        // }).setOrigin(0.5);
 
-        this.retryText.setInteractive();
-        this.retryText.on('pointerdown', () => {
-            this.scene.start('Settings');
-        });
+        // this.retryText.setInteractive();
+        // this.retryText.on('pointerdown', () => {
+        //     this.scene.start('Settings');
+        // });
 
         // this.input.once('pointerdown', () => {
 

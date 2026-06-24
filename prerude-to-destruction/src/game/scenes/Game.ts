@@ -491,6 +491,9 @@ export class Game extends Scene
             this.trashImage = null;
         }
 
+        this.deckShadeShade.setVisible(true);
+        this.deckShade.setVisible(true);
+        
         const animationPromises = this.trash.map((card, index) => {
             return new Promise<void>((resolve) => {
                 this.time.delayedCall(index * 10, () => {
@@ -640,10 +643,11 @@ export class Game extends Scene
             this.deckShade.setVisible(false);
         }
         if(this.deck.length <= 1){
-            this.deckShadeShade.setVisible(true);
-            this.deckShade.setVisible(true);
+            // this.deckShadeShade.setVisible(true);
+            // this.deckShade.setVisible(true);
             await this.trashToDeck();
         }
+        console.log(this.deck.length);
         this.playerStatus.turnCount++;
         this.updateHandLayout(this.playerHandCards);
         if(this.checkPlayableCards(

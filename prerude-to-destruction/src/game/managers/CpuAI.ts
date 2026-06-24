@@ -205,7 +205,7 @@ class brainLevel2 implements CpuBrain {
             for(let j = -1; j < cpuCount; j++){
                 const targetStatus = j === -1 ? playerStatus : enemyStatusWindows[j];
                 if(!(handCard as Card).checkPlayable(userStatus, targetStatus)) continue;
-                let score = calculatePlayScore(
+                let score = calculatePlayMildScore(
                     handCard as Card, 
                     handCards,
                     userStatus, 
