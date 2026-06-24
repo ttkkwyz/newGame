@@ -12,21 +12,21 @@ export class Credit extends Scene
     exitText: GameObjects.Text;
 
     create(){
-        this.title = this.add.text(512, 300, 'クレジット', {
+        this.title = this.add.text(512, 200, 'Credit', {
             fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
             stroke: '#000000', strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5);
 
         this.text = this.add.text(512, 350, 
-            'ゲーム製作：わたなべ\nプログラミング：わたなべ\n使用したフレームワーク：Phaser 3'
+            '本アプリは、ボードゲーム「地球崩壊への序曲」をもとにして作成したものです。\nなお、本アプリ制作にあたり、原作「地球崩壊への序曲」関係者の許諾は得ておりません。\n関係者の皆様には深くお詫びを申し上げます。\n 加えまして、「地球崩壊への序曲」を生み出してくださったことに対し、深い感謝の意を表したいと存じます。\n原作「地球崩壊への序曲」に関しての情報をお持ちの方は、是非私にご一報ください。'
             , {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#000000',
+            fontFamily: 'Arial Black', fontSize: 20, color: '#000000',
             // stroke: '#000000', strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5);
 
-        this.exitText = this.add.text(512, 400, 'トップに戻る', {
+        this.exitText = this.add.text(512, 600, 'トップに戻る', {
             fontFamily: 'Arial Black', fontSize: 38, color: '#000000',
             // stroke: '#000000', strokeThickness: 8,
             align: 'center'
