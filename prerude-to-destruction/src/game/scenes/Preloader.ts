@@ -34,7 +34,8 @@ export class Preloader extends Scene
         //  Load the assets for the game - Replace with your own assets
         this.load.setPath('assets/jokyokuCards/4x');
 
-        this.load.image('logo', 'package-4x.png');
+        // this.load.image('logo', 'package-4x.png');
+        this.load.image('background', 'title-bg.jpg');
 
         this.load.image('back', 'back-4x.png');
         CARD_LIST.forEach(card => {
