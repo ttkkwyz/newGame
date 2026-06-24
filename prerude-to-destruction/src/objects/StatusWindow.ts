@@ -47,12 +47,15 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         this.HPText = scene.add.text(40, -22, '', { fontSize: '18px', color: '#000000' });
         this.handInfo = scene.add.text(-55, -1, '5', { fontSize: '18px', color: '#000000' });
   
-        const cardIcon = scene.add.graphics();
-        cardIcon.setPosition(-80, 6);
-        cardIcon.fillStyle(0xffffff, 1);
-        cardIcon.fillRoundedRect(-10, -10, 16, 22, 3);
-        cardIcon.lineStyle(1, 0x000000, 1);
-        cardIcon.strokeRoundedRect(-10, -10, 16, 22, 3);
+        // const cardIcon = scene.add.graphics();
+        // cardIcon.setPosition(-80, 6);
+        // cardIcon.fillStyle(0xffffff, 1);
+        // cardIcon.fillRoundedRect(-10, -10, 16, 22, 3);
+        // cardIcon.lineStyle(1, 0x000000, 1);
+        // cardIcon.strokeRoundedRect(-10, -10, 16, 22, 3);
+
+        const cardIcon = scene.add.image(-80, 6, 'back');
+        cardIcon.setScale(0.025);
 
         this.setData('HP', 0);
         this.waste = false;
