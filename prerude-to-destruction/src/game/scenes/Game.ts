@@ -49,6 +49,9 @@ export class Game extends Scene
     private winner: string[] = [];
     private loser: string[] = [];
 
+    private deckShadeShade: Phaser.GameObjects.Rectangle;
+    private deckShade: Phaser.GameObjects.Rectangle;
+    // private deckImage: Phaser.GameObjects.Image;
     public trashImage: Phaser.GameObjects.Image | null = null;
 
     // 手札のカードを管理する配列
@@ -89,8 +92,6 @@ export class Game extends Scene
     const screenWidth = this.cameras.main.width;
     const screenHeight = this.cameras.main.height;
     const yPos = Layout.enemyStatusWindow.y;
-
-    console.log(screenWidth, screenHeight);
 
     for(let i = 0; i < this.cpuCount; i++){
         const xPos = (screenWidth / this.cpuCount) * (i + 0.5);
@@ -153,22 +154,14 @@ export class Game extends Scene
 
     this.initializeDeck();
 
-    // const deckVisual = this.add.rectangle(
-    //     Layout.deck.x, 
-    //     Layout.deck.y, 
-    //     Layout.deck.width, 
-    //     Layout.deck.height, 
-    //     0x555555
-    // );
-    // deckVisual.setInteractive();
-    this.add.rectangle(
+    this.deckShadeShade = this.add.rectangle(
         Layout.deck.x + 6, 
         Layout.deck.y + 6, 
         Layout.card.width, 
         Layout.card.height, 
         0x999999
     ).setStrokeStyle(1, 0x555555);
-    this.add.rectangle(
+    this.deckShade = this.add.rectangle(
         Layout.deck.x + 3, 
         Layout.deck.y + 3, 
         Layout.card.width, 
@@ -639,7 +632,15 @@ export class Game extends Scene
                 this.playerHandCards.push(newCard);
             }
         }
+        if(this.deck.length < 30){
+            this.deckShadeShade.setVisible(false);
+        }
+        if(this.deck.length < 10){
+            this.deckShade.setVisible(false);
+        }
         if(this.deck.length <= 1){
+            this.deckShadeShade.setVisible(true);
+            this.deckShade.setVisible(true);
             await this.trashToDeck();
         }
         this.playerStatus.turnCount++;
