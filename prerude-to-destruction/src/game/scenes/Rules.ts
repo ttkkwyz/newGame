@@ -11,7 +11,7 @@ export class Rules extends Scene
     exitText: GameObjects.Text;
 
     create(){
-        this.title = this.add.text(512, 300, 'ルール', {
+        this.title = this.add.text(512, 200, 'Rules', {
             fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
             stroke: '#000000', strokeThickness: 8,
             align: 'center'
@@ -25,7 +25,7 @@ export class Rules extends Scene
             align: 'center'
         }).setOrigin(0.5);
 
-        this.exitText = this.add.text(512, 400, 'トップに戻る', {
+        this.exitText = this.add.text(512, 600, 'トップに戻る', {
             fontFamily: 'Arial Black', fontSize: 38, color: '#000000',
             // stroke: '#000000', strokeThickness: 8,
             align: 'center'
