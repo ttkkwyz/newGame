@@ -287,7 +287,8 @@ export class Game extends Scene
 
             this.actionService.handCardEffect(
                 container as Card, 
-                targetStatus
+                targetStatus,
+                true
             );
             
             this.updateHandLayout(this.playerHandCards);
@@ -795,7 +796,8 @@ export class Game extends Scene
                             onComplete: () => {
                                 this.actionService.handCardEffect(
                                     card as Card, 
-                                    targetStatus
+                                    targetStatus,
+                                    false
                                 );
                                 handCards.splice(index, 1);
                                 this.updateHandLayout(handCards);

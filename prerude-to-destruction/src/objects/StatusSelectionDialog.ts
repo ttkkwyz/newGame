@@ -25,7 +25,7 @@ export class StatusSelectionDialog extends Phaser.GameObjects.Container {
         options.forEach((stateName, index) => {
             const btn = scene.add.container(0, -20 + (index * 50));
             const btnBg = scene.add.rectangle(0, 0, 200, 40, 0x666666).setInteractive();
-            const btnText = scene.add.text(0, 0, stateName.toUpperCase(), { fontSize: '16px' }).setOrigin(0.5);
+            const btnText = scene.add.text(0, 0, this.formatStatusName(stateName), { fontSize: '16px' }).setOrigin(0.5);
             
             btn.add([btnBg, btnText]);
 
@@ -38,9 +38,27 @@ export class StatusSelectionDialog extends Phaser.GameObjects.Container {
                 this.destroy();
             });
 
+            this.setDepth(1000);
+
             this.add(btn);
         });
 
         scene.add.existing(this);
+    }
+
+    formatStatusName(statusName: string): string {
+        switch(statusName){
+            case 'waste':
+                return '廃棄物';
+            case 'ocean-pollution':
+                return '海洋汚染';
+            case 'deforestation':
+                return '森林破壊';
+            case 'pollution-10':
+                return 'フロンガス';
+            case 'pollution-15':
+                return '放射能漏れ事故';
+        }
+        return statusName;
     }
 }

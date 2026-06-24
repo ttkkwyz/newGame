@@ -193,6 +193,7 @@ export class StatusWindow extends Phaser.GameObjects.Container {
 
     biosphereStatus(
         target: StatusWindow, 
+        player: boolean,
         onComplete: (selected: string) => void
     ) {
         const activeStatus = this.getActiveStatus();
@@ -203,14 +204,34 @@ export class StatusWindow extends Phaser.GameObjects.Container {
             this.regreenStatus(activeStatus[0], target);
             onComplete(activeStatus[0]);
         } else {
-            new StatusSelectionDialog(
-                this.scene as Phaser.Scene, 
-                activeStatus, 
-                (selected: string) => {
-                this.regreenStatus(selected, target);
-                onComplete(selected);
+            if(player){
+                new StatusSelectionDialog(
+                    this.scene as Phaser.Scene, 
+                    activeStatus, 
+                    (selected: string) => {
+                        this.regreenStatus(selected, target);
+                        onComplete(selected);
+                    }
+                );
+            } else {
+                if(target.waste){
+                    this.regreenStatus('waste', target);
+                    onComplete('waste');
+                    return;
+                } else if(target.oceanPollution){
+                    this.regreenStatus('ocean-pollution', target);
+                    onComplete('ocean-pollution');
+                } else if(target.deforestation){
+                    this.regreenStatus('deforestation', target);
+                    onComplete('deforestation');
+                } else if(target.pollution15 > 0){
+                    this.regreenStatus('pollution-15', target);
+                    onComplete('pollution-15');
+                } else if(target.pollution10 > 0){
+                    this.regreenStatus('pollution-10', target);
+                    onComplete('pollution-10');
                 }
-            );
+            }
         }
     }
 

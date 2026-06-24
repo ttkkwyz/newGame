@@ -15,7 +15,8 @@ export class ActionService {
 
     handCardEffect(
         card: Card, 
-        targetStatus: StatusWindow
+        targetStatus: StatusWindow,
+        player: boolean
     ){
         const type = card.getData('type') as CardType;
         const value = card.getData('value') as number;
@@ -41,7 +42,7 @@ export class ActionService {
                 this.sendCardToTrash(card);
                 break;
             case 'biosphere':
-                targetStatus.biosphereStatus(targetStatus, (selected: string) => {
+                targetStatus.biosphereStatus(targetStatus, player,(selected: string) => {
                     this.scene.trash.push(CARD_LIST.find(c => c.id === selected) as CardData);
                 });
                 this.sendCardToTrash(card);
