@@ -33,11 +33,18 @@ class brainLevel1 implements CpuBrain {
 
         for(let i = 0; i < handCards.length; i++){
             const handCard = handCards[i];
-            for(let j = -1; j < cpuCount; j++){
-                const targetStatus = j === -1 ? playerStatus : enemyStatusWindows[j];
+            for(let j = cpuId; j < cpuId + cpuCount; j++){
+                const targetIndex = j % cpuCount;
+                const targetStatus = enemyStatusWindows[targetIndex];
                 if(!(handCard as Card).checkPlayable(userStatus, targetStatus)) continue;
-                return { card: handCard as Card, index: i, target: j };
+                return { card: handCard as Card, index: i, target: targetIndex };
             }
+        }
+        for(let i = 0; i < handCards.length; i++){
+            const handCard = handCards[i];
+            const targetStatus = playerStatus;
+            if(!(handCard as Card).checkPlayable(userStatus, targetStatus)) continue;
+            return { card: handCard as Card, index: i, target: -1 };
         }
         return null;
     }
@@ -65,16 +72,158 @@ class brainLevel2 implements CpuBrain {
         if(userStatus.isDead) return null;
         if(handCards.length === 0) return null;
 
+        //interferenced
+        if(
+            userStatus.waste 
+            || userStatus.oceanPollution 
+            || userStatus.deforestation
+        ) {
+            if(
+                userStatus.waste 
+                && handCards.find(card => 
+                    card.getData('id') === 'waste-treatment'
+                )
+            ) {
+                const card = handCards.find(card => 
+                    card.getData('id') === 'waste-treatment'
+                ) as Card;
+                return { 
+                    card: card, 
+                    index: handCards.indexOf(card), 
+                    target: cpuId 
+                };
+            } else if(
+                userStatus.oceanPollution 
+                && handCards.find(card => 
+                    card.getData('id') === 'waste-water-treatment'
+                )
+            ) {
+                const card = handCards.find(card => 
+                    card.getData('id') === 'waste-water-treatment'
+                ) as Card;
+                return { 
+                    card: card, 
+                    index: handCards.indexOf(card), 
+                    target: cpuId 
+                };
+            } else if(
+                userStatus.deforestation 
+                && handCards.find(card => 
+                    card.getData('id') === 'planting'
+                )
+            ) {
+                const card = handCards.find(card => 
+                    card.getData('id') === 'planting'
+                ) as Card;
+                return { 
+                    card: card, 
+                    index: handCards.indexOf(card), 
+                    target: cpuId 
+                };
+            } else if(
+                handCards.find(card => card.getData('id') === 'biosphere')
+            ) {
+                const card = handCards.find(card => 
+                    card.getData('id') === 'biosphere'
+                ) as Card;
+                return { 
+                    card: card, 
+                    index: handCards.indexOf(card), 
+                    target: cpuId 
+                };
+            } else return { 
+                card: null, 
+                index: -1, 
+                target: -1 
+            };
+        }
+
+        //Game clear
+        if(
+            userStatus.animalProtection 
+            && handCards.find(card => 
+                card.getData('type') === 'recovery' 
+                && card.getData('value') === userStatus.getData('HP')
+            )
+        ) {
+            const card = handCards.find(card => 
+                card.getData('type') === 'recovery' 
+                && card.getData('value') === userStatus.getData('HP')
+            ) as Card;
+            return { 
+                card: card, 
+                index: handCards.indexOf(card), 
+                target: cpuId 
+            };
+       }
+       if(
+            userStatus.animalProtection 
+            && handCards.find(card => 
+                card.getData('type') === 'pollution' 
+                && card.getData('value') + userStatus.getData('HP') === 0
+            )
+        ) {
+            const card = handCards.find(card => 
+                card.getData('type') === 'pollution' 
+                && card.getData('value') + userStatus.getData('HP') === 0
+            ) as Card;
+            return { 
+                card: card, 
+                index: handCards.indexOf(card), 
+                target: cpuId 
+            };
+        }
+
+        //animal protection
+       if(
+            userStatus.getData('HP') <= 20 
+            && !userStatus.animalProtection 
+            && handCards.find(card => 
+                card.getData('id') === 'animal-protection'
+            )
+        ) {
+            const card = handCards.find(card => 
+                card.getData('id') === 'animal-protection'
+            ) as Card;
+            return { 
+                card: card, 
+                index: handCards.indexOf(card), 
+                target: cpuId 
+            };
+       }
+
+        //score
+        let choice: { 
+            card: Card | null, 
+            index: number, 
+            target: number,
+            score: number
+         } | null = null;
+
         for(let i = 0; i < handCards.length; i++){
             const handCard = handCards[i];
             for(let j = -1; j < cpuCount; j++){
                 const targetStatus = j === -1 ? playerStatus : enemyStatusWindows[j];
-                console.log(targetStatus, j);
                 if(!(handCard as Card).checkPlayable(userStatus, targetStatus)) continue;
-                return { card: handCard as Card, index: i, target: j };
+                let score = calculatePlayScore(
+                    handCard as Card, 
+                    handCards,
+                    userStatus, 
+                    cpuId,
+                    targetStatus,
+                    j
+                );
+                if(!choice || score > choice.score){
+                    choice = { 
+                        card: handCard as Card, 
+                        index: i, 
+                        target: j, 
+                        score: score 
+                    };
+                }
             }
         }
-        return null;
+        return choice;
     }
 
     choiceDiscardCard(
@@ -83,7 +232,28 @@ class brainLevel2 implements CpuBrain {
         playerStatus: StatusWindow,
         enemyStatusWindows: StatusWindow[]
     ): { card: Card, index: number } | null {
-        return { card: handCards[0] as Card, index: 0 };
+        const userStatus = enemyStatusWindows[cpuId];
+        let choice: { 
+            card: Card, 
+            index: number, 
+            score: number
+         } | null = null;
+        for(let i = 0; i < handCards.length; i++){
+            const handCard = handCards[i];
+            let score = calculateDiscardScore(
+                handCard as Card, 
+                handCards,
+                userStatus
+            );
+            if(!choice || score < choice.score){
+                choice = { 
+                    card: handCard as Card, 
+                    index: i, 
+                    score: score 
+                };
+            }
+        }
+        return choice;
     }
 }
 
@@ -489,5 +659,115 @@ function calculateDiscardScore(
         card.getData('id') === card.getData('id')
     );
     score -= duplicatedCards.length * 50;
+    return score;
+}
+
+function calculatePlayMildScore(
+    card: Card, 
+    handCards: Phaser.GameObjects.Container[],
+    userStatus: StatusWindow, 
+    cpuId: number,
+    targetStatus: StatusWindow,
+    targetIndex: number
+): number {
+    let score = 0;
+    const myself = cpuId === targetIndex;
+    const userHP = userStatus.getData('HP');
+    const targetHP = targetStatus.getData('HP');
+    const cardValue = card.getData('value');
+    switch(card.getData('type')){
+        case 'recovery':
+            switch(myself){
+                case true:
+                    if(userHP > cardValue){
+                        score += cardValue * 5;
+                    } else {
+                        score -= cardValue * 5;
+                    }
+                    break;
+                case false:
+                    if (
+                        targetStatus.animalProtection
+                        && targetHP - cardValue === 0
+                    ) {
+                        score -= 100;
+                    } else {
+                        score += cardValue - 1;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case 'pollution':
+            switch(myself){
+                case true:
+                    if(
+                        !userStatus.animalProtection
+                        && userHP + cardValue === 0
+                    ) {
+                        score -= cardValue * 5;
+                    } else if(userHP < 0){
+                        score += cardValue * 5;
+                    } 
+                    break;
+                case false:
+                    if( targetHP > 0){
+                        score += cardValue;
+                    } else {
+                        score -= cardValue * 5;
+                    }
+                    break;
+            }
+            break;
+        case 'interference':
+            switch(card.getData('id')){
+                case 'waste':
+                    if( !myself && !targetStatus.waste){
+                        score += 20;
+                    } else {
+                        score -= 100;
+                    }
+                    break;
+                case 'ocean-pollution':
+                    if( !myself && !targetStatus.oceanPollution){
+                        score += 20;
+                    } else {
+                        score -= 100;
+                    }
+                    break;
+                case 'deforestation':
+                    if( !myself && !targetStatus.deforestation){
+                        score += 20;
+                    } else {
+                        score -= 100;
+                    }
+                    break;
+            }
+            break;
+        case 'regreen':
+            if( !myself ) score -=100;
+            break;
+        case 'biosphere':
+            if( !myself ) score -=100;
+            break;
+        case 'protect':
+            if(myself && !userStatus.animalProtection) {
+                score += 40;
+            } else {
+                score -= 100;
+            }
+            break;
+        case 'poaching':
+            if( !myself && targetStatus.animalProtection) {
+                score += (100 - targetHP);
+            } else {
+                score -= 100;
+            }
+            break;
+        default:
+            score += 0;
+            break;
+    }
     return score;
 }

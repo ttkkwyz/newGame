@@ -90,6 +90,8 @@ export class Game extends Scene
     const screenHeight = this.cameras.main.height;
     const yPos = Layout.enemyStatusWindow.y;
 
+    console.log(screenWidth, screenHeight);
+
     for(let i = 0; i < this.cpuCount; i++){
         const xPos = (screenWidth / this.cpuCount) * (i + 0.5);
         this.cpuPlayers.push({
