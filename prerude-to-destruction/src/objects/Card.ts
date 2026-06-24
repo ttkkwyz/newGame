@@ -68,6 +68,7 @@ export class Card extends Phaser.GameObjects.Container {
     }
 
     checkPlayable(userStatus: StatusWindow, targetStatus: StatusWindow){
+        if(targetStatus.isDead) return false;
         if(userStatus.turnCount === 1){
             switch(this.getData('type')){
                 case 'recovery':
