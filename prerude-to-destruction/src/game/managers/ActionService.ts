@@ -147,4 +147,24 @@ export class ActionService {
             }
         });
     }
+
+    showExplosionEffect(target: StatusWindow) {
+        const explosion = target.scene.add.image(target.x, target.y, 'explosion');
+        explosion.setScale(0.15);
+        explosion.setDepth(600);
+        explosion.setTint(0xffaa00);
+        explosion.setBlendMode('ADD');
+        explosion.setDepth(600);
+        explosion.setAlpha(0);
+        
+        target.scene.tweens.add({
+            targets: explosion,
+            alpha: 1,
+            duration: 1000,
+            ease: 'Power2',
+            onComplete: () => {
+                explosion.destroy();
+            }
+        });
+    }
 }
