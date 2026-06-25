@@ -24,10 +24,12 @@ export class ActionService {
 
         switch(type){
             case 'recovery':
+                this.showEffect(targetStatus, card);
                 targetStatus.updateStatusWindow(targetStatus.getData('HP') - value);
                 this.sendCardToTrash(card);
                 break;
             case 'pollution':
+                this.showEffect(targetStatus, card);
                 targetStatus.updateStatusWindow(targetStatus.getData('HP') + value);
                 targetStatus.addPollution(cardId, targetStatus);
                 this.leaveCard(card);
@@ -55,7 +57,6 @@ export class ActionService {
                 if(targetStatus.animalImage === '1'){
                     this.scene.trash.push(CARD_LIST.find(c => c.id === 'animal-protection-1') as CardData);
                 } else if(targetStatus.animalImage === '2'){
-                    console.log('animal-protection-2');
                     this.scene.trash.push(CARD_LIST.find(c => c.id === 'animal-protection-2') as CardData);
                 }
                 targetStatus.poachAnimal(targetStatus);
@@ -105,5 +106,45 @@ export class ActionService {
                 this.scene.trash.push(CARD_LIST.find(c => c.id === 'deforestation') as CardData);
                 break;
         }
+    }
+
+    showEffect(target: StatusWindow, card: Card){
+        const type = card.getData('type') as CardType;
+        const value = card.getData('value') as number;
+        let color = '#000000';
+
+        switch(type){
+            case 'recovery':
+                color = '#00ff00';
+                break;
+            case 'pollution':
+                color = '#ff0000';
+                break;
+        }
+
+        const text = target.scene.add.text(
+            target.x, 
+            target.y - 20, 
+            `${value.toString()}`, 
+            {
+                fontSize: '30px',
+                color: color,
+                stroke: '#ffffff',
+                strokeThickness: 2,
+            }
+        ).setOrigin(0.5);
+
+        text.setDepth(500);
+
+        target.scene.tweens.add({
+            targets: text,
+            y: target.y - 40,
+            alpha: 0,
+            duration: 800,
+            ease: 'Cubic.out',
+            onComplete: () => {
+                text.destroy();
+            }
+        });
     }
 }

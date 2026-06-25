@@ -43,12 +43,12 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         this.pollution10Icon = scene.add.image(-80, 45, 'pollution-10');
         this.pollution10Icon.setScale(0.03);
         this.pollution10Icon.setVisible(false);
-        this.pollution10Text = scene.add.text(-55, 45, '', { fontSize: '20px', color: '#000000' });
+        this.pollution10Text = scene.add.text(-55, 40, '', { fontSize: '20px', color: '#000000' });
 
         this.pollution15Icon = scene.add.image(0, 45, 'pollution-15');
         this.pollution15Icon.setScale(0.03);
         this.pollution15Icon.setVisible(false);
-        this.pollution15Text = scene.add.text(25, 45, '', { fontSize: '20px', color: '#000000' });
+        this.pollution15Text = scene.add.text(25, 40, '', { fontSize: '20px', color: '#000000' });
         
         this.wasteIcon = scene.add.image(-10, 10, 'waste');
         this.wasteIcon.setScale(0.03);
