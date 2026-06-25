@@ -7,7 +7,7 @@ import { ActionService } from '../managers/ActionService';
 import { sleep } from '../utils/TimeUtil';
 import { Layout } from '../constants/LayoutConfig';
 import { createBrain } from '../managers/CpuAI';
-import { showExplosionEffect } from '../utils/Effect';
+import { Effect } from '../managers/Effect';
 
 type TurnPhase = 'draw' | 'play' | 'discard' | 'discard-2' | 'end';
 
@@ -30,6 +30,7 @@ export class Game extends Scene
     private turnPhase: TurnPhase = 'draw';
 
     private actionService: ActionService;
+    private effect: Effect;
    
     public cpuCount: number = 3;
     private cpuPlayers: any[] = [];
@@ -138,6 +139,7 @@ export class Game extends Scene
     );
         
     this.actionService = new ActionService(this);
+    this.effect = new Effect(this);
     
     await this.showCenterText('環境破壊レベルカード配布');
 
@@ -712,11 +714,13 @@ export class Game extends Scene
                 this.trashZone.input!.enabled = false;
                 this.playerDropZone.input!.enabled = false;
                 this.enemyDropZones.forEach(zone => zone.input!.enabled = false);
+                // this.effect.startGuidance(Layout.deck.x, Layout.deck.y, Layout.card.width, Layout.card.height);
                 break;
             case 'play':
                 this.trashZone.input!.enabled = false;
                 this.playerDropZone.input!.enabled = true;
                 this.enemyDropZones.forEach(zone => zone.input!.enabled = true);
+                // this.effect.stopGuidance();
                 break;
             case 'discard':
                 this.trashZone.input!.enabled = true;
@@ -861,7 +865,7 @@ export class Game extends Scene
             this.winner.push(this.playerName);
             this.transitionToResult(this.winner, true);
         } else if(this.playerStatus.getData('HP') >= 100){
-            showExplosionEffect(this.playerStatus);
+            this.effect.showExplosionEffect(this.playerStatus);
             this.loser.push(this.playerName);
             this.transitionToResult(this.winner, false);
         }
@@ -882,7 +886,7 @@ export class Game extends Scene
                 this.enemyStatusWindows[i].getData('HP') >= 100
                 && !this.enemyStatusWindows[i].isDead
             ){
-                showExplosionEffect(this.enemyStatusWindows[i]);
+                this.effect.showExplosionEffect(this.enemyStatusWindows[i]);
                 this.enemyStatusWindows[i].isDead = true;
                 this.loser.push(`cpu${i+1}`);
                 const targetZone = this.enemyDropZones[i];
