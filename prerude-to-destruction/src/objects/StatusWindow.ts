@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
 import { StatusSelectionDialog } from './StatusSelectionDialog';
 import { Card } from './Card';
+import { Layout } from '../game/constants/LayoutConfig';
 
 export class StatusWindow extends Phaser.GameObjects.Container {
     private nameText: Phaser.GameObjects.Text;
@@ -34,7 +35,7 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         
         super(scene, x, y);
 
-        const bg = scene.add.rectangle(0, 10, 200, 120, 0x000000, 0.5);
+        const bg = scene.add.rectangle(0, 10, Layout.enemyStatusWindow.width, Layout.enemyStatusWindow.height, 0x000000, 0.5);
 
         this.nameText = scene.add.text(-90, -40, name, { fontSize: '18px' });
         const fixedText = scene.add.text(-90, -20, '環境破壊レベル：', { fontSize: '16px' });

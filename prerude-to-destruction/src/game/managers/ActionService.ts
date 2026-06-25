@@ -5,7 +5,6 @@ import { Card } from '../../objects/Card';
 import { CARD_LIST } from '../constants/CardConfig';
 import type { Game } from '../scenes/Game';
 import { Layout } from '../constants/LayoutConfig';
-import { showEffect, showHealSparkleEffect, showRifleEffect } from '../utils/Effect';
 import { Effect } from './Effect';
 
 export class ActionService {
@@ -14,6 +13,7 @@ export class ActionService {
 
     constructor(scene: Game){
         this.scene = scene;
+        this.effect = new Effect(scene);
     }
 
     handCardEffect(
@@ -27,12 +27,12 @@ export class ActionService {
 
         switch(type){
             case 'recovery':
-                showEffect(targetStatus, card);
+                this.effect.showEffect(targetStatus, card);
                 targetStatus.updateStatusWindow(targetStatus.getData('HP') - value);
                 this.sendCardToTrash(card);
                 break;
             case 'pollution':
-                showEffect(targetStatus, card);
+                this.effect.showEffect(targetStatus, card);
                 targetStatus.updateStatusWindow(targetStatus.getData('HP') + value);
                 targetStatus.addPollution(cardId, targetStatus);
                 this.leaveCard(card);
@@ -42,7 +42,7 @@ export class ActionService {
                 this.leaveCard(card);
                 break;
             case 'regreen':
-                showHealSparkleEffect(targetStatus);
+                this.effect.showHealSparkleEffect(targetStatus);
                 targetStatus.regreenStatus(cardId, targetStatus);
                 this.offsetInterference(cardId);
                 this.sendCardToTrash(card);
@@ -58,7 +58,7 @@ export class ActionService {
                 this.leaveCard(card);
                 break;
             case 'poaching':
-                showRifleEffect(targetStatus);
+                this.effect.showRifleEffect(targetStatus);
                 if(targetStatus.animalImage === '1'){
                     this.scene.trash.push(CARD_LIST.find(c => c.id === 'animal-protection-1') as CardData);
                 } else if(targetStatus.animalImage === '2'){

@@ -14,6 +14,8 @@ export const Layout = {
 
     enemyStatusWindow: {
         y: 150,
+        width: 200,
+        height: 120,
     },
 
     deck: {

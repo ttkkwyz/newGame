@@ -4,10 +4,8 @@ import { CardType } from "../constants/CardConfig";
 
 export class Effect {
     private scene: Phaser.Scene;
-    private glowEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
-    private glowBg: Phaser.GameObjects.Rectangle | null = null;
-    private glowTween: Phaser.Tweens.Tween | null = null;
-
+    private glowBg: Phaser.GameObjects.Graphics | null = null;
+    
     constructor(scene: Phaser.Scene){
         this.scene = scene;
     }
@@ -114,33 +112,31 @@ export class Effect {
         });
     }
 
-    // startGuidance(x: number, y: number, width: number, height: number) {
-    //     this.stopGuidance();
+    startGuidance(x: number, y: number, width: number, height: number) {
+        this.stopGuidance();
   
-    //     this.glowBg = this.scene.add.rectangle(x, y, width, height, 0xffffff);
-    //     this.glowBg.setDepth(90); 
-    //     const glowEffect = (this.glowBg as any).postFX.addGlow(0xffffff, 0, 0);
-    //     this.glowTween = this.scene.tweens.add({
-    //         targets: glowEffect,
-    //         distance: 12,
-    //         duration: 1200,
-    //         yoyo: true,
-    //         loop: -1,
-    //         ease: 'Sine.easeInOut'
-    //     });
-    // }
+        this.glowBg = this.scene.add.graphics();
+        this.glowBg.setDepth(90);
 
-    // stopGuidance() {
-    //     if (this.glowTween) {
-    //         this.glowTween.remove();
-    //         this.glowTween = null;
-    //     }
+        for (let i = 0; i < 12; i++) {
+            this.glowBg.fillStyle(0xffffff, 0.05); 
+            this.glowBg.fillRect(x - width / 2 - i, y - height / 2 - i, width + i * 2, height + i * 2);
+        }
 
-    //     if (this.glowBg) {
-    //         this.glowBg.destroy();
-    //         this.glowBg = null;
-    //     }
-    // }
+        this.scene.tweens.add({
+            targets: this.glowBg,
+            alpha: 0.3,
+            duration: 1200,
+            yoyo: true,
+            loop: -1,
+            ease: 'Sine.easeInOut'
+        });
+    }
 
-    
+    stopGuidance() {
+        if (this.glowBg) {
+            this.glowBg.destroy();
+            this.glowBg = null;
+        }
+    }    
 }
