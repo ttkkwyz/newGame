@@ -12,8 +12,8 @@ type TurnPhase = 'draw' | 'play' | 'discard' | 'discard-2' | 'end';
 
 export class Game extends Scene
 {
-    // camera: Phaser.Cameras.Scene2D.Camera;
-    // background: Phaser.GameObjects.Image;
+    camera: Phaser.Cameras.Scene2D.Camera;
+    background: Phaser.GameObjects.Image;
     // msg_text : Phaser.GameObjects.Text;
 
     constructor ()
@@ -67,6 +67,8 @@ export class Game extends Scene
    
     async create ()
     {
+    this.background = this.add.image(512, 384, 'game-bg');
+    
     this.input.enabled = false;
 
     // this.Players = [{ name: 'あなた', type: 'player' }, { name: 'CPU1', type: 'よわい' }, { name: 'CPU2', type: 'よわい' }];

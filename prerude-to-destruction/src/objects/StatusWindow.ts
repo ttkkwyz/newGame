@@ -37,18 +37,18 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         const bg = scene.add.rectangle(0, 10, 200, 120, 0x000000, 0.5);
 
         this.nameText = scene.add.text(-90, -40, name, { fontSize: '18px' });
-        const fixedText = scene.add.text(-90, -20, '環境破壊レベル：', { fontSize: '16px', color: '#000000' });
-        const fixedText2 = scene.add.text(-70, 0, '✕', { fontSize: '16px', color: '#000000' });
+        const fixedText = scene.add.text(-90, -20, '環境破壊レベル：', { fontSize: '16px' });
+        const fixedText2 = scene.add.text(-70, 0, '✕', { fontSize: '16px' });
         
         this.pollution10Icon = scene.add.image(-80, 45, 'pollution-10');
         this.pollution10Icon.setScale(0.03);
         this.pollution10Icon.setVisible(false);
-        this.pollution10Text = scene.add.text(-55, 40, '', { fontSize: '20px', color: '#000000' });
+        this.pollution10Text = scene.add.text(-55, 40, '', { fontSize: '20px' });
 
         this.pollution15Icon = scene.add.image(0, 45, 'pollution-15');
         this.pollution15Icon.setScale(0.03);
         this.pollution15Icon.setVisible(false);
-        this.pollution15Text = scene.add.text(25, 40, '', { fontSize: '20px', color: '#000000' });
+        this.pollution15Text = scene.add.text(25, 40, '', { fontSize: '20px' });
         
         this.wasteIcon = scene.add.image(-10, 10, 'waste');
         this.wasteIcon.setScale(0.03);
@@ -66,8 +66,8 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         this.animalProtectionIcon.setScale(0.03);
         this.animalProtectionIcon.setVisible(false);
 
-        this.HPText = scene.add.text(40, -22, '', { fontSize: '18px', color: '#000000' });
-        this.handInfo = scene.add.text(-55, -1, '5', { fontSize: '18px', color: '#000000' });
+        this.HPText = scene.add.text(40, -22, '', { fontSize: '18px' });
+        this.handInfo = scene.add.text(-55, -1, '5', { fontSize: '18px' });
   
         // const cardIcon = scene.add.graphics();
         // cardIcon.setPosition(-80, 6);
