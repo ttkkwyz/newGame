@@ -958,7 +958,6 @@ export class Game extends Scene
         if(this.activePauseDialog){
             this.activePauseDialog.destroy();
             this.activePauseDialog = null;
-            // this.time.paused = false;
         }
     }
 
