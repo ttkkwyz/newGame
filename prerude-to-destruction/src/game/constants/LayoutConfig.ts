@@ -18,7 +18,7 @@ export const Layout = {
 
     deck: {
         x: 500,
-        y: 400,
+        y: 420,
     },
 
     card: {
@@ -32,8 +32,8 @@ export const Layout = {
     },
 
     trashZone: {
-        x: 300,
-        y: 400,
+        x: 320,
+        y: 420,
         width: 100,
         height: 150,
     },
@@ -44,6 +44,6 @@ export const Layout = {
     },
 
     enemyHand: {
-        y: 250,
+        y: 275,
     },
 }

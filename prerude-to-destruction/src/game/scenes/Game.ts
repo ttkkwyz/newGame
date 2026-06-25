@@ -29,8 +29,7 @@ export class Game extends Scene
     private turnPhase: TurnPhase = 'draw';
 
     private actionService: ActionService;
-    // private cpuAI: CpuAI;
-
+   
     public cpuCount: number = 3;
     private cpuPlayers: any[] = [];
     private cpuStrengths: number[] = [2, 2, 2, 2, 2];
@@ -134,18 +133,9 @@ export class Game extends Scene
         Layout.trashZone.width, 
         Layout.trashZone.height
     );
-    const trashText = this.add.text(
-        Layout.trashZone.x, 
-        Layout.trashZone.y, 
-        '廃棄カード', {
-            fontSize: '18px',
-            color: '#000000',
-        }
-    ).setOrigin(0.5);
-    
+        
     this.actionService = new ActionService(this);
-    // this.cpuAI = new CpuAI();
-
+    
     await this.showCenterText('環境破壊レベルカード配布');
 
     await this.dealTheEarth();
@@ -197,6 +187,15 @@ export class Game extends Scene
             this.enemyDropZones[i].input!.hitArea!.height
         );
     }
+
+    const trashText = this.add.text(
+        Layout.trashZone.x, 
+        Layout.trashZone.y, 
+        '廃棄カード', {
+            fontSize: '18px',
+            color: '#000000',
+        }
+    ).setOrigin(0.5);
 
     this.descriptionText = this.add.text(40,screenHeight-200, '', {
         fontSize: '18px',
@@ -375,7 +374,7 @@ export class Game extends Scene
         const Index = handCards === this.playerHandCards ? -1 : this.enemyHandCards.indexOf(handCards);
         const centerX = Index === -1 ? Layout.playerHand.x : (this.cameras.main.width / this.cpuCount) * (Index + 0.5);
         const centerY = Index === -1 ? Layout.playerHand.y : Layout.enemyHand.y ;
-        const cardSpacing = Math.min(60, 400 / handCards.length);
+        const cardSpacing = Index === -1 ? Math.min(60, 400 / handCards.length) : Math.min(30, 200 / handCards.length);
 
         handCards.forEach((card, index) => {
             const offset = index - (handCards.length -1) /2;
@@ -519,13 +518,6 @@ export class Game extends Scene
 
         await Promise.all(animationPromises);
 
-        // this.add.tween({
-        //     targets: this.trash[this.trash.length - 1],
-        //     x: Layout.deck.x,
-        //     y: Layout.deck.y,
-        //     duration: 500,
-        //     ease: 'Power2',
-        // });
         Phaser.Utils.Array.Shuffle(this.trash);
         this.trash.forEach(card => {
             this.deck.push(card);
