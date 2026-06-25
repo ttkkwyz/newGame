@@ -7,7 +7,11 @@ import { ActionService } from '../managers/ActionService';
 import { sleep } from '../utils/TimeUtil';
 import { Layout } from '../constants/LayoutConfig';
 import { createBrain } from '../managers/CpuAI';
+<<<<<<< HEAD
 import { Effect } from '../managers/Effect';
+=======
+import { showExplosionEffect } from '../utils/Effect';
+>>>>>>> 5cc1e6df47adf0b3225fef7e0056f5d729d32235
 
 type TurnPhase = 'draw' | 'play' | 'discard' | 'discard-2' | 'end';
 
@@ -865,7 +869,11 @@ export class Game extends Scene
             this.winner.push(this.playerName);
             this.transitionToResult(this.winner, true);
         } else if(this.playerStatus.getData('HP') >= 100){
+<<<<<<< HEAD
             this.effect.showExplosionEffect(this.playerStatus);
+=======
+            showExplosionEffect(this.playerStatus);
+>>>>>>> 5cc1e6df47adf0b3225fef7e0056f5d729d32235
             this.loser.push(this.playerName);
             this.transitionToResult(this.winner, false);
         }
@@ -886,7 +894,11 @@ export class Game extends Scene
                 this.enemyStatusWindows[i].getData('HP') >= 100
                 && !this.enemyStatusWindows[i].isDead
             ){
+<<<<<<< HEAD
                 this.effect.showExplosionEffect(this.enemyStatusWindows[i]);
+=======
+                showExplosionEffect(this.enemyStatusWindows[i]);
+>>>>>>> 5cc1e6df47adf0b3225fef7e0056f5d729d32235
                 this.enemyStatusWindows[i].isDead = true;
                 this.loser.push(`cpu${i+1}`);
                 const targetZone = this.enemyDropZones[i];
