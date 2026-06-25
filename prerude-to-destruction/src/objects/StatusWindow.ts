@@ -4,15 +4,16 @@ import { Card } from './Card';
 
 export class StatusWindow extends Phaser.GameObjects.Container {
     private nameText: Phaser.GameObjects.Text;
-    // private fixedText: Phaser.GameObjects.Text;
     private HPText: Phaser.GameObjects.Text;
     private handInfo: Phaser.GameObjects.Text;
-    private pollution10Icon: Phaser.GameObjects.Text;
-    private pollution15Icon: Phaser.GameObjects.Text;
-    private wasteIcon: Phaser.GameObjects.Text;
-    private oceanPollutionIcon: Phaser.GameObjects.Text;
-    private deforestationIcon: Phaser.GameObjects.Text;
-    private animalProtectionIcon: Phaser.GameObjects.Text;
+    private pollution10Icon: Phaser.GameObjects.Image;
+    private pollution10Text: Phaser.GameObjects.Text;
+    private pollution15Icon: Phaser.GameObjects.Image;
+    private pollution15Text: Phaser.GameObjects.Text;
+    private wasteIcon: Phaser.GameObjects.Image;
+    private oceanPollutionIcon: Phaser.GameObjects.Image;
+    private deforestationIcon: Phaser.GameObjects.Image;
+    private animalProtectionIcon: Phaser.GameObjects.Image;
 
     public waste: boolean;
     public oceanPollution: boolean;
@@ -39,12 +40,31 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         const fixedText = scene.add.text(-90, -20, '環境破壊レベル：', { fontSize: '16px', color: '#000000' });
         const fixedText2 = scene.add.text(-70, 0, '✕', { fontSize: '16px', color: '#000000' });
         
-        this.pollution10Icon = scene.add.text(-90, 25, '', { fontSize: '16px' });
-        this.pollution15Icon = scene.add.text(-90, 45, '', { fontSize: '16px' });
-        this.wasteIcon = scene.add.text(-10, 0, '', { fontSize: '20px' });
-        this.oceanPollutionIcon = scene.add.text(15, 0, '', { fontSize: '20px' });
-        this.deforestationIcon = scene.add.text(40, 0, '', { fontSize: '20px' });
-        this.animalProtectionIcon = scene.add.text(70, -40, '', { fontSize: '20px' });
+        this.pollution10Icon = scene.add.image(-80, 45, 'pollution-10');
+        this.pollution10Icon.setScale(0.03);
+        this.pollution10Icon.setVisible(false);
+        this.pollution10Text = scene.add.text(-55, 45, '', { fontSize: '20px', color: '#000000' });
+
+        this.pollution15Icon = scene.add.image(0, 45, 'pollution-15');
+        this.pollution15Icon.setScale(0.03);
+        this.pollution15Icon.setVisible(false);
+        this.pollution15Text = scene.add.text(25, 45, '', { fontSize: '20px', color: '#000000' });
+        
+        this.wasteIcon = scene.add.image(-10, 10, 'waste');
+        this.wasteIcon.setScale(0.03);
+        this.wasteIcon.setVisible(false);
+        
+        this.oceanPollutionIcon = scene.add.image(15, 10, 'ocean-pollution');
+        this.oceanPollutionIcon.setScale(0.03);
+        this.oceanPollutionIcon.setVisible(false);
+        
+        this.deforestationIcon = scene.add.image(40, 10, 'deforestation');
+        this.deforestationIcon.setScale(0.03);
+        this.deforestationIcon.setVisible(false);
+        
+        this.animalProtectionIcon = scene.add.image(80, -30, 'animal-protection-1');
+        this.animalProtectionIcon.setScale(0.03);
+        this.animalProtectionIcon.setVisible(false);
 
         this.HPText = scene.add.text(40, -22, '', { fontSize: '18px', color: '#000000' });
         this.handInfo = scene.add.text(-55, -1, '5', { fontSize: '18px', color: '#000000' });
@@ -78,7 +98,9 @@ export class StatusWindow extends Phaser.GameObjects.Container {
             this.handInfo, 
             cardIcon,
             this.pollution10Icon,
+            this.pollution10Text,
             this.pollution15Icon,
+            this.pollution15Text,
             this.wasteIcon,
             this.oceanPollutionIcon,
             this.deforestationIcon,
@@ -103,11 +125,13 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         switch(id){
             case 'pollution-10':
                 target.pollution10 += 10;
-                target.pollution10Icon.setText("フロンガス　+" + target.pollution10.toString());
+                target.pollution10Icon.setVisible(true);
+                target.pollution10Text.setText("+" + target.pollution10.toString());
                 break;
             case 'pollution-15':
                 target.pollution15 += 15;
-                target.pollution15Icon.setText("放射能　+" + target.pollution15.toString());
+                target.pollution15Icon.setVisible(true);
+                target.pollution15Text.setText("+" + target.pollution15.toString());
                 break;
         }
     }
@@ -116,15 +140,15 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         switch(id){
             case 'waste':
                 target.waste = true;
-                target.wasteIcon.setText('🚮');
+                target.wasteIcon.setVisible(true);
                 break;
             case 'ocean-pollution':
                 target.oceanPollution = true;
-                target.oceanPollutionIcon.setText('🌊');
+                target.oceanPollutionIcon.setVisible(true);
                 break;
             case 'deforestation':
                 target.deforestation = true;
-                target.deforestationIcon.setText('🌳');
+                target.deforestationIcon.setVisible(true);
                 break;
     }
     }
@@ -133,42 +157,42 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         switch(id){
             case 'waste-treatment':
                 target.waste = false;
-                target.wasteIcon.setText('');
+                target.wasteIcon.setVisible(false);
                 break;
             case 'waste':
                 target.waste = false;
-                target.wasteIcon.setText('');
+                target.wasteIcon.setVisible(false);
                 break;
             case 'waste-water-treatment':
                 target.oceanPollution = false;
-                target.oceanPollutionIcon.setText('');
+                target.oceanPollutionIcon.setVisible(false);
                 break;
             case 'ocean-pollution':
                 target.oceanPollution = false;
-                target.oceanPollutionIcon.setText('');
+                target.oceanPollutionIcon.setVisible(false);
                 break;
             case 'planting':
                 target.deforestation = false;
-                target.deforestationIcon.setText('');
+                target.deforestationIcon.setVisible(false);
                 break;
             case 'deforestation':
                 target.deforestation = false;
-                target.deforestationIcon.setText('');
+                target.deforestationIcon.setVisible(false);
                 break;
             case 'pollution10':
                 target.pollution10 -= 10;
                 if(target.pollution10 <= 0){
-                    target.pollution10Icon.setText('');
+                    target.pollution10Icon.setVisible(false);
                 } else {
-                    target.pollution10Icon.setText("+" + target.pollution10.toString());
+                    target.pollution10Text.setText("+" + target.pollution10.toString());
                 }
                 break;
             case 'pollution15':
                 target.pollution15 -= 15;
                 if(target.pollution15 <= 0){
-                    target.pollution15Icon.setText('');
+                    target.pollution15Icon.setVisible(false);
                 } else {
-                    target.pollution15Icon.setText("+" + target.pollution15.toString());
+                    target.pollution15Text.setText("+" + target.pollution15.toString());
                 }
                 break;
         }
@@ -242,15 +266,18 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         target.animalProtection = true;
         if(card.getData('id') === 'animal-protection-1'){
             target.animalImage = '1';
+            target.animalProtectionIcon.setTexture('animal-protection-1');
+            target.animalProtectionIcon.setVisible(true);
         } else if(card.getData('id') === 'animal-protection-2'){
             target.animalImage = '2';
+            target.animalProtectionIcon.setTexture('animal-protection-2');
+            target.animalProtectionIcon.setVisible(true);
         }
-        target.animalProtectionIcon.setText(target.animalImage);
     }
 
     poachAnimal(target: StatusWindow){
         target.animalProtection = false;
         target.animalImage = '0';
-        target.animalProtectionIcon.setText('');
+        target.animalProtectionIcon.setVisible(false);
     }
 }
