@@ -68,7 +68,7 @@ export class Game extends Scene
     async create ()
     {
     this.background = this.add.image(512, 384, 'game-bg');
-    
+
     this.input.enabled = false;
 
     // this.Players = [{ name: 'あなた', type: 'player' }, { name: 'CPU1', type: 'よわい' }, { name: 'CPU2', type: 'よわい' }];
@@ -168,34 +168,34 @@ export class Game extends Scene
     deckImage.setInteractive();
     
     const graphics = this.add.graphics();
-    graphics.lineStyle(2, 0xffff00);
-    graphics.strokeRect(
+    graphics.fillStyle(2, 0xaaaaaa);
+    graphics.fillRect(
         this.trashZone.x - this.trashZone.input!.hitArea!.width / 2, 
         this.trashZone.y - this.trashZone.input!.hitArea!.height / 2, 
         this.trashZone.input!.hitArea!.width, 
         this.trashZone.input!.hitArea!.height
     );
-    graphics.strokeRect(
-        this.playerDropZone.x - this.playerDropZone.input!.hitArea!.width / 2, 
-        this.playerDropZone.y - this.playerDropZone.input!.hitArea!.height / 2, 
-        this.playerDropZone.input!.hitArea!.width, 
-        this.playerDropZone.input!.hitArea!.height
-    );
-    for(let i = 0; i < this.cpuCount; i++){
-        graphics.strokeRect(
-            this.enemyDropZones[i].x - this.enemyDropZones[i].input!.hitArea!.width / 2, 
-            this.enemyDropZones[i].y - this.enemyDropZones[i].input!.hitArea!.height / 2, 
-            this.enemyDropZones[i].input!.hitArea!.width, 
-            this.enemyDropZones[i].input!.hitArea!.height
-        );
-    }
+    // graphics.strokeRect(
+    //     this.playerDropZone.x - this.playerDropZone.input!.hitArea!.width / 2, 
+    //     this.playerDropZone.y - this.playerDropZone.input!.hitArea!.height / 2, 
+    //     this.playerDropZone.input!.hitArea!.width, 
+    //     this.playerDropZone.input!.hitArea!.height
+    // );
+    // for(let i = 0; i < this.cpuCount; i++){
+    //     graphics.strokeRect(
+    //         this.enemyDropZones[i].x - this.enemyDropZones[i].input!.hitArea!.width / 2, 
+    //         this.enemyDropZones[i].y - this.enemyDropZones[i].input!.hitArea!.height / 2, 
+    //         this.enemyDropZones[i].input!.hitArea!.width, 
+    //         this.enemyDropZones[i].input!.hitArea!.height
+    //     );
+    // }
 
-    const trashText = this.add.text(
+    this.add.text(
         Layout.trashZone.x, 
         Layout.trashZone.y, 
         '廃棄カード', {
             fontSize: '18px',
-            color: '#000000',
+            color: '#ffffff'
         }
     ).setOrigin(0.5);
 

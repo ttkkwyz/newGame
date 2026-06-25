@@ -9,7 +9,7 @@ export const Layout = {
         x: 900,
         y: 550,
         width: 200,
-        height: 150,
+        height: 120,
     },
 
     enemyStatusWindow: {
@@ -28,7 +28,7 @@ export const Layout = {
 
     enemyDropZone: {
         width: 200,
-        height: 150,
+        height: 120,
     },
 
     trashZone: {
