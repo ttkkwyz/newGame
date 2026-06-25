@@ -8,6 +8,8 @@ import { sleep } from '../utils/TimeUtil';
 import { Layout } from '../constants/LayoutConfig';
 import { createBrain } from '../managers/CpuAI';
 import { Effect } from '../managers/Effect';
+import { PauseDialog } from '../../objects/PauseDialog';
+import { RulesDialog } from '../../objects/RulesDialog';
 
 type TurnPhase = 'draw' | 'play' | 'discard' | 'discard-2' | 'end';
 
@@ -45,6 +47,9 @@ export class Game extends Scene
     private enemyStatusWindows: StatusWindow[] = [];
 
     private descriptionText: Phaser.GameObjects.Text;
+
+    private activePauseDialog: PauseDialog | null = null;
+    private activeRulesDialog: RulesDialog | null = null;
 
     private gameResult: string[] = [];
     private winner: string[] = [];
@@ -211,6 +216,17 @@ export class Game extends Scene
     });
     this.descriptionText.setDepth(1000);
     this.descriptionText.setVisible(false);
+
+    const menuButton = this.add.text(screenWidth - 110, screenHeight - 130, 'Menu', {
+        fontSize: '20px',
+        color: '#ffffff',
+        backgroundColor: '#00aaff',
+        padding: { x: 20, y: 10 }
+    });
+    menuButton.setInteractive({ useHandCursor: true });
+    menuButton.on('pointerdown', () => {
+        this.openPauseMenu();
+    });
 
     await this.dealInitialCards(this.playerHandCards);
     for(let i = 0; i < this.cpuCount; i++){
@@ -921,5 +937,46 @@ export class Game extends Scene
         });
     }
 
+    openPauseMenu(){
+        if(this.activePauseDialog) return;
+        
+        this.activePauseDialog = new PauseDialog(this, {
+            onResume: () => {
+                this.closePauseMenu();
+            },
+            onRules: () => {
+                this.closePauseMenu();
+                this.openRulesDialog();
+            },
+            onTop: () => {
+                this.scene.start('MainMenu');
+            }
+        });
+    }
+
+    closePauseMenu(){
+        if(this.activePauseDialog){
+            this.activePauseDialog.destroy();
+            this.activePauseDialog = null;
+            // this.time.paused = false;
+        }
+    }
+
+    openRulesDialog(){
+        if(this.activeRulesDialog) return;
+        
+        this.activeRulesDialog = new RulesDialog(this, {
+            onExit: () => {
+                this.closeRulesDialog();
+            }
+        });
+    }
+
+    closeRulesDialog(){
+        if(this.activeRulesDialog){
+            this.activeRulesDialog.destroy();
+            this.activeRulesDialog = null;
+        }
+    }
 
 }
