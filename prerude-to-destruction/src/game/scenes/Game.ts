@@ -7,6 +7,7 @@ import { ActionService } from '../managers/ActionService';
 import { sleep } from '../utils/TimeUtil';
 import { Layout } from '../constants/LayoutConfig';
 import { createBrain } from '../managers/CpuAI';
+import { showExplosionEffect } from '../utils/Effect';
 
 type TurnPhase = 'draw' | 'play' | 'discard' | 'discard-2' | 'end';
 
@@ -860,7 +861,7 @@ export class Game extends Scene
             this.winner.push(this.playerName);
             this.transitionToResult(this.winner, true);
         } else if(this.playerStatus.getData('HP') >= 100){
-            this.actionService.showExplosionEffect(this.playerStatus);
+            showExplosionEffect(this.playerStatus);
             this.loser.push(this.playerName);
             this.transitionToResult(this.winner, false);
         }
@@ -881,7 +882,7 @@ export class Game extends Scene
                 this.enemyStatusWindows[i].getData('HP') >= 100
                 && !this.enemyStatusWindows[i].isDead
             ){
-                this.actionService.showExplosionEffect(this.enemyStatusWindows[i]);
+                showExplosionEffect(this.enemyStatusWindows[i]);
                 this.enemyStatusWindows[i].isDead = true;
                 this.loser.push(`cpu${i+1}`);
                 const targetZone = this.enemyDropZones[i];
