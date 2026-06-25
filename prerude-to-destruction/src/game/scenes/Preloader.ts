@@ -42,6 +42,7 @@ export class Preloader extends Scene
 
         //  Load the assets for the game - Replace with your own assets
         this.load.image('explosion', 'assets/explosion.jpg');
+        this.load.image('rifle', 'assets/rifle.png');
 
 
 

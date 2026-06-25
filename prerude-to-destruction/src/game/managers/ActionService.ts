@@ -39,6 +39,7 @@ export class ActionService {
                 this.leaveCard(card);
                 break;
             case 'regreen':
+                this.showHealSparkleEffect(targetStatus);
                 targetStatus.regreenStatus(cardId, targetStatus);
                 this.offsetInterference(cardId);
                 this.sendCardToTrash(card);
@@ -54,6 +55,7 @@ export class ActionService {
                 this.leaveCard(card);
                 break;
             case 'poaching':
+                this.showRifleEffect(targetStatus);
                 if(targetStatus.animalImage === '1'){
                     this.scene.trash.push(CARD_LIST.find(c => c.id === 'animal-protection-1') as CardData);
                 } else if(targetStatus.animalImage === '2'){
@@ -164,6 +166,48 @@ export class ActionService {
             ease: 'Power2',
             onComplete: () => {
                 explosion.destroy();
+            }
+        });
+    }
+
+    showHealSparkleEffect(target: StatusWindow) {
+        const sparkles = target.scene.add.particles(target.x, target.y, '__white', {
+            x: { min: -60, max: 60 },
+            y: { min: -10, max: 10 },
+    
+            lifespan: { min: 600, max: 1000 },
+            speedY: { min: -80, max: -40 },
+            speedX: { min: -20, max: 20 },
+            scale: { start: 1, end: 0 },
+            tint: [0x00ff00, 0x77ff00, 0xaaffaa],
+            
+            blendMode: 'ADD',
+            emitting: false
+        });
+    
+        sparkles.setDepth(600);
+    
+        sparkles.explode(30);
+    
+        target.scene.time.delayedCall(1000, () => {
+            sparkles.destroy();
+        });
+    }
+
+    showRifleEffect(target: StatusWindow) {
+        const rifle = target.scene.add.image(target.x, target.y, 'rifle');
+        rifle.setDepth(600);
+        rifle.setBlendMode('ADD');
+        rifle.setDepth(600);
+        rifle.setAlpha(0);
+        
+        target.scene.tweens.add({
+            targets: rifle,
+            alpha: 1,
+            duration: 1000,
+            ease: 'Power2',
+            onComplete: () => {
+                rifle.destroy();
             }
         });
     }
