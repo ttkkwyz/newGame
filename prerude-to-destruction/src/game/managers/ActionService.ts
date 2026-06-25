@@ -5,6 +5,7 @@ import { Card } from '../../objects/Card';
 import { CARD_LIST } from '../constants/CardConfig';
 import type { Game } from '../scenes/Game';
 import { Layout } from '../constants/LayoutConfig';
+import { showEffect, showHealSparkleEffect, showRifleEffect } from '../utils/Effect';
 
 export class ActionService {
     private scene: Game;
@@ -24,12 +25,12 @@ export class ActionService {
 
         switch(type){
             case 'recovery':
-                this.showEffect(targetStatus, card);
+                showEffect(targetStatus, card);
                 targetStatus.updateStatusWindow(targetStatus.getData('HP') - value);
                 this.sendCardToTrash(card);
                 break;
             case 'pollution':
-                this.showEffect(targetStatus, card);
+                showEffect(targetStatus, card);
                 targetStatus.updateStatusWindow(targetStatus.getData('HP') + value);
                 targetStatus.addPollution(cardId, targetStatus);
                 this.leaveCard(card);
@@ -39,7 +40,7 @@ export class ActionService {
                 this.leaveCard(card);
                 break;
             case 'regreen':
-                this.showHealSparkleEffect(targetStatus);
+                showHealSparkleEffect(targetStatus);
                 targetStatus.regreenStatus(cardId, targetStatus);
                 this.offsetInterference(cardId);
                 this.sendCardToTrash(card);
@@ -55,7 +56,7 @@ export class ActionService {
                 this.leaveCard(card);
                 break;
             case 'poaching':
-                this.showRifleEffect(targetStatus);
+                showRifleEffect(targetStatus);
                 if(targetStatus.animalImage === '1'){
                     this.scene.trash.push(CARD_LIST.find(c => c.id === 'animal-protection-1') as CardData);
                 } else if(targetStatus.animalImage === '2'){
@@ -108,107 +109,5 @@ export class ActionService {
                 this.scene.trash.push(CARD_LIST.find(c => c.id === 'deforestation') as CardData);
                 break;
         }
-    }
-
-    showEffect(target: StatusWindow, card: Card){
-        const type = card.getData('type') as CardType;
-        const value = card.getData('value') as number;
-        let color = '#000000';
-
-        switch(type){
-            case 'recovery':
-                color = '#00ff00';
-                break;
-            case 'pollution':
-                color = '#ff0000';
-                break;
-        }
-
-        const text = target.scene.add.text(
-            target.x, 
-            target.y - 20, 
-            `${value.toString()}`, 
-            {
-                fontSize: '30px',
-                color: color,
-                stroke: '#ffffff',
-                strokeThickness: 2,
-            }
-        ).setOrigin(0.5);
-
-        text.setDepth(500);
-
-        target.scene.tweens.add({
-            targets: text,
-            y: target.y - 40,
-            alpha: 0,
-            duration: 800,
-            ease: 'Cubic.out',
-            onComplete: () => {
-                text.destroy();
-            }
-        });
-    }
-
-    showExplosionEffect(target: StatusWindow) {
-        const explosion = target.scene.add.image(target.x, target.y, 'explosion');
-        explosion.setScale(0.15);
-        explosion.setDepth(600);
-        explosion.setTint(0xffaa00);
-        explosion.setBlendMode('ADD');
-        explosion.setDepth(600);
-        explosion.setAlpha(0);
-        
-        target.scene.tweens.add({
-            targets: explosion,
-            alpha: 1,
-            duration: 1000,
-            ease: 'Power2',
-            onComplete: () => {
-                explosion.destroy();
-            }
-        });
-    }
-
-    showHealSparkleEffect(target: StatusWindow) {
-        const sparkles = target.scene.add.particles(target.x, target.y, '__white', {
-            x: { min: -60, max: 60 },
-            y: { min: -10, max: 10 },
-    
-            lifespan: { min: 600, max: 1000 },
-            speedY: { min: -80, max: -40 },
-            speedX: { min: -20, max: 20 },
-            scale: { start: 1, end: 0 },
-            tint: [0x00ff00, 0x77ff00, 0xaaffaa],
-            
-            blendMode: 'ADD',
-            emitting: false
-        });
-    
-        sparkles.setDepth(600);
-    
-        sparkles.explode(30);
-    
-        target.scene.time.delayedCall(1000, () => {
-            sparkles.destroy();
-        });
-    }
-
-    showRifleEffect(target: StatusWindow) {
-        const rifle = target.scene.add.image(target.x, target.y, 'rifle');
-        rifle.setDepth(600);
-        rifle.setBlendMode('ADD');
-        rifle.setDepth(600);
-        rifle.setAlpha(0);
-        
-        target.scene.tweens.add({
-            targets: rifle,
-            alpha: 1,
-            duration: 1000,
-            ease: 'Power2',
-            onComplete: () => {
-                rifle.destroy();
-            }
-        });
     }
 }
