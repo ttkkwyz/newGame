@@ -48,10 +48,16 @@ export class ActionService {
                 this.sendCardToTrash(card);
                 break;
             case 'protect':
-                targetStatus.protectAnimal(targetStatus);
+                targetStatus.protectAnimal(targetStatus, card);
                 this.leaveCard(card);
                 break;
             case 'poaching':
+                if(targetStatus.animalImage === '1'){
+                    this.scene.trash.push(CARD_LIST.find(c => c.id === 'animal-protection-1') as CardData);
+                } else if(targetStatus.animalImage === '2'){
+                    console.log('animal-protection-2');
+                    this.scene.trash.push(CARD_LIST.find(c => c.id === 'animal-protection-2') as CardData);
+                }
                 targetStatus.poachAnimal(targetStatus);
                 this.sendCardToTrash(card);
                 break;

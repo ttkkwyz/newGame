@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import { StatusSelectionDialog } from './StatusSelectionDialog';
+import { Card } from './Card';
 
 export class StatusWindow extends Phaser.GameObjects.Container {
     private nameText: Phaser.GameObjects.Text;
@@ -21,6 +22,7 @@ export class StatusWindow extends Phaser.GameObjects.Container {
     public pollution15: number;
     public turnCount: number;
     public isDead: boolean;
+    public animalImage: '0' | '1' | '2';
 
     constructor(
         scene: Phaser.Scene, 
@@ -66,6 +68,7 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         this.pollution15 = 0;
         this.turnCount = 0;
         this.isDead = false;
+        this.animalImage = '0';
         this.add([
             bg, 
             this.nameText, 
@@ -235,13 +238,19 @@ export class StatusWindow extends Phaser.GameObjects.Container {
         }
     }
 
-    protectAnimal(target: StatusWindow){
+    protectAnimal(target: StatusWindow, card: Card){
         target.animalProtection = true;
-        target.animalProtectionIcon.setText('🐻');
+        if(card.getData('id') === 'animal-protection-1'){
+            target.animalImage = '1';
+        } else if(card.getData('id') === 'animal-protection-2'){
+            target.animalImage = '2';
+        }
+        target.animalProtectionIcon.setText(target.animalImage);
     }
 
     poachAnimal(target: StatusWindow){
         target.animalProtection = false;
+        target.animalImage = '0';
         target.animalProtectionIcon.setText('');
     }
 }

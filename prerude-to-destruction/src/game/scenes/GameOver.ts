@@ -18,6 +18,7 @@ export class GameOver extends Scene
     }
 
     init(data: { winner: string[], playerWin: boolean }){
+        console.log(data);
         if(!data.playerWin){
             this.resultText.push('敗北');
         } else {
