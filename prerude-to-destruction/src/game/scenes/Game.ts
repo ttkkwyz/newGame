@@ -899,7 +899,7 @@ export class Game extends Scene
                 && !this.enemyStatusWindows[i].isDead
             ){
                 this.enemyStatusWindows[i].isDead = true;
-                this.winner.push(`cpu${i+1}`);
+                this.winner.push(`CPU${i+1}`);
                 const targetZone = this.enemyDropZones[i];
                 if(targetZone){
                     targetZone.disableInteractive();
@@ -911,7 +911,7 @@ export class Game extends Scene
             ){
                 this.effect.showExplosionEffect(this.enemyStatusWindows[i]);
                 this.enemyStatusWindows[i].isDead = true;
-                this.loser.push(`cpu${i+1}`);
+                this.loser.push(`CPU${i+1}`);
                 const targetZone = this.enemyDropZones[i];
                 if(targetZone){
                     targetZone.disableInteractive();

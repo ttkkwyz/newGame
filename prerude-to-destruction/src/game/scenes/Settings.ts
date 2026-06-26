@@ -57,16 +57,18 @@ export class Settings extends Scene {
             { fontSize: '20px', color: '#000000' }
         ).setOrigin(0.5);
 
+        const cpuCountX = width / 2 -150;
+
         const options = [
-            { count: 1, x: width / 2 - 300 },
-            { count: 2, x: width / 2 - 150},
-            { count: 3, x: width / 2 },
-            { count: 4, x: width / 2 + 150 },
-            { count: 5, x: width / 2 + 300 }
+            { count: 1, x: cpuCountX, y: height / 2 },
+            { count: 2, x: cpuCountX, y: height / 2 + 50 },
+            { count: 3, x: cpuCountX, y: height / 2 + 100 },
+            { count: 4, x: cpuCountX, y: height / 2 + 150 },
+            { count: 5, x: cpuCountX, y: height / 2 + 200 }
         ];
 
         options.forEach(opt => {
-            const btnContainer = this.add.container(opt.x, height / 2);
+            const btnContainer = this.add.container(opt.x, opt.y);
             const bgCircle = this.add.rectangle(0, -50, 100, 50, 0x333333)
             .setStrokeStyle(2, 0xffffff)
             .setInteractive({ useHandCursor: true });
@@ -126,19 +128,24 @@ export class Settings extends Scene {
         this.strengthContainers = [];
 
         for(let i = 0; i < this.selectedCpuCount; i++){
-            const yPos = height / 2 + (i * 45);
+            const yPos = height / 2 + (i * 50) - 50;
             const container = this.add.container(width / 2, yPos);
 
             const label = this.add.text(
-                -120, 
+                0, 
                 0, 
                 `CPU${i+1}`, 
-                { fontSize: '18px', color: '#000000' }
+                { 
+                    fontSize: '24px', 
+                    color: '#000000',
+                    stroke: '#ffffff',
+                    strokeThickness: 3,
+                 }
             ).setOrigin(0.5);
             container.add(label);
 
             [1, 2, 3].forEach(level => {
-                const btnX = 50 + (level * 60);
+                const btnX = 30 + (level * 60);
                 const btnBg = this.add.rectangle(btnX, 0, 50, 30, 0x333333)
                 .setStrokeStyle(1, 0xffffff)
                 .setInteractive({ useHandCursor: true });
@@ -146,7 +153,7 @@ export class Settings extends Scene {
                     btnX, 
                     0, 
                     `Lv.${level}`, 
-                    { fontSize: '14px', color: '#ccc' }
+                    { fontSize: '16px', color: '#ccc' }
                 ).setOrigin(0.5);
 
                 if(this.cpuStrengths[i] === level){

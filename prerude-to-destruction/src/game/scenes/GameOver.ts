@@ -32,18 +32,27 @@ export class GameOver extends Scene
         this.background = this.add.image(512, 384, 'result-bg');
         const { width, height } = this.cameras.main;
 
-        this.add.rectangle(0, 0, width, height, 0x000000, 0.8).setOrigin(0);
+        // this.add.rectangle(0, 0, width, height, 0x000000, 0.8).setOrigin(0);
 
         for(let i = 0; i < this.resultText.length; i++){
-            const rankText = this.add.text(width / 2, -height / 2 + i * 50, this.resultText[i], {
+            const rankText = this.add.text(
+                width / 2, 
+                height / 2 + i * 60 - 100, 
+                this.resultText[i], {
                 fontSize: '40px',
-                color: '#ffffff'
+                color: '#ffffff',
+                stroke: '#000000',
+                strokeThickness: 5,
+
             }).setOrigin(0.5);
             this.tweens.add({
                 targets: rankText,
                 scale: { from: 0.5, to: 1.0 },
                 duration: 800,
                 ease: 'Back.easeOut',
+                onComplete: () => {
+                    console.log('rank text complete');
+                }
             });
         }
 
@@ -60,9 +69,15 @@ export class GameOver extends Scene
         // });
         // this.gameover_text.setOrigin(0.5);
 
-        this.toTopText = this.add.text(512, 460, 'トップに戻る', {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#000000',
-            stroke: '#000000', strokeThickness: 8,
+        this.toTopText = this.add.text(
+            width / 2, 
+            height * 0.8, 
+            'トップに戻る', {
+            fontFamily: 'Arial Black', 
+            fontSize: 38, 
+            color: '#ffffff',
+            stroke: '#000000', 
+            strokeThickness: 5,
             align: 'center'
         }).setOrigin(0.5);
 

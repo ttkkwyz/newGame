@@ -23,7 +23,7 @@ export class Rules extends Scene
 
         this.text = this.add.text(512, 350, 
             `1. 対戦人数は2～6人です。
-2. 動物保護をした状態で、自分の環境破壊レベルを0にしたプレイヤーの勝利です。
+2. 動物保護をした状態で、自分の環境破壊レベルをぴったり0にしたプレイヤーの勝利です。
 3. 環境破壊レベルが100以上になった場合、そのプレイヤーの地球は滅亡します。`
             , {
             fontFamily: 'Arial Black', 
@@ -35,8 +35,11 @@ export class Rules extends Scene
         }).setOrigin(0.5);
 
         this.exitText = this.add.text(512, 600, 'トップに戻る', {
-            fontFamily: 'Arial Black', fontSize: 30, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 5,
+            fontFamily: 'Arial Black', 
+            fontSize: 30, 
+            color: '#ffffff',
+            stroke: '#000000', 
+            strokeThickness: 5,
             align: 'center'
         }).setOrigin(0.5);
 
