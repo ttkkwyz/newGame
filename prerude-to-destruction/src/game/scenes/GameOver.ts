@@ -50,9 +50,6 @@ export class GameOver extends Scene
                 scale: { from: 0.5, to: 1.0 },
                 duration: 800,
                 ease: 'Back.easeOut',
-                onComplete: () => {
-                    console.log('rank text complete');
-                }
             });
         }
 

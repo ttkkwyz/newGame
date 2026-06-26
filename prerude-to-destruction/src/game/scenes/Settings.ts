@@ -12,6 +12,7 @@ export class Settings extends Scene {
     private playerNameInput: Phaser.GameObjects.DOMElement;
     private strengthContainers: Phaser.GameObjects.Container[] = [];
     private background: GameObjects.Image;
+
     constructor() {
         super('Settings');
     }

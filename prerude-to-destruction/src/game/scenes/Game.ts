@@ -25,7 +25,7 @@ export class Game extends Scene
 
     private deck: CardData[] = [];
     public trash: CardData[] = [];
-    private earth = EARTH_CARDS;
+    private earth: CardData[] = [];
 
     private turnPlayer: number = 0;
     private turnPhase: TurnPhase = 'draw';
@@ -63,6 +63,21 @@ export class Game extends Scene
     private enemyHandCards: Phaser.GameObjects.Container[][] = [];
 
     init(data: { cpuCount: number, cpuStrengths: number[], playerName: string }){
+        this.earth = [...EARTH_CARDS];
+        this.deck = [];
+        this.trash = [];
+        this.cpuPlayers = [];
+        this.enemyHandCards = [];
+        this.playerHandCards = [];
+        this.enemyStatusWindows = [];
+        this.enemyDropZones = [];
+        this.winner = [];
+        this.loser = [];
+        this.turnPlayer = 0;
+        this.turnPhase = 'draw';
+        this.activePauseDialog = null;
+        this.activeRulesDialog = null;
+
         if(data && data.cpuCount && data.cpuStrengths){
             this.cpuCount = data.cpuCount;
             this.cpuStrengths = data.cpuStrengths;
@@ -493,6 +508,7 @@ export class Game extends Scene
 
     // デックを初期化（最初の１回）
     initializeDeck(){
+        this.deck = [];
         DECK_CARDS.forEach(card => {
             const newCard = CARD_LIST.find(c => c.id === card.id)!;
             for(let i = 0; i < card.count; i++){
