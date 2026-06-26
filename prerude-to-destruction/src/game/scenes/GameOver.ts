@@ -9,7 +9,6 @@ export class GameOver extends Scene
     toTopText: GameObjects.Text;
     retryText: GameObjects.Text;
 
-    private results: string[] = [];
     private resultText: string[] = [];
 
     constructor ()
@@ -35,7 +34,7 @@ export class GameOver extends Scene
         this.add.rectangle(0, 0, width, height, 0x000000, 0.8).setOrigin(0);
 
         for(let i = 0; i < this.resultText.length; i++){
-            const rankText = this.add.text(width / 2, height / 2 + i * 50, this.resultText[i], {
+            const rankText = this.add.text(width / 2, -height / 2 + i * 50, this.resultText[i], {
                 fontSize: '40px',
                 color: '#ffffff'
             }).setOrigin(0.5);

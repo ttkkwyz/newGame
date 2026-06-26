@@ -515,7 +515,7 @@ function calculatePlayScore(
             switch(myself){
                 case true:
                     if(userHP > cardValue){
-                        score += cardValue;
+                        score += cardValue * 5;
                     } else {
                         score -= cardValue * 5;
                     }

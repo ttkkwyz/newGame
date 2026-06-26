@@ -2,7 +2,7 @@ import { Scene } from 'phaser';
 import * as Phaser from 'phaser';
 import { Card } from '../../objects/Card';
 import { StatusWindow } from '../../objects/StatusWindow';
-import { CARD_LIST, EARTH_CARDS, DECK_CARDS, CardData, CardType } from '../constants/CardConfig';
+import { CARD_LIST, EARTH_CARDS, DECK_CARDS, CardData } from '../constants/CardConfig';
 import { ActionService } from '../managers/ActionService';
 import { sleep } from '../utils/TimeUtil';
 import { Layout } from '../constants/LayoutConfig';
@@ -17,8 +17,7 @@ export class Game extends Scene
 {
     camera: Phaser.Cameras.Scene2D.Camera;
     background: Phaser.GameObjects.Image;
-    // msg_text : Phaser.GameObjects.Text;
-
+    
     constructor ()
     {
         super('Game');
@@ -51,7 +50,6 @@ export class Game extends Scene
     private activePauseDialog: PauseDialog | null = null;
     private activeRulesDialog: RulesDialog | null = null;
 
-    private gameResult: string[] = [];
     private winner: string[] = [];
     private loser: string[] = [];
 
@@ -257,7 +255,7 @@ export class Game extends Scene
 
     // Zoneにドロップしたときの効果処理
     this.input.on('drop', (
-        pointer: Phaser.Input.Pointer, 
+        _pointer: Phaser.Input.Pointer, 
         gameObject: Phaser.GameObjects.Container, 
         dropZone: Phaser.GameObjects.Zone
     ) => {
@@ -323,7 +321,7 @@ export class Game extends Scene
 
     setupDragEvents(){
         this.input.on('dragstart', (
-            pointer: Phaser.Input.Pointer, 
+            _pointer: Phaser.Input.Pointer, 
             gameObject: Phaser.GameObjects.Container
         ) => {
             const container = gameObject.parentContainer;
@@ -347,8 +345,8 @@ export class Game extends Scene
         this.input.on('drag', (
             pointer: Phaser.Input.Pointer, 
             gameObject: Phaser.GameObjects.Container, 
-            dragX: number, 
-            dragY: number
+            // dragX: number, 
+            // dragY: number
         ) => {
             const container = gameObject.parentContainer;
             if(container){
@@ -361,7 +359,7 @@ export class Game extends Scene
         });
             
         this.input.on('dragend', (
-            pointer: Phaser.Input.Pointer, 
+            _pointer: Phaser.Input.Pointer, 
             gameObject: Phaser.GameObjects.Container, 
             dropped: boolean
         ) => {
@@ -516,7 +514,7 @@ export class Game extends Scene
         this.deckShadeShade.setVisible(true);
         this.deckShade.setVisible(true);
 
-        const animationPromises = this.trash.map((card, index) => {
+        const animationPromises = this.trash.map((_card, index) => {
             return new Promise<void>((resolve) => {
                 this.time.delayedCall(index * 10, () => {
                     const dummy = this.add.image(Layout.trashZone.x, Layout.trashZone.y, 'back');
@@ -921,7 +919,10 @@ export class Game extends Scene
                 }
             }
         }
-        if(this.winner.length + this.loser.length === this.cpuCount){
+        if(
+            this.enemyStatusWindows.every(status => status.isDead)
+            // this.winner.length + this.loser.length === this.cpuCount
+        ){
             this.winner.push(this.playerName);
             this.transitionToResult(this.winner, true);
         }
