@@ -29,6 +29,7 @@ export class GameOver extends Scene
 
     create ()
     {
+        this.background = this.add.image(512, 384, 'result-bg');
         const { width, height } = this.cameras.main;
 
         this.add.rectangle(0, 0, width, height, 0x000000, 0.8).setOrigin(0);

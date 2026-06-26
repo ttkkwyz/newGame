@@ -170,7 +170,6 @@ export class RulesDialog extends Phaser.GameObjects.Container {
                 this.maxScroll
             );
             this.rulesText.setY(-VIEWPORT_HEIGHT / 2 - this.scrollOffset);
-            console.log('scroll zone scroll', this.scrollOffset)
         });
         
         this.add(scrollZone);

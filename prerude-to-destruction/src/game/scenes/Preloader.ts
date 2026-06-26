@@ -44,6 +44,10 @@ export class Preloader extends Scene
         this.load.image('explosion', 'assets/explosion.jpg');
         this.load.image('rifle', 'assets/rifle.png');
         this.load.image('game-bg', 'assets/game-bg.jpg');
+        this.load.image('credit-bg', 'assets/credit-bg.png');
+        this.load.image('settings-bg', 'assets/settings-bg.jpg');
+        this.load.image('rules-bg', 'assets/rules-bg.jpg');
+        this.load.image('result-bg', 'assets/result-bg.jpg');
         
         this.load.setPath('assets/jokyokuCards/4x');
         
