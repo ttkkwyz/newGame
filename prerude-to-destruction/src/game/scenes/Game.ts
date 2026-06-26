@@ -850,10 +850,11 @@ export class Game extends Scene
             } else {
                 await this.showCenterText('パス');
             }
-            await sleep(1000);
+            await sleep(500);
 
             // discard Phase
             while(handCards.length > 5){
+                await sleep(500);
                 const { card, index } = currentCpu.brain.choiceDiscardCard(
                     this.turnPlayer -1,
                     handCards, 
