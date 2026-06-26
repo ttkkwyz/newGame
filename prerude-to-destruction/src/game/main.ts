@@ -16,7 +16,7 @@ const config: Phaser.Types.Core.GameConfig = {
     height: 768,
     scale: {
         mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
+        autoCenter: Phaser.Scale.CENTER_BOTH
     },
     parent: 'game-container',
     backgroundColor: '#ffffff',
