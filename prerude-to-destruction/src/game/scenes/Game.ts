@@ -92,15 +92,12 @@ export class Game extends Scene
     const volumeIcon = this.add.image(30, 640, "volume-icon").setName("volume-icon");
         volumeIcon.setInteractive();
 
-        // Mouse enter
         volumeIcon.on(Phaser.Input.Events.POINTER_OVER, () => {
             this.input.setDefaultCursor("pointer");
         });
-        // Mouse leave
         volumeIcon.on(Phaser.Input.Events.POINTER_OUT, () => {
             this.input.setDefaultCursor("default");
         });
-
 
         volumeIcon.on(Phaser.Input.Events.POINTER_DOWN, () => {
             if (this.sound.volume === 0) {
