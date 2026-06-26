@@ -48,6 +48,11 @@ export class Preloader extends Scene
         this.load.image('settings-bg', 'assets/settings-bg.jpg');
         this.load.image('rules-bg', 'assets/rules-bg.jpg');
         this.load.image('result-bg', 'assets/result-bg.jpg');
+        this.load.image("volume-icon", "assets/volume-icon.png");
+        this.load.image("volume-icon_off", "assets/volume-icon_off.png");
+
+        this.load.audio("card-flip", "assets/audio/card-flip.mp3");
+        this.load.audio("card-slide", "assets/audio/card-slide.mp3");        
         
         this.load.setPath('assets/jokyokuCards/4x');
         

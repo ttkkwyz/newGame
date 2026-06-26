@@ -89,10 +89,32 @@ export class Game extends Scene
     {
     this.background = this.add.image(512, 384, 'game-bg');
 
-    this.input.enabled = false;
+    const volumeIcon = this.add.image(30, 640, "volume-icon").setName("volume-icon");
+        volumeIcon.setInteractive();
 
-    // this.Players = [{ name: 'あなた', type: 'player' }, { name: 'CPU1', type: 'よわい' }, { name: 'CPU2', type: 'よわい' }];
-    // const cpus = this.Players.filter(p => p.type !== 'player');
+        // Mouse enter
+        volumeIcon.on(Phaser.Input.Events.POINTER_OVER, () => {
+            this.input.setDefaultCursor("pointer");
+        });
+        // Mouse leave
+        volumeIcon.on(Phaser.Input.Events.POINTER_OUT, () => {
+            this.input.setDefaultCursor("default");
+        });
+
+
+        volumeIcon.on(Phaser.Input.Events.POINTER_DOWN, () => {
+            if (this.sound.volume === 0) {
+                this.sound.setVolume(1);
+                volumeIcon.setTexture("volume-icon");
+                volumeIcon.setAlpha(1);
+            } else {
+                this.sound.setVolume(0);
+                volumeIcon.setTexture("volume-icon_off");
+                volumeIcon.setAlpha(.5)
+            }
+        });
+
+    this.input.enabled = false;
 
     this.playerStatus =  new StatusWindow(
         this, 
@@ -426,6 +448,9 @@ export class Game extends Scene
                 angle: targetAngle,
                 duration: 500,
                 ease: 'Power2',
+                onStart: () => {
+                    this.sound.play("card-slide");
+                }
             });
 
             card.setDepth(100 + index);
@@ -461,6 +486,7 @@ export class Game extends Scene
                     onStart: () => {
                         newCard.showFront();
                         newCard.setScale(1.5);
+                        this.sound.play("card-slide");
                     },
                     onComplete:() => {
                         newCard.destroy();
@@ -544,6 +570,9 @@ export class Game extends Scene
                         angle: Phaser.Math.Between(-10, 10),
                         duration: 400,
                         ease: 'Quad.out',
+                        onStart: () => {
+                            this.sound.play("card-slide");
+                        },
                         onComplete: () => {
                             dummy.destroy();
                             resolve();
